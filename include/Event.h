@@ -9,7 +9,7 @@
 
 using namespace std;
 
-enum EventType { NO=0, CREATE=1, SPLIT=2, ENDSIM=3 };
+enum EventType { NO=0, CREATE=1, SPLIT=2, MIGRATE=3, MERGE=4, INCREASE=5, DECREASE=6, EXTINCT=7, ENDSIM=10 };
 
 class Event{
 
