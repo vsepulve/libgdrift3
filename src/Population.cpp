@@ -24,4 +24,22 @@ Population::~Population(){
 	
 }
 
+unsigned int Population::size(){
+	return 0;
+}
+
+void Population::increase(unsigned int num){
+
+}
+
+void Population::decrease(unsigned int num){
+
+}
+	
+void Population::add(Population *pop){
+}
+
+
+
+
 

@@ -20,7 +20,13 @@ public:
 	virtual Population *clone();
 	virtual ~Population();
 	
+	unsigned int size();
 	
+	void increase(unsigned int num);
+	
+	void decrease(unsigned int num);
+	
+	void add(Population *pop);
 	
 };
 
