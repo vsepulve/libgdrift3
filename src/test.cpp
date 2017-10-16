@@ -4,12 +4,22 @@
 #include <iostream>
 
 #include "NanoTimer.h"
+#include "SimulatorFactory.h"
 
 using namespace std;
 
-int main(int argc,char** argv)
-{
+int main(int argc,char** argv) {
+
+	if(argc != 2){
+		cout<<"\nUsage: ./test json_file\n";
+		cout<<"\n";
+		return 0;
+	}
+	const char *json_file = argv[1];
+	
 	cout<<"Test - Inicio\n";
+	
+	SimulatorFactory factory(json_file);
 	
 	NanoTimer timer;
 	unsigned int n = 100000;
