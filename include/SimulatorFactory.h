@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <random>
 
 #include <nlohmann/json.hpp>
 
@@ -18,11 +19,12 @@ using namespace std;
 class SimulatorFactory{
 
 private:
+	mt19937 *rng;
 
 public:
 	
 	// Constructor principal, recive el json de settings (con las distribuciones)
-	SimulatorFactory(const char *json_file);
+	SimulatorFactory(const char *json_file, mt19937 *_rng = NULL);
 	SimulatorFactory(const SimulatorFactory &original);
 	SimulatorFactory& operator=(const SimulatorFactory& original);
 	virtual SimulatorFactory *clone();
