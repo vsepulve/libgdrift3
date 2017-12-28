@@ -45,11 +45,11 @@ add_library(libgdrift3 SHARED ${SOURCES})
 #add_executable(prepare_data  "${CMAKE_SOURCE_DIR}/test/statistics/prepare_data.cc")
 #target_link_libraries(prepare_data mongocxx bsoncxx restbed gdrift++ ssl crypto pthread boost_thread boost_system curl)
 
-add_executable(test "${CMAKE_SOURCE_DIR}/src/test.cpp")
-target_link_libraries(test pthread)
+add_executable(test_program "${CMAKE_SOURCE_DIR}/src/test.cpp")
+target_link_libraries(test_program pthread)
 
 link_directories(${CMAKE_BINARY_DIR})
-target_link_libraries(test libgdrift3)
+target_link_libraries(test_program libgdrift3)
 
 #if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 #    set (CMAKE_INSTALL_PREFIX "/usr/local" CACHE PATH "default install path" FORCE )
