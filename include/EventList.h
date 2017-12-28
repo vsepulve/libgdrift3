@@ -13,6 +13,8 @@ using namespace std;
 class EventList{
 
 private:
+	// Id del escenario
+	unsigned int id;
 	vector<Event> events;
 
 public:
@@ -30,6 +32,14 @@ public:
 	unsigned int start();
 	
 	unsigned int finish();
+	
+	void setId(unsigned int _id);
+	
+	unsigned int getId() const;
+	
+	void resize(unsigned int size){
+		events.resize(size);
+	}
 	
 };
 
