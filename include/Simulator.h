@@ -36,9 +36,20 @@ public:
 	EventList *getEvents() const;
 	Population *getPopulation(const string &name) const;
 	
+	void setModel(Model *_model);
+	void setEvents(EventList *_events);
+	
 	void run();
 	void executeEvent(Event &event);
 	
 };
+
+
+
+
+
+
+
+
 
 #endif

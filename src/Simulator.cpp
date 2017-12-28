@@ -45,6 +45,14 @@ Simulator::~Simulator(){
 }
 
 
+void Simulator::setModel(Model *_model){
+	model = _model;
+}
+
+void Simulator::setEvents(EventList *_events){
+	events = _events;
+}
+
 Model *Simulator::getModel() const{
 	return model;
 }
