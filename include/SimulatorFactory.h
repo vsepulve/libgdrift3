@@ -19,7 +19,9 @@ using namespace std;
 class SimulatorFactory{
 
 private:
-	mt19937 *rng;
+	mt19937 *generator;
+	// Opcion directa, guardar el json parseado
+	json settings;
 
 public:
 	
@@ -40,6 +42,26 @@ public:
 	// Tambien serivira para evitar instancias entre comunicacion de threads
 	char *getInstanceSerialized();
 	
+	EventList *parseEventsOld(json &scenarios);
+	
+	
+	double generate(json &json_dist);
+	double parseValue(json &json_val, bool force_limits, double forced_min, double forced_max);
+	
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #endif
