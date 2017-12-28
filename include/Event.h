@@ -44,6 +44,22 @@ public:
 		return text_params;
 	}
 	
+	void setGeneration(unsigned int _gen){
+		gen = _gen;
+	}
+	
+	void setType(EventType _type){
+		type = _type;
+	}
+	
+	void addNumParam(double val){
+		num_params.push_back(val);
+	}
+	
+	void addTextParam(string &val){
+		text_params.push_back(val);
+	}
+	
 };
 
 #endif
