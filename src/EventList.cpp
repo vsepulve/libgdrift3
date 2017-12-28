@@ -1,14 +1,16 @@
 #include "EventList.h"
 
 EventList::EventList(){
+	id = 0;
 }
 
 EventList::EventList(const EventList &original){
+	id = original.getId();
 }
 
 EventList& EventList::operator=(const EventList& original){
 	if (this != &original){
-	
+		id = original.getId();
 	}
 	return *this;
 }
@@ -39,5 +41,13 @@ unsigned int EventList::start(){
 
 unsigned int EventList::finish(){
 	return 0;
+}
+	
+void EventList::setId(unsigned int _id){
+	id = _id;
+}
+
+unsigned int EventList::getId() const{
+	return id;
 }
 
