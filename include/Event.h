@@ -91,6 +91,8 @@ public:
 			cout<<"UNKNOWN ";
 		}
 		
+		cout << "Generation (" << gen << ") ";
+		
 		// print params
 		if( text_params.size() > 0 ){
 			cout << "Text Params (\"" << text_params[0] << "\"";

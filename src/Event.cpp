@@ -6,6 +6,7 @@ Event::Event(){
 }
 
 Event::Event(const Event &original){
+	cout<<"Event::Event(const Event &original)\n";
 	gen = original.getGeneration();
 	type = original.getType();
 	num_params = original.getNumParams();
@@ -13,6 +14,7 @@ Event::Event(const Event &original){
 }
 
 Event& Event::operator=(const Event& original){
+	cout<<"Event::operator=(const Event &original)\n";
 	if (this != &original){
 		gen = original.getGeneration();
 		type = original.getType();
@@ -23,6 +25,7 @@ Event& Event::operator=(const Event& original){
 }
 
 Event *Event::clone(){
+	cout<<"Event::clone()\n";
 	return new Event(*this);
 }
 
