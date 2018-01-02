@@ -16,6 +16,9 @@ private:
 	// Id del escenario
 	unsigned int id;
 	vector<Event> events;
+//	unsigned int gen_start;
+//	unsigned int gen_finish;
+	unsigned int cur_pos;
 
 public:
 
@@ -25,13 +28,25 @@ public:
 	virtual EventList *clone();
 	virtual ~EventList();
 	
-	bool hasEvent(unsigned int gen);
+//	bool hasEvent(unsigned int gen);
 	
-	Event &getEvent(unsigned int gen);
+//	unsigned int start();
+//	
+//	unsigned int finish();
 	
-	unsigned int start();
+	unsigned int size();
 	
-	unsigned int finish();
+	Event &getEvent(unsigned int pos);
+	
+	Event &getFirst();
+	
+	Event &getLast();
+	
+	void reset();
+	
+	bool hasNext();
+	
+	Event &next();
 	
 	void setId(unsigned int _id);
 	

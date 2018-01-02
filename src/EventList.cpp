@@ -2,15 +2,24 @@
 
 EventList::EventList(){
 	id = 0;
+//	gen_start = 0;
+//	gen_finish = 0;
+	cur_pos = 0;
 }
 
 EventList::EventList(const EventList &original){
 	id = original.getId();
+//	gen_start = original.start();
+//	gen_finish = original.finish();
+	cur_pos = 0;
 }
 
 EventList& EventList::operator=(const EventList& original){
 	if (this != &original){
 		id = original.getId();
+//		gen_start = original.start();
+//		gen_finish = original.finish();
+		cur_pos = 0;
 	}
 	return *this;
 }
@@ -23,24 +32,56 @@ EventList::~EventList(){
 	events.clear();
 }
 
-bool EventList::hasEvent(unsigned int gen){
-	return false;
+//bool EventList::hasEvent(unsigned int gen){
+//	// Por ahora lineal, podria ser binario
+//	for(unsigned int i = 0; i < events.size(); ++i){
+//		if( events[i].getGeneration() == gen )
+//	}
+//	return false;
+//}
+
+//unsigned int EventList::start(){
+//	return gen_start;
+//}
+
+//unsigned int EventList::finish(){
+//	return gen_finish;
+//}
+
+unsigned int EventList::size(){
+	return events.size();
 }
 
-Event &EventList::getEvent(unsigned int gen){
-	if(gen >= events.size()){
-		cerr<<"Event::getEvent - Error, invalid generation ("<<gen<<" >= "<<events.size()<<")\n";
+Event &EventList::getEvent(unsigned int pos){
+	if(pos >= events.size()){
+		cerr<<"Event::getEvent - Error, invalid generation ("<<pos<<" >= "<<events.size()<<")\n";
 		exit(EXIT_FAILURE);
 	}
-	return events[gen];
+	return events[pos];
 }
 
-unsigned int EventList::start(){
-	return 0;
+Event &EventList::getFirst(){
+	return events.front();
 }
 
-unsigned int EventList::finish(){
-	return 0;
+Event &EventList::getLast(){
+	return events.back();
+}
+
+void EventList::reset(){
+	cur_pos = 0;
+}
+
+bool EventList::hasNext(){
+	return (cur_pos < events.size());
+}
+
+Event &EventList::next(){
+	if(cur_pos >= events.size()){
+		cerr<<"Event::next - Error, invalid position ("<<cur_pos<<" >= "<<events.size()<<")\n";
+		exit(EXIT_FAILURE);
+	}
+	return events[cur_pos++];
 }
 	
 void EventList::setId(unsigned int _id){
