@@ -44,7 +44,7 @@
 					"name": "p0",
 					"size": {
 						"type": "fixed",
-						"value": 10000
+						"value": "10000"
 					}
 				}
 			}
@@ -53,7 +53,7 @@
 			"type": "endsim",
 			"timestamp": {
 				"type": "fixed",
-				"value": 5000
+				"value": "5000"
 			},
 			"params": {
 				"sampling": [{

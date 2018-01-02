@@ -118,8 +118,8 @@
 							"distribution": {
 								"type": "uniform",
 								"params": {
-									"a": "0.5",
-									"b": "0.95"
+									"a": "0.1",
+									"b": "0.75"
 								}
 							}
 						}
@@ -142,13 +142,13 @@
 			"params": {
 				"source": {
 					"population": {
-						"name": "p1",
+						"name": "p2",
 						"percentage": {
 							"type": "random",
 							"distribution": {
 								"type": "uniform",
 								"params": {
-									"a": "1.2",
+									"a": "0.5",
 									"b": "2.00"
 								}
 							}
