@@ -73,7 +73,7 @@ void Simulator::run(){
 	assert(model != NULL);
 	assert(events != NULL);
 	
-	cout<<"Simulator::run - Starting Simulation";
+	cout<<"Simulator::run - Starting Simulation\n";
 	
 	// ITerar por los eventos de la lista o por generacion
 	
@@ -100,24 +100,25 @@ void Simulator::run(){
 	// Quizas tambien el ultimo evento deba ser un endsim
 	
 	if( events->size() < 2 
-		|| events->getFirst().getType() != CREATE
-		|| events->getLast().getType() != ENDSIM ){
-		cerr<<"Simulator::run - Bad Events List, omitting\n";
+		|| events->getFirst()->getType() != CREATE
+		|| events->getLast()->getType() != ENDSIM ){
+		cerr<<"Simulator::run - Bad Events List, omitting ("<<events->size()<<", "<<events->getFirst()->getType()<<", "<<events->getLast()->getType()<<")\n";
 		return;
 	}
 	
 	events->reset();
-	Event event = events->next();
+	Event *event = events->next();
 	// El primer evento es un create
 	executeEvent( event );
-	Event last = event;
+	Event *last = event;
 	unsigned int gens = 0;
 	while( events->hasNext() ){
 		event = events->next();
 		// Asegurar gens > 0
-		gens = event.getGeneration() - last.getGeneration();
+		gens = event->getGeneration() - last->getGeneration();
 		
 		for(auto it : populations){
+			cout<<"Simulator::run - Running " << gens << " generations for population " << it.first << "\n";
 			for( unsigned int gen = 0; gen < gens; ++gen ){
 				model->run( it.second );
 			}
@@ -133,11 +134,11 @@ void Simulator::run(){
 	
 }
 
-void Simulator::executeEvent(Event &event){
+void Simulator::executeEvent(Event *event){
 
-	EventType type = event.getType();
-	const vector<double> num_params = event.getNumParams();
-	const vector<string> text_params = event.getTextParams();
+	EventType type = event->getType();
+	const vector<double> num_params = event->getNumParams();
+	const vector<string> text_params = event->getTextParams();
 	
 	if(type == CREATE){
 		cout<<"Simulator::executeEvent - CREATE.\n";
@@ -152,6 +153,7 @@ void Simulator::executeEvent(Event &event){
 		if( populations.find(name) != populations.end() ){
 			cerr<<"Simulator::executeEvent - CREATE Warning, already used population name ("<<name<<").\n";
 			delete populations[name];
+			populations.erase(name);
 		}
 		// Aqui tambien habria que indicar la especie u otras propiedades, quzias del pool
 		// En ese caso, quiza sea reazonable que el pool sea DE la poblacion
@@ -183,15 +185,26 @@ void Simulator::executeEvent(Event &event){
 		if( populations.find(dst1) != populations.end() ){
 			cerr<<"Simulator::executeEvent - SPLIT Warning, already used population name ("<<dst1<<").\n";
 			delete populations[dst1];
+			populations.erase(dst1);
 		}
 		if( populations.find(dst2) != populations.end() ){
 			cerr<<"Simulator::executeEvent - SPLIT Warning, already used population name ("<<dst2<<").\n";
 			delete populations[dst2];
+			populations.erase(dst2);
 		}
 		// Aqui tambien habria que indicar la especie u otras propiedades, quzias del pool
 		// En ese caso, quiza sea reazonable que el pool sea DE la poblacion
-		populations[dst1] = new Population(size1);
-		populations[dst2] = new Population(size2);
+//		populations[dst1] = new Population(size1);
+//		populations[dst2] = new Population(size2);
+		populations[dst1] = new Population();
+		populations[dst2] = new Population();
+		
+		populations[dst1]->add(populations[src], size1);
+		populations[dst2]->add(populations[src], size2);
+		
+		delete populations[src];
+		populations.erase(src);
+		
 	}
 	else if(type == MIGRATE){
 		cout<<"Simulator::executeEvent - MIGRATE.\n";
@@ -214,6 +227,7 @@ void Simulator::executeEvent(Event &event){
 		if( populations.find(dst) != populations.end() ){
 			cerr<<"Simulator::executeEvent - MIGRATE Warning, already used population name ("<<dst<<").\n";
 			delete populations[dst];
+			populations.erase(dst);
 		}
 		
 		// Aqui tambien habria que indicar la especie u otras propiedades, quzias del pool
@@ -242,6 +256,7 @@ void Simulator::executeEvent(Event &event){
 		if( populations.find(dst) != populations.end() ){
 			cerr<<"Simulator::executeEvent - MERGE Warning, already used population name ("<<dst<<").\n";
 			delete populations[dst];
+			populations.erase(dst);
 		}
 		
 		// Aqui tambien habria que indicar la especie u otras propiedades, quzias del pool
@@ -252,6 +267,8 @@ void Simulator::executeEvent(Event &event){
 		
 		delete populations[src1];
 		delete populations[src2];
+		populations.erase(src1);
+		populations.erase(src2);
 	}
 	else if(type == INCREASE){
 		cout<<"Simulator::executeEvent - INCREASE.\n";
@@ -303,6 +320,7 @@ void Simulator::executeEvent(Event &event){
 		}
 		
 		delete populations[src];
+		populations.erase(src);
 	}
 	else if(type == ENDSIM){
 		cout<<"Simulator::executeEvent - ENDSIM, finishing simulation.\n";
