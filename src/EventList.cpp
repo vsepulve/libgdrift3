@@ -29,6 +29,11 @@ EventList *EventList::clone(){
 }
 
 EventList::~EventList(){
+	for(unsigned int i = 0; i < events.size(); ++i){
+		if( events[i] != NULL ){
+			delete events[i];
+		}
+	}
 	events.clear();
 }
 
@@ -52,7 +57,7 @@ unsigned int EventList::size(){
 	return events.size();
 }
 
-Event &EventList::getEvent(unsigned int pos){
+Event *EventList::getEvent(unsigned int pos){
 	if(pos >= events.size()){
 		cerr<<"Event::getEvent - Error, invalid generation ("<<pos<<" >= "<<events.size()<<")\n";
 		exit(EXIT_FAILURE);
@@ -60,11 +65,11 @@ Event &EventList::getEvent(unsigned int pos){
 	return events[pos];
 }
 
-Event &EventList::getFirst(){
+Event *EventList::getFirst(){
 	return events.front();
 }
 
-Event &EventList::getLast(){
+Event *EventList::getLast(){
 	return events.back();
 }
 
@@ -76,7 +81,7 @@ bool EventList::hasNext(){
 	return (cur_pos < events.size());
 }
 
-Event &EventList::next(){
+Event *EventList::next(){
 	if(cur_pos >= events.size()){
 		cerr<<"Event::next - Error, invalid position ("<<cur_pos<<" >= "<<events.size()<<")\n";
 		exit(EXIT_FAILURE);

@@ -15,7 +15,7 @@ class EventList{
 private:
 	// Id del escenario
 	unsigned int id;
-	vector<Event> events;
+	vector<Event*> events;
 //	unsigned int gen_start;
 //	unsigned int gen_finish;
 	unsigned int cur_pos;
@@ -36,24 +36,28 @@ public:
 	
 	unsigned int size();
 	
-	Event &getEvent(unsigned int pos);
+	Event *getEvent(unsigned int pos);
 	
-	Event &getFirst();
+	Event *getFirst();
 	
-	Event &getLast();
+	Event *getLast();
 	
 	void reset();
 	
 	bool hasNext();
 	
-	Event &next();
+	Event *next();
 	
 	void setId(unsigned int _id);
 	
 	unsigned int getId() const;
 	
-	void resize(unsigned int size){
-		events.resize(size);
+//	void resize(unsigned int size){
+//		events.resize(size);
+//	}
+
+	void addEvent(Event *event){
+		events.push_back(event);
 	}
 	
 };
