@@ -60,6 +60,56 @@ public:
 		text_params.push_back(val);
 	}
 	
+	void print(){
+		// print type
+		cout<<"";
+		if( type == CREATE ){
+			cout<<"CREATE ";
+		}
+		else if( type == SPLIT ){
+			cout<<"SPLIT ";
+		}
+		else if( type == MIGRATE ){
+			cout<<"MIGRATE ";
+		}
+		else if( type == MERGE ){
+			cout<<"MERGE ";
+		}
+		else if( type == INCREASE ){
+			cout<<"INCREASE ";
+		}
+		else if( type == DECREASE ){
+			cout<<"DECREASE ";
+		}
+		else if( type == EXTINCT ){
+			cout<<"EXTINCT ";
+		}
+		else if( type == ENDSIM ){
+			cout<<"ENDSIM ";
+		}
+		else{
+			cout<<"UNKNOWN ";
+		}
+		
+		// print params
+		if( text_params.size() > 0 ){
+			cout << "Text Params (\"" << text_params[0] << "\"";
+			for(unsigned int i = 1; i < text_params.size(); ++i){
+				cout << ", \"" << text_params[i] << "\"";
+			}
+			cout<<") ";
+		}
+		if( num_params.size() > 0 ){
+			cout << "Num Params (\"" << num_params[0] << "\"";
+			for(unsigned int i = 1; i < num_params.size(); ++i){
+				cout << ", \"" << num_params[i] << "\"";
+			}
+			cout<<") ";
+		}
+		
+		cout<<"\n";
+	}
+	
 };
 
 #endif
