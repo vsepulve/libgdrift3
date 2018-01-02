@@ -83,17 +83,52 @@ void Simulator::run(){
 	
 	// Un primer enfoque es tomar el numero total de generaciones (o las inicial/final)
 	
-	for(unsigned int gen = events->start(); gen < events->finish(); ++gen){
-		
-		if( events->hasEvent(gen) ){
-			executeEvent( events->getEvent(gen) );
-		}
+//	for(unsigned int gen = events->start(); gen < events->finish(); ++gen){
+//		
+//		if( events->hasEvent(gen) ){
+//			executeEvent( events->getEvent(gen) );
+//		}
+//		
+//		for(auto it : populations){
+//			model->run( it.second );
+//		}
+//		
+//	}
+	
+	// Verificacion de seguridad para asegurar que la lista tenga al menos un evento
+	// El primero evento DEBE ademas ser un create
+	// Quizas tambien el ultimo evento deba ser un endsim
+	
+	if( events->size() < 2 
+		|| events->getFirst().getType() != CREATE
+		|| events->getLast().getType() != ENDSIM ){
+		cerr<<"Simulator::run - Bad Events List, omitting\n";
+		return;
+	}
+	
+	events->reset();
+	Event event = events->next();
+	// El primer evento es un create
+	executeEvent( event );
+	Event last = event;
+	unsigned int gens = 0;
+	while( events->hasNext() ){
+		event = events->next();
+		// Asegurar gens > 0
+		gens = event.getGeneration() - last.getGeneration();
 		
 		for(auto it : populations){
-			model->run( it.second );
+			for( unsigned int gen = 0; gen < gens; ++gen ){
+				model->run( it.second );
+			}
 		}
 		
+		// El ultimo evento es un endsim, no son necesarias mas generaciones
+		executeEvent( event );
+		last = event;
 	}
+	
+	cout<<"Simulator::run - End";
 	
 	
 }
@@ -105,6 +140,7 @@ void Simulator::executeEvent(Event &event){
 	const vector<string> text_params = event.getTextParams();
 	
 	if(type == CREATE){
+		cout<<"Simulator::executeEvent - CREATE.\n";
 		// nombre de la nueva poblacion
 		assert(text_params.size() == 1);
 		string name = text_params[0];
@@ -122,6 +158,7 @@ void Simulator::executeEvent(Event &event){
 		populations[name] = new Population(size);
 	}
 	else if(type == SPLIT){
+		cout<<"Simulator::executeEvent - SPLIT.\n";
 		// nombre del origen y de los 2 destinos
 		assert(text_params.size() == 3);
 		string src = text_params[0];
@@ -157,6 +194,7 @@ void Simulator::executeEvent(Event &event){
 		populations[dst2] = new Population(size2);
 	}
 	else if(type == MIGRATE){
+		cout<<"Simulator::executeEvent - MIGRATE.\n";
 		// nombre del origen y del destino
 		assert(text_params.size() == 2);
 		string src = text_params[0];
@@ -185,6 +223,7 @@ void Simulator::executeEvent(Event &event){
 		populations[src]->decrease(size);
 	}
 	else if(type == MERGE){
+		cout<<"Simulator::executeEvent - MERGE.\n";
 		// nombre del origen 1 y 2, y del destino
 		assert(text_params.size() == 3);
 		string src1 = text_params[0];
@@ -215,6 +254,7 @@ void Simulator::executeEvent(Event &event){
 		delete populations[src2];
 	}
 	else if(type == INCREASE){
+		cout<<"Simulator::executeEvent - INCREASE.\n";
 		// nombre del origen
 		assert(text_params.size() == 1);
 		string src = text_params[0];
@@ -233,6 +273,7 @@ void Simulator::executeEvent(Event &event){
 		populations[src]->increase( size );
 	}
 	else if(type == DECREASE){
+		cout<<"Simulator::executeEvent - DECREASE.\n";
 		// nombre del origen
 		assert(text_params.size() == 1);
 		string src = text_params[0];
@@ -251,6 +292,7 @@ void Simulator::executeEvent(Event &event){
 		populations[src]->decrease( size );
 	}
 	else if(type == EXTINCT){
+		cout<<"Simulator::executeEvent - EXTINCT.\n";
 		// nombre del origen
 		assert(text_params.size() == 1);
 		string src = text_params[0];
@@ -261,6 +303,9 @@ void Simulator::executeEvent(Event &event){
 		}
 		
 		delete populations[src];
+	}
+	else if(type == ENDSIM){
+		cout<<"Simulator::executeEvent - ENDSIM, finishing simulation.\n";
 	}
 	
 }
