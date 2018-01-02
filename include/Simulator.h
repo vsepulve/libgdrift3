@@ -40,7 +40,7 @@ public:
 	void setEvents(EventList *_events);
 	
 	void run();
-	void executeEvent(Event &event);
+	void executeEvent(Event *event);
 	
 };
 
