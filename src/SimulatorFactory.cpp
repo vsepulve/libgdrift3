@@ -139,7 +139,7 @@ EventList *SimulatorFactory::parseEventsOld(json &scenarios){
 		if( type.compare("create") == 0 ){
 			event.setType(CREATE);
 			string pop_name = json_params["population"]["name"];
-			unsigned int size = parseValue(json_ev["population"]["size"], true, 0, max_value);
+			unsigned int size = parseValue(json_params["population"]["size"], true, 0, max_value);
 			event.addTextParam( pop_name );
 			event.addNumParam( size );
 		}
@@ -165,6 +165,53 @@ EventList *SimulatorFactory::parseEventsOld(json &scenarios){
 			// LO que sigue deberia ser desde el json
 			event.addNumParam( 0.5 );
 		}
+		else if( type.compare("migration") == 0 ){
+			event.setType(MIGRATE);
+			// source.population.name
+			// source.population.percentage
+			// destination.population.name
+			string src = json_params["source"]["population"]["name"];
+			string dst = json_params["destination"]["population"]["name"];
+			double percentage = parseValue(json_params["source"]["population"]["percentage"], true, 0, 1.0);
+			event.addTextParam( src );
+			event.addTextParam( dst );
+			event.addNumParam( percentage );
+		}
+		else if( type.compare("merge") == 0 ){
+			event.setType(MERGE);
+			unsigned int n_sources = json_params["source"].size();
+			if( n_sources != 2 ){
+				cerr<<"SimulatorFactory::parseEventsOld - MERGE Warning, sources != 2 (" << n_sources << ").\n";
+			}
+			string src1 = json_params["source"][0]["population"]["name"];
+			string src2 = json_params["source"][1]["population"]["name"];
+			string dst = json_params["destination"]["population"]["name"];
+			event.addTextParam( src1 );
+			event.addTextParam( src2 );
+			event.addTextParam( dst );
+		}
+		else if( type.compare("increment") == 0 ){
+			event.setType(INCREASE);
+			string src = json_params["source"]["population"]["name"];
+			double percentage = parseValue(json_params["source"]["population"]["percentage"], true, 0, max_value);
+			event.addTextParam( src );
+			event.addNumParam( percentage );
+		}
+		else if( type.compare("decrement") == 0 ){
+			event.setType(DECREASE);
+			string src = json_params["source"]["population"]["name"];
+			double percentage = parseValue(json_params["source"]["population"]["percentage"], true, 0, 1.0);
+			event.addTextParam( src );
+			event.addNumParam( percentage );
+		}
+		else if( type.compare("extinction") == 0 ){
+			event.setType(EXTINCT);
+			string src = json_params["source"]["population"]["name"];
+			event.addTextParam( src );
+		}
+		
+		cout << "SimulatorFactory::parseEventsOld - Event:\n";
+		event.print();
 		
 		++count;
 	}
