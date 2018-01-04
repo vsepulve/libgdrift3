@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <assert.h>
+#include <random>
 
 #include <map>
 
@@ -13,6 +14,7 @@
 #include "Event.h"
 #include "EventList.h"
 #include "Population.h"
+#include "Profile.h"
 
 using namespace std;
 
@@ -23,6 +25,8 @@ private:
 	Model *model;
 	EventList *events;
 	map<string, Population*> populations;
+	Profile *profile;
+	mt19937 generator;
 
 public:
 
@@ -34,10 +38,12 @@ public:
 	
 	Model *getModel() const;
 	EventList *getEvents() const;
+	Profile *getProfile() const;
 	Population *getPopulation(const string &name) const;
 	
 	void setModel(Model *_model);
 	void setEvents(EventList *_events);
+	void setProfile(Profile *_profile);
 	
 	void run();
 	void executeEvent(Event *event);

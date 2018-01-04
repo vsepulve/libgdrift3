@@ -1,13 +1,17 @@
 #include "Simulator.h"
 
-Simulator::Simulator(){
+Simulator::Simulator() 
+	: generator((std::random_device())()) {
 	model = NULL;
 	events = NULL;
+	profile = NULL;
 }
 
-Simulator::Simulator(const Simulator &original){
+Simulator::Simulator(const Simulator &original) 
+	: generator((std::random_device())()) {
 	model = original.getModel()->clone();
 	events = original.getEvents()->clone();
+	profile = original.getProfile()->clone();
 	// De momento omito la copia de poblaciones
 	// populations = original.getPopulations();
 }
@@ -16,6 +20,7 @@ Simulator& Simulator::operator=(const Simulator& original){
 	if (this != &original){
 		model = original.getModel()->clone();
 		events = original.getEvents()->clone();
+		profile = original.getProfile()->clone();
 		// De momento omito la copia de poblaciones
 		// populations = original.getPopulations();
 	}
@@ -35,6 +40,10 @@ Simulator::~Simulator(){
 		delete events;
 		events = NULL;
 	}
+	if(profile != NULL){
+		delete profile;
+		profile = NULL;
+	}
 	for(auto it : populations){
 		if( it.second != NULL ){
 			delete it.second;
@@ -53,12 +62,20 @@ void Simulator::setEvents(EventList *_events){
 	events = _events;
 }
 
+void Simulator::setProfile(Profile *_profile){
+	profile = _profile;
+}
+
 Model *Simulator::getModel() const{
 	return model;
 }
 
 EventList *Simulator::getEvents() const{
 	return events;
+}
+
+Profile *Simulator::getProfile() const{
+	return profile;
 }
 
 Population *Simulator::getPopulation(const string &name) const{
@@ -120,7 +137,7 @@ void Simulator::run(){
 		for(auto it : populations){
 			cout<<"Simulator::run - Running " << gens << " generations for population " << it.first << "\n";
 			for( unsigned int gen = 0; gen < gens; ++gen ){
-				model->run( it.second );
+				model->run(it.second, profile, generator);
 			}
 		}
 		
