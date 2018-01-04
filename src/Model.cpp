@@ -21,4 +21,6 @@ Model::~Model(){
 	
 }
 
-
+void Model::run(Population *population, Profile *profile, mt19937 &generator){
+	
+}

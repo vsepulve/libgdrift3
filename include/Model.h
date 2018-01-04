@@ -2,9 +2,14 @@
 #define _MODEL_H_
 
 #include <map>
+#include <vector>
+#include <random>
+#include <assert.h>
 
 #include "NanoTimer.h"
 #include "Population.h"
+#include "Profile.h"
+#include "Individual.h"
 
 using namespace std;
 
@@ -20,7 +25,7 @@ public:
 	virtual Model *clone();
 	virtual ~Model();
 	
-	void run(Population *population){}
+	void run(Population *population, Profile *profile, mt19937 &generator);
 	
 };
 
