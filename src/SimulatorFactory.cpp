@@ -240,8 +240,9 @@ Simulator *SimulatorFactory::getInstance(){
 	
 	Simulator *res = new Simulator();
 	// Detectar el model de settings
-//	res->setModel( new ModelFW() );
+	res->setModel( new ModelWF() );
 	res->setEvents( parseEventsOld( settings["scenarios"] ) );
+	res->setProfile( new Profile() );
 	
 	
 	

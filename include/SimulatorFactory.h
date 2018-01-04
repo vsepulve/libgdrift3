@@ -11,6 +11,10 @@
 
 #include "NanoTimer.h"
 #include "Simulator.h"
+#include "Population.h"
+#include "Profile.h"
+#include "Model.h"
+#include "ModelWF.h"
 
 using json = nlohmann::json;
 
@@ -19,6 +23,7 @@ using namespace std;
 class SimulatorFactory{
 
 private:
+
 	mt19937 *generator;
 	// Opcion directa, guardar el json parseado
 	json settings;
@@ -26,7 +31,7 @@ private:
 public:
 	
 	// Constructor principal, recive el json de settings (con las distribuciones)
-	SimulatorFactory(const char *json_file, mt19937 *_rng = NULL);
+	SimulatorFactory(const char *json_file, mt19937 *_generator = NULL);
 	SimulatorFactory(const SimulatorFactory &original);
 	SimulatorFactory& operator=(const SimulatorFactory& original);
 	virtual SimulatorFactory *clone();
