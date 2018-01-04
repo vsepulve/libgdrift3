@@ -2,8 +2,11 @@
 #define _POPULATION_H_
 
 #include <map>
+#include <vector>
 
 #include "NanoTimer.h"
+#include "Individual.h"
+#include "Pool.h"
 
 using namespace std;
 
@@ -11,6 +14,8 @@ class Population{
 
 private:
 	unsigned int n_inds;
+	vector<Individual> inds;
+	Pool *pool;
 
 public:
 
@@ -28,6 +33,12 @@ public:
 	void decrease(unsigned int num);
 	
 	void add(Population *pop, unsigned int num = 0);
+	
+	vector<Individual> &getIndividuals();
+	
+	Individual &get(unsigned int pos);
+	
+	Pool *getPool();
 	
 };
 

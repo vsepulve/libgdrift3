@@ -2,17 +2,21 @@
 
 Population::Population(){
 	n_inds = 0;
+	pool = new Pool();
 }
 
 Population::Population(unsigned int _n_inds){
 	n_inds = _n_inds;
+	pool = new Pool();
 }
 
 Population::Population(const Population &original){
+	pool = new Pool();
 }
 
 Population& Population::operator=(const Population& original){
 	if (this != &original){
+		pool = new Pool();
 	
 	}
 	return *this;
@@ -23,7 +27,10 @@ Population *Population::clone(){
 }
 
 Population::~Population(){
-	
+	if( pool != NULL ){
+		delete pool;
+		pool = NULL;
+	}
 }
 
 unsigned int Population::size(){
@@ -64,6 +71,26 @@ void Population::add(Population *pop, unsigned int num){
 	
 	
 }
+
+vector<Individual> &Population::getIndividuals(){
+	return inds;
+}
+
+Individual &Population::get(unsigned int pos){
+	return inds[pos];
+}
+
+Pool *Population::getPool(){
+	return pool;
+}
+
+
+
+
+
+
+
+
 
 
 
