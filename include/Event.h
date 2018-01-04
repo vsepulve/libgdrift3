@@ -102,9 +102,9 @@ public:
 			cout<<") ";
 		}
 		if( num_params.size() > 0 ){
-			cout << "Num Params (\"" << num_params[0] << "\"";
+			cout << "Num Params (" << num_params[0] << "";
 			for(unsigned int i = 1; i < num_params.size(); ++i){
-				cout << ", \"" << num_params[i] << "\"";
+				cout << ", " << num_params[i] << "";
 			}
 			cout<<") ";
 		}
