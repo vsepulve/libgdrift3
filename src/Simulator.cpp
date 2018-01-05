@@ -174,7 +174,7 @@ void Simulator::executeEvent(Event *event){
 		}
 		// Aqui tambien habria que indicar la especie u otras propiedades, quzias del pool
 		// En ese caso, quiza sea reazonable que el pool sea DE la poblacion
-		populations[name] = new Population(size, profile);
+		populations[name] = new Population(size, profile, generator);
 	}
 	else if(type == SPLIT){
 		cout<<"Simulator::executeEvent - SPLIT.\n";
@@ -211,13 +211,12 @@ void Simulator::executeEvent(Event *event){
 		}
 		// Aqui tambien habria que indicar la especie u otras propiedades, quzias del pool
 		// En ese caso, quiza sea reazonable que el pool sea DE la poblacion
-//		populations[dst1] = new Population(size1);
-//		populations[dst2] = new Population(size2);
-		populations[dst1] = new Population();
-		populations[dst2] = new Population();
 		
-		populations[dst1]->add(populations[src], size1);
-		populations[dst2]->add(populations[src], size2);
+		populations[dst1] = new Population(0, profile, generator);
+		populations[dst2] = new Population(0, profile, generator);
+		
+		populations[dst1]->add(populations[src], size1, generator);
+		populations[dst2]->add(populations[src], size2, generator);
 		
 		delete populations[src];
 		populations.erase(src);
@@ -249,9 +248,9 @@ void Simulator::executeEvent(Event *event){
 		
 		// Aqui tambien habria que indicar la especie u otras propiedades, quzias del pool
 		// En ese caso, quiza sea reazonable que el pool sea DE la poblacion
-		populations[dst] = new Population(size, profile);
+		populations[dst] = new Population(0, profile, generator);
+		populations[dst]->add(populations[src], size, generator);
 		
-		populations[src]->decrease(size);
 	}
 	else if(type == MERGE){
 		cout<<"Simulator::executeEvent - MERGE.\n";
@@ -278,9 +277,9 @@ void Simulator::executeEvent(Event *event){
 		
 		// Aqui tambien habria que indicar la especie u otras propiedades, quzias del pool
 		// En ese caso, quiza sea reazonable que el pool sea DE la poblacion
-		populations[dst] = new Population();
-		populations[dst]->add( populations[src1] );
-		populations[dst]->add( populations[src2] );
+		populations[dst] = new Population(0, profile, generator);
+		populations[dst]->add(populations[src1], populations[src1]->size(), generator);
+		populations[dst]->add(populations[src2], populations[src1]->size(), generator);
 		
 		delete populations[src1];
 		delete populations[src2];
@@ -304,7 +303,7 @@ void Simulator::executeEvent(Event *event){
 		}
 		
 		unsigned int size = static_cast<unsigned int>(percentage * populations[src]->size());
-		populations[src]->increase( size );
+		populations[src]->increase(size, generator);
 	}
 	else if(type == DECREASE){
 		cout<<"Simulator::executeEvent - DECREASE.\n";
@@ -323,7 +322,7 @@ void Simulator::executeEvent(Event *event){
 		}
 		
 		unsigned int size = static_cast<unsigned int>(percentage * populations[src]->size());
-		populations[src]->decrease( size );
+		populations[src]->decrease(size, generator);
 	}
 	else if(type == EXTINCT){
 		cout<<"Simulator::executeEvent - EXTINCT.\n";
