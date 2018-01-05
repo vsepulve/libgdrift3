@@ -3,6 +3,8 @@
 
 #include <map>
 #include <vector>
+#include <random>
+#include <algorithm>
 
 #include "NanoTimer.h"
 #include "Individual.h"
@@ -13,26 +15,28 @@ using namespace std;
 class Population{
 
 private:
-	unsigned int n_inds;
+//	unsigned int n_inds;
 	vector<Individual> inds;
 	Pool *pool;
+	// Notar que el profile es de la simulation por ahora
+	Profile *profile;
 
 public:
 
 	Population();
-	Population(unsigned int _n_inds);
-	Population(const Population &original);
-	Population& operator=(const Population& original);
-	virtual Population *clone();
+	Population(unsigned int _n_inds, Profile *_profile, mt19937 &generator);
+//	Population(const Population &original);
+//	Population& operator=(const Population& original);
+//	virtual Population *clone();
 	virtual ~Population();
 	
 	unsigned int size();
 	
-	void increase(unsigned int num);
+	void increase(unsigned int num, mt19937 &generator);
 	
-	void decrease(unsigned int num);
+	void decrease(unsigned int num, mt19937 &generator);
 	
-	void add(Population *pop, unsigned int num = 0);
+	void add(Population *pop, unsigned int num, mt19937 &generator);
 	
 	vector<Individual> &getIndividuals();
 	
