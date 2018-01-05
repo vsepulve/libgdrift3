@@ -7,10 +7,11 @@ ProfileMarker::ProfileMarker(){
 	mut_type = MUTATION_ERROR;
 }
 
-ProfileMarker::ProfileMarker(MarkerType _type, unsigned int _len, MutationType _mut_type, vector<double> &_params)
+ProfileMarker::ProfileMarker(MarkerType _type, unsigned int _len, unsigned int _initial_alleles, MutationType _mut_type, vector<double> &_params)
 	: params(_params) {
 	type = _type;
 	len = _len;
+	initial_alleles = _initial_alleles;
 	mut_type = _mut_type;
 //	params.insert(params.begin(), _params.begin(), _params.end());
 }

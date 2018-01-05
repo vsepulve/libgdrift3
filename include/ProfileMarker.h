@@ -17,6 +17,7 @@ private:
 
 	MarkerType type;
 	unsigned int len;
+	unsigned int initial_alleles;
 	MutationType mut_type;
 	vector<double> params;
 	
@@ -24,7 +25,7 @@ public:
 	
 	
 	ProfileMarker();
-	ProfileMarker(MarkerType _type, unsigned int _len, MutationType _mut_type, vector<double> &_params);
+	ProfileMarker(MarkerType _type, unsigned int _len, unsigned int _initial_alleles, MutationType _mut_type, vector<double> &_params);
 	virtual ~ProfileMarker();
 	
 	MarkerType getType();
@@ -42,6 +43,7 @@ public:
 	void print() const{
 		cout << "MarkerType: " << type;
 		cout << ", Length: " << len;
+		cout << ", InitialAlleles: " << initial_alleles;
 		cout << ", MutationType: " << mut_type;
 		cout << ", Params: ";
 		for( double p : params )
