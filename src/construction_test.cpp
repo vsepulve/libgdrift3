@@ -38,11 +38,12 @@ int main(int argc,char** argv) {
 	cout<<"Test - Probando ProfileMarker\n";
 	MarkerType type = MARKER_SEQUENCE;
 	unsigned int len = 10;
+	unsigned int init_alleles = 1000;
 	MutationType mut_type = MUTATION_BASIC;
 	vector<double> params;
 	params.push_back(0.5);
 	params.push_back(20.1);
-	ProfileMarker marker_1(type, len, mut_type, params);
+	ProfileMarker marker_1(type, len, init_alleles, mut_type, params);
 	ProfileMarker marker_2 = marker_1;
 	cout<<"Marker 1: ";
 	marker_1.print();
