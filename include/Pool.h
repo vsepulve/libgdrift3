@@ -6,18 +6,30 @@
 #include <random>
 #include <assert.h>
 
+#include "Profile.h"
+
 using namespace std;
 
 class Pool{
 
 private:
+	
+	vector< map<unsigned int, unsigned int> > mutations_map;
+	vector<unsigned int> next_allele;
 
 public:
 
 	Pool();
+	Pool(Profile *profile);
 	virtual ~Pool();
 	
-	unsigned int getNewAllele(unsigned int allele);
+	unsigned int getNumMarkers();
+	
+	unsigned int getNewAllele(unsigned int marker_pos, unsigned int allele);
+	
+	unsigned int getNumAlleles(unsigned int marker_pos);
+	
+	unsigned int getAllele(unsigned int marker, unsigned int pos);
 	
 };
 
