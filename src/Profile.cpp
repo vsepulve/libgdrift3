@@ -42,3 +42,20 @@ const ProfileMarker &Profile::getMarker(unsigned int pos) const{
 	}
 	return markers[pos];
 }
+	
+void Profile::setPloidy(unsigned int _ploidy){
+	ploidy = (unsigned char)_ploidy;
+}
+
+void Profile::addMarker(ProfileMarker &marker){
+	markers.push_back(marker);
+}
+
+
+
+
+
+
+
+
+

@@ -32,9 +32,9 @@ public:
 	
 	const ProfileMarker &getMarker(unsigned int pos) const;
 	
+	void setPloidy(unsigned int _ploidy);
 	
-	
-	
+	void addMarker(ProfileMarker &marker);
 	
 	
 	
