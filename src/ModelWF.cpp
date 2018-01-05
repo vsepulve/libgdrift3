@@ -23,7 +23,7 @@ ModelWF::~ModelWF(){
 
 void ModelWF::run(Population *population, Profile *profile, mt19937 &generator){
 	
-//	cout<<"ModelWF::run - Iterando por "<<dst->size()<<" individuos ("<<profile->getChromosomes()<<" chromosomes)\n";
+	cout<<"ModelWF::run - Iterando por "<<population->size()<<" individuos\n";
 	
 	// Notar que model requiere un dst para guardar los hijos de la nueva generacion
 	// La estructura debe ser la misma que la interna de population, o una population efectiva
@@ -56,6 +56,8 @@ void ModelWF::run(Population *population, Profile *profile, mt19937 &generator){
 	// Siguiendo el modelo 2.0, aqui habria que iterar por los genes o marcadores geneticos
 	// El procesamiento de cada gen se realiza en orden para no iterar por individuo, sino por mutaciones
 	
+	cout<<"ModelWF::run - Procesando mutaciones\n";
+	
 	for(unsigned int i = 0; i < profile->getNumMarkers(); ++i){
 		ProfileMarker marker = profile->getMarker(i);
 		if( marker.getType() == MARKER_SEQUENCE ){
@@ -69,18 +71,7 @@ void ModelWF::run(Population *population, Profile *profile, mt19937 &generator){
 	
 	population->getIndividuals().swap(dst);
 	
-//	for(unsigned int plo = 0; plo < profile->getPloidy(); ++plo){
-//		for(unsigned int chrid = 0; chrid < profile->getChromosomes(); ++chrid){
-//			for(unsigned int genid = 0; genid < profile->getGenes(chrid); ++genid){
-//				// Dependiendo del tipo de sequencia, podrian usarse otros modelos de mutacion aqui
-//				// El ejemplo directo es DNA (secuencias normales) vs MS (microsatelites, con tandem y repeticiones)
-//				// Esa informacion debe estar en profile
-//				mutations += processDNAGenes(dst, pool, profile, plo, chrid, genid);
-//			}// for... gen
-//		}// for... chromosome
-//	}// for... ploidy
-	
-//	cout<<"ModelWF::run - Terminado ("<<timer.getMilisec()<<" ms, mutations: "<<mutations<<")\n";
+	cout<<"ModelWF::run - Terminado ("<<timer.getMilisec()<<" ms, mutations: "<<mutations<<")\n";
 	
 }
 
@@ -119,7 +110,7 @@ unsigned int ModelWF::processDNAGenes(unsigned int marker_pos, ProfileMarker &ma
 //		cout<<"ModelWF::processDNAGenes - mut_pos: "<<mut_pos<<" de "<<dst->size()<<"\n";
 		
 		// Crear nuevo alelo del marcador marker_pos del individuo individual_pos
-		unsigned int new_allele = pool->getNewAllele( dst[individual_pos].getAllele(marker_pos) );
+		unsigned int new_allele = pool->getNewAllele(marker_pos, dst[individual_pos].getAllele(marker_pos));
 		dst[individual_pos].setAllele(marker_pos, new_allele);
 		++mutations;
 		
