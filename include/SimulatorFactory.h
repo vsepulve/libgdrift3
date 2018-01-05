@@ -27,6 +27,9 @@ private:
 	mt19937 *generator;
 	// Opcion directa, guardar el json parseado
 	json settings;
+	
+	EventList *parseEventsOld(json &scenarios);
+	Profile *parseProfileOld(json &individual);
 
 public:
 	
@@ -46,9 +49,6 @@ public:
 	// Esto es para evitar la construccion de una instancia cuando solo se quieren los parametros
 	// Tambien serivira para evitar instancias entre comunicacion de threads
 	char *getInstanceSerialized();
-	
-	EventList *parseEventsOld(json &scenarios);
-	
 	
 	double generate(json &json_dist);
 	double parseValue(json &json_val, bool force_limits, double forced_min, double forced_max);

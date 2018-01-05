@@ -235,6 +235,49 @@ EventList *SimulatorFactory::parseEventsOld(json &scenarios){
 	return events;
 }
 
+Profile *SimulatorFactory::parseProfileOld(json &individual){
+	cout << "SimulatorFactory::parseProfileOld - Fin\n";
+	
+	Profile *profile = new Profile();
+	
+	profile->setPloidy( stoi(individual["ploidy"].get<string>()) );
+	
+	json chromosomes = individual["chromosomes"];
+	for(unsigned int chr = 0; chr < chromosomes.size(); ++chr){
+		json genes = chromosomes[chr]["genes"];
+		for(unsigned int gen = 0; gen < genes.size(); ++gen){
+			json this_gene = genes[gen];
+			unsigned int type = stoi(this_gene["type"].get<string>());
+			if( type == 0 ){
+				// MARKER_SEQUENCE
+				unsigned int length = stoi(this_gene["nucleotides"].get<string>());
+				unsigned int initial_alleles = stoi(this_gene["number-of-alleles"].get<string>());
+				unsigned int mutation_type = stoi(this_gene["mutation"]["model"].get<string>());
+				if( mutation_type == 0 ){
+					// MUTATION_BASIC
+					double rate = parseValue(this_gene["mutation"]["rate"], true, 0, 1.0);
+					cout << "SimulatorFactory::parseProfileOld - Agregando marcador (length: " << length 
+						<< ", initial_alleles: " << initial_alleles 
+						<< ", rate: " << rate << ")\n";
+					vector<double> params;
+					params.push_back(rate);
+					ProfileMarker marker(MARKER_SEQUENCE, length, initial_alleles, MUTATION_BASIC, params);
+					profile->addMarker(marker);
+				}
+				else{
+					cerr << "SimulatorFactory::parseProfileOld - Unknown Mutation Type (" << mutation_type << ")\n";
+				}
+			}
+			else{
+				cerr << "SimulatorFactory::parseProfileOld - Unknown Marker Type (" << type << ")\n";
+			}
+		}
+	}
+	
+	cout << "SimulatorFactory::parseProfileOld - Fin\n";
+	return profile;
+}
+
 Simulator *SimulatorFactory::getInstance(){
 	
 	
@@ -242,7 +285,7 @@ Simulator *SimulatorFactory::getInstance(){
 	// Detectar el model de settings
 	res->setModel( new ModelWF() );
 	res->setEvents( parseEventsOld( settings["scenarios"] ) );
-	res->setProfile( new Profile() );
+	res->setProfile( parseProfileOld( settings["individual"] ) );
 	
 	
 	
