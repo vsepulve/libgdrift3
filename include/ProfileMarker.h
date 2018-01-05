@@ -28,17 +28,19 @@ public:
 	ProfileMarker(MarkerType _type, unsigned int _len, unsigned int _initial_alleles, MutationType _mut_type, vector<double> &_params);
 	virtual ~ProfileMarker();
 	
-	MarkerType getType();
+	MarkerType getType() const;
 	
-	unsigned int getLength();
+	unsigned int getLength() const;
 	
-	MutationType getMutationType();
+	unsigned int getInitialAlleles() const;
 	
-	vector<double> &getParams();
+	MutationType getMutationType() const;
 	
-	unsigned int getNumParam();
+//	const vector<double> &getParams() const;
 	
-	double getParam(unsigned int pos);
+	unsigned int getNumParam() const;
+	
+	double getParam(unsigned int pos) const;
 	
 	void print() const{
 		cout << "MarkerType: " << type;

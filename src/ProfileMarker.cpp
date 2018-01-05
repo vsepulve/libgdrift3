@@ -4,6 +4,7 @@
 ProfileMarker::ProfileMarker(){
 	type = MARKER_ERROR;
 	len = 0;
+	initial_alleles = 0;
 	mut_type = MUTATION_ERROR;
 }
 
@@ -20,27 +21,31 @@ ProfileMarker::~ProfileMarker(){
 	
 }
 
-MarkerType ProfileMarker::getType(){
+MarkerType ProfileMarker::getType() const{
 	return type;
 }
 
-unsigned int ProfileMarker::getLength(){
+unsigned int ProfileMarker::getLength() const{
 	return len;
 }
 
-MutationType ProfileMarker::getMutationType(){
+unsigned int ProfileMarker::getInitialAlleles() const{
+	return initial_alleles;
+}
+
+MutationType ProfileMarker::getMutationType() const{
 	return mut_type;
 }
 
-vector<double> &ProfileMarker::getParams(){
-	return params;
-}
+//const vector<double> &ProfileMarker::getParams() const{
+//	return params;
+//}
 
-unsigned int ProfileMarker::getNumParam(){
+unsigned int ProfileMarker::getNumParam() const{
 	return params.size();
 }
 
-double ProfileMarker::getParam(unsigned int pos){
+double ProfileMarker::getParam(unsigned int pos) const{
 	if(pos < params.size()){
 		return params[pos];
 	}
