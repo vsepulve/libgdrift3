@@ -174,7 +174,7 @@ void Simulator::executeEvent(Event *event){
 		}
 		// Aqui tambien habria que indicar la especie u otras propiedades, quzias del pool
 		// En ese caso, quiza sea reazonable que el pool sea DE la poblacion
-		populations[name] = new Population(size);
+		populations[name] = new Population(size, profile);
 	}
 	else if(type == SPLIT){
 		cout<<"Simulator::executeEvent - SPLIT.\n";
@@ -249,7 +249,7 @@ void Simulator::executeEvent(Event *event){
 		
 		// Aqui tambien habria que indicar la especie u otras propiedades, quzias del pool
 		// En ese caso, quiza sea reazonable que el pool sea DE la poblacion
-		populations[dst] = new Population(size);
+		populations[dst] = new Population(size, profile);
 		
 		populations[src]->decrease(size);
 	}
