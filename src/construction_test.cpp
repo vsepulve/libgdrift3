@@ -7,6 +7,7 @@
 #include "SimulatorFactory.h"
 #include "Simulator.h"
 #include "ProfileMarker.h"
+#include "Statistics.h"
 
 using namespace std;
 
@@ -55,6 +56,10 @@ int main(int argc,char** argv) {
 	
 	cout<<"Test - Corriendo Simulator\n";
 	sim->run();
+	
+	cout<<"Test - Verificando Estadisticos\n";
+	float sampling = 0.05;
+	Statistics stats(sim, sampling);
 	
 	delete sim;
 	
