@@ -28,7 +28,9 @@ private:
 	Pool *pool;
 	mt19937 generator;
 	
-	const static unsigned int min_sampling = 100;
+	map<char, vector<char> > mutation_table;
+	
+	const static unsigned int min_sampling = 50;
 
 public:
 

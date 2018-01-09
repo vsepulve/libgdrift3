@@ -14,6 +14,19 @@ Statistics::Statistics(Simulator *sim, float sampling)
 	pool = sim->getPool();
 	profile = sim->getProfile();
 	
+	cout << "Statistics - Preparing mutations table\n";
+	mutation_table['A'] = {'C', 'G', 'T'};
+	mutation_table['C'] = {'A', 'G', 'T'};
+	mutation_table['G'] = {'A', 'C', 'T'};
+	mutation_table['T'] = {'A', 'C', 'G'};
+	
+	// Preparo tablas y cualquier otro dato necesario
+	alleles_tables.resize(profile->getNumMarkers());
+//	for(unsigned int i = 0; i < profile->getNumMarkers(); ++i){
+//		map<unsigned int, string> alleles_map;
+//		alleles_tables.push_back(alleles_map);
+//	}
+	
 	Population summary(0, profile, pool, generator);
 	
 	vector<string> pop_names = sim->getPopulationNames();
@@ -55,10 +68,10 @@ Statistics::~Statistics(){
 }
 
 	
-// Procesa TODOS los estadisticos y los agrega a statistics[name][stat]
+// Procesa todos los estadisticos y los agrega a statistics[name][stat]
 void Statistics::processStatistics(Population *pop, string name, float sampling){
 	
-	cout << "Statistics::processStatistics - Start (population " << name << ", sampling " << sampling << ")\n";
+	cout << "Statistics::processStatistics - Start (population " << name << ", size " << pop->size() << ", sampling " << sampling << ")\n";
 	
 	unsigned int n_inds = pop->size() * sampling;
 	if(n_inds < min_sampling){
@@ -94,6 +107,8 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 			unsigned int id_allele = pop->get(pos_ind).getAllele(pos_marker);
 			alleles.push_back( getAllele(pos_marker, id_allele, marker) );
 		}
+		cout << "Statistics::processStatistics - alleles_table: " << alleles_tables[pos_marker].size() 
+			<< ", " << alleles.size() << " strings generated from " << pool->getNextAllele(pos_marker) <<"\n";
 		
 		cout << "Statistics::processStatistics - Processing Statistics\n";
 		// TODO: procesar todos los estadisticos con el vector de strings
@@ -108,25 +123,35 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 
 // Busca el alelo en la tabla, lo genere recursivamente si no lo encuentra
 string &Statistics::getAllele(unsigned int marker_pos, unsigned int id, ProfileMarker &marker){
+//	cout << "Statistics::getAllele - Start (marker_pos: " << marker_pos << ", allele " << id << ", alleles_tables.size " << alleles_tables.size() << ")\n";
 	map<unsigned int, string>::iterator it = alleles_tables[marker_pos].find(id);
 	if( it != alleles_tables[marker_pos].end() ){
+//		cout << "Statistics::getAllele - Case 1\n";
 		return it->second;
 	}
 	else if( id == 0 ){
+		cout << "Statistics::getAllele - Case 2 (Creating Origin)\n";
 		alleles_tables[marker_pos][id] = generateAllele(marker_pos, marker);
 		return alleles_tables[marker_pos][id];
 	}
 	else{
+		cout << "Statistics::getAllele - Case 3\n";
 		// Aplicar mutacion
 		// Notar que en la practica, esto depende del tipo de marcador
 		string parent = getAllele(marker_pos, pool->getParent(marker_pos, id), marker);
-		// TODO: Mutar el padre
-		// ...
 		if( marker.getType() == MARKER_SEQUENCE 
 			&& marker.getMutationType() == MUTATION_BASIC){
-			
-			
-			
+			uniform_int_distribution<> pos_dist(0, marker.getLength() - 1);
+			unsigned int pos = pos_dist(generator);
+			uniform_int_distribution<> mut_dist(0, 2);
+			unsigned int mut = mut_dist(generator);
+			char new_value = mutation_table[ parent[pos] ][mut];
+			cout << "Statistics::getAllele - Marker " << marker_pos 
+				<< ", allele " << id 
+				<< ", mutation \'" << parent[pos] 
+				<< "\' -> \'" << new_value 
+				<< "\' in position " << pos << "\n";
+			parent[pos] = new_value;
 		}
 		else{
 			cerr << "Statistics::getAllele - Mutation model not implemented.\n";
@@ -139,11 +164,34 @@ string &Statistics::getAllele(unsigned int marker_pos, unsigned int id, ProfileM
 }
 
 string Statistics::generateAllele(unsigned int marker_pos, ProfileMarker &marker){
+	cout << "Statistics::generateAllele - Start\n";
 	string s;
 	// Generar el string considerando profile
 	// Esto tambien depende del tipo de marcador
+	if( marker.getType() == MARKER_SEQUENCE ){
+		unsigned int nucleo = 0;
+		uniform_int_distribution<> nucleo_dist(0, 3);
+		for(unsigned int i = 0; i < marker.getLength(); ++i){
+			nucleo = nucleo_dist(generator);
+			if( nucleo == 0 ){
+				s.push_back('A');
+			}
+			else if( nucleo == 1 ){
+				s.push_back('C');
+			}
+			else if( nucleo == 2 ){
+				s.push_back('G');
+			}
+			else{
+				s.push_back('T');
+			}
+		}
+	}
+	else{
+		cerr << "Statistics::generateAllele - Sequence model not implemented.\n";
+	}
 	
-	
+	cout << "Statistics::generateAllele - End (" << s << ", " << s.length() << ")\n";
 	return s;
 }
 
