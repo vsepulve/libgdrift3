@@ -90,7 +90,7 @@ void Simulator::run(){
 	assert(model != NULL);
 	assert(events != NULL);
 	
-	cout<<"Simulator::run - Starting Simulation\n";
+	cout << "Simulator::run - Starting Simulation\n";
 	
 	// ITerar por los eventos de la lista o por generacion
 	
@@ -119,7 +119,7 @@ void Simulator::run(){
 	if( events->size() < 2 
 		|| events->getFirst()->getType() != CREATE
 		|| events->getLast()->getType() != ENDSIM ){
-		cerr<<"Simulator::run - Bad Events List, omitting ("<<events->size()<<", "<<events->getFirst()->getType()<<", "<<events->getLast()->getType()<<")\n";
+		cerr << "Simulator::run - Bad Events List, omitting ("<<events->size()<<", "<<events->getFirst()->getType()<<", "<<events->getLast()->getType()<<")\n";
 		return;
 	}
 	
@@ -135,7 +135,7 @@ void Simulator::run(){
 		gens = event->getGeneration() - last->getGeneration();
 		
 		for(auto it : populations){
-			cout<<"Simulator::run - Running " << gens << " generations for population " << it.first << "\n";
+			cout << "Simulator::run - Running " << gens << " generations for population " << it.first << "\n";
 			for( unsigned int gen = 0; gen < gens; ++gen ){
 				model->run(it.second, profile, generator);
 			}
@@ -146,19 +146,20 @@ void Simulator::run(){
 		last = event;
 	}
 	
-	cout<<"Simulator::run - End";
+	cout << "Simulator::run - End";
 	
 	
 }
 
 void Simulator::executeEvent(Event *event){
+	cout << "Simulator::executeEvent - Start\n";
 
 	EventType type = event->getType();
 	const vector<double> num_params = event->getNumParams();
 	const vector<string> text_params = event->getTextParams();
 	
 	if(type == CREATE){
-		cout<<"Simulator::executeEvent - CREATE.\n";
+		cout << "Simulator::executeEvent - CREATE.\n";
 		// nombre de la nueva poblacion
 		assert(text_params.size() == 1);
 		string name = text_params[0];
@@ -168,7 +169,7 @@ void Simulator::executeEvent(Event *event){
 		unsigned int size = static_cast<unsigned int>(num_params[0]);
 		
 		if( populations.find(name) != populations.end() ){
-			cerr<<"Simulator::executeEvent - CREATE Warning, already used population name ("<<name<<").\n";
+			cerr << "Simulator::executeEvent - CREATE Warning, already used population name ("<<name<<").\n";
 			delete populations[name];
 			populations.erase(name);
 		}
@@ -177,7 +178,7 @@ void Simulator::executeEvent(Event *event){
 		populations[name] = new Population(size, profile, generator);
 	}
 	else if(type == SPLIT){
-		cout<<"Simulator::executeEvent - SPLIT.\n";
+		cout << "Simulator::executeEvent - SPLIT.\n";
 		// nombre del origen y de los 2 destinos
 		assert(text_params.size() == 3);
 		string src = text_params[0];
@@ -192,7 +193,7 @@ void Simulator::executeEvent(Event *event){
 		unsigned int size2 = 0;
 		
 		if( populations.find(src) == populations.end() ){
-			cerr<<"Simulator::executeEvent - SPLIT Warning, src population not found ("<<src<<"), omitting.\n";
+			cerr << "Simulator::executeEvent - SPLIT Warning, src population not found ("<<src<<"), omitting.\n";
 			return;
 		}
 		unsigned int size = populations[src]->size();
@@ -200,12 +201,12 @@ void Simulator::executeEvent(Event *event){
 		size2 = size - size1;
 			
 		if( populations.find(dst1) != populations.end() ){
-			cerr<<"Simulator::executeEvent - SPLIT Warning, already used population name ("<<dst1<<").\n";
+			cerr << "Simulator::executeEvent - SPLIT Warning, already used population name ("<<dst1<<").\n";
 			delete populations[dst1];
 			populations.erase(dst1);
 		}
 		if( populations.find(dst2) != populations.end() ){
-			cerr<<"Simulator::executeEvent - SPLIT Warning, already used population name ("<<dst2<<").\n";
+			cerr << "Simulator::executeEvent - SPLIT Warning, already used population name ("<<dst2<<").\n";
 			delete populations[dst2];
 			populations.erase(dst2);
 		}
@@ -223,7 +224,7 @@ void Simulator::executeEvent(Event *event){
 		
 	}
 	else if(type == MIGRATE){
-		cout<<"Simulator::executeEvent - MIGRATE.\n";
+		cout << "Simulator::executeEvent - MIGRATE.\n";
 		// nombre del origen y del destino
 		assert(text_params.size() == 2);
 		string src = text_params[0];
@@ -235,13 +236,13 @@ void Simulator::executeEvent(Event *event){
 		assert(percentage => 0.0 && percentage <= 1.0);
 		
 		if( populations.find(src) == populations.end() ){
-			cerr<<"Simulator::executeEvent - MIGRATE Warning, src population not found ("<<src<<"), omitting.\n";
+			cerr << "Simulator::executeEvent - MIGRATE Warning, src population not found ("<<src<<"), omitting.\n";
 			return;
 		}
 		unsigned int size = static_cast<unsigned int>(percentage * populations[src]->size());
 			
 		if( populations.find(dst) != populations.end() ){
-			cerr<<"Simulator::executeEvent - MIGRATE Warning, already used population name ("<<dst<<").\n";
+			cerr << "Simulator::executeEvent - MIGRATE Warning, already used population name ("<<dst<<").\n";
 			delete populations[dst];
 			populations.erase(dst);
 		}
@@ -253,7 +254,7 @@ void Simulator::executeEvent(Event *event){
 		
 	}
 	else if(type == MERGE){
-		cout<<"Simulator::executeEvent - MERGE.\n";
+		cout << "Simulator::executeEvent - MERGE.\n";
 		// nombre del origen 1 y 2, y del destino
 		assert(text_params.size() == 3);
 		string src1 = text_params[0];
@@ -261,16 +262,16 @@ void Simulator::executeEvent(Event *event){
 		string dst = text_params[2];
 		
 		if( populations.find(src1) == populations.end() ){
-			cerr<<"Simulator::executeEvent - MERGE Warning, src population not found ("<<src1<<"), omitting.\n";
+			cerr << "Simulator::executeEvent - MERGE Warning, src population not found (" << src1 << "), omitting.\n";
 			return;
 		}
 		if( populations.find(src2) == populations.end() ){
-			cerr<<"Simulator::executeEvent - MERGE Warning, src population not found ("<<src2<<"), omitting.\n";
+			cerr << "Simulator::executeEvent - MERGE Warning, src population not found (" << src2 << "), omitting.\n";
 			return;
 		}
 		
 		if( populations.find(dst) != populations.end() ){
-			cerr<<"Simulator::executeEvent - MERGE Warning, already used population name ("<<dst<<").\n";
+			cerr << "Simulator::executeEvent - MERGE Warning, already used population name (" << dst << ").\n";
 			delete populations[dst];
 			populations.erase(dst);
 		}
@@ -287,7 +288,7 @@ void Simulator::executeEvent(Event *event){
 		populations.erase(src2);
 	}
 	else if(type == INCREASE){
-		cout<<"Simulator::executeEvent - INCREASE.\n";
+		cout << "Simulator::executeEvent - INCREASE.\n";
 		// nombre del origen
 		assert(text_params.size() == 1);
 		string src = text_params[0];
@@ -298,7 +299,7 @@ void Simulator::executeEvent(Event *event){
 		assert(percentage => 0.0);
 		
 		if( populations.find(src) == populations.end() ){
-			cerr<<"Simulator::executeEvent - INCREASE Warning, src population not found ("<<src<<"), omitting.\n";
+			cerr << "Simulator::executeEvent - INCREASE Warning, src population not found ("<<src<<"), omitting.\n";
 			return;
 		}
 		
@@ -306,7 +307,7 @@ void Simulator::executeEvent(Event *event){
 		populations[src]->increase(size, generator);
 	}
 	else if(type == DECREASE){
-		cout<<"Simulator::executeEvent - DECREASE.\n";
+		cout << "Simulator::executeEvent - DECREASE.\n";
 		// nombre del origen
 		assert(text_params.size() == 1);
 		string src = text_params[0];
@@ -317,7 +318,7 @@ void Simulator::executeEvent(Event *event){
 		assert(percentage => 0.0 && percentage <= 1.0);
 		
 		if( populations.find(src) == populations.end() ){
-			cerr<<"Simulator::executeEvent - DECREASE Warning, src population not found ("<<src<<"), omitting.\n";
+			cerr << "Simulator::executeEvent - DECREASE Warning, src population not found ("<<src<<"), omitting.\n";
 			return;
 		}
 		
@@ -325,13 +326,13 @@ void Simulator::executeEvent(Event *event){
 		populations[src]->decrease(size, generator);
 	}
 	else if(type == EXTINCT){
-		cout<<"Simulator::executeEvent - EXTINCT.\n";
+		cout << "Simulator::executeEvent - EXTINCT.\n";
 		// nombre del origen
 		assert(text_params.size() == 1);
 		string src = text_params[0];
 		
 		if( populations.find(src) == populations.end() ){
-			cerr<<"Simulator::executeEvent - EXTINCT Warning, src population not found ("<<src<<"), omitting.\n";
+			cerr << "Simulator::executeEvent - EXTINCT Warning, src population not found ("<<src<<"), omitting.\n";
 			return;
 		}
 		
@@ -339,8 +340,10 @@ void Simulator::executeEvent(Event *event){
 		populations.erase(src);
 	}
 	else if(type == ENDSIM){
-		cout<<"Simulator::executeEvent - ENDSIM, finishing simulation.\n";
+		cout << "Simulator::executeEvent - ENDSIM, finishing simulation.\n";
 	}
+	
+	cout << "Simulator::executeEvent - End\n";
 	
 }
 

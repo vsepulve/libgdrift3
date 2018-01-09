@@ -1,25 +1,28 @@
 #include "Population.h"
 
 Population::Population(){
-//	n_inds = 0;
 	
 	profile = NULL;
 	pool = NULL;
 }
 
 Population::Population(unsigned int _n_inds, Profile *_profile, mt19937 &generator){
-//	n_inds = _n_inds;
+	assert(_profile != NULL);
+
+	cout << "Population - Start\n";
 	
 	profile = _profile;
 	pool = new Pool(profile);
 	inds.resize(_n_inds);
 	
+	cout << "Population - Preparing Distributions\n";
 	vector< uniform_int_distribution<> > alleles_dist;
-	
 	for(unsigned int marker = 0; marker < pool->getNumMarkers(); ++marker){
-		uniform_int_distribution<> alleles_dist(0, pool->getNumAlleles(marker) - 1);
+		uniform_int_distribution<> marker_dist(0, pool->getNumAlleles(marker) - 1);
+		alleles_dist.push_back(marker_dist);
 	}
 	
+	cout<<"Population - Randomizing Individuals\n";
 	for(unsigned int i = 0; i < inds.size(); ++i){
 		inds[i].prepare(profile);
 		for(unsigned int marker = 0; marker < profile->getNumMarkers(); ++marker){
@@ -28,6 +31,7 @@ Population::Population(unsigned int _n_inds, Profile *_profile, mt19937 &generat
 			inds[i].setAllele(marker, pool->getAllele(marker, pos));
 		}
 	}
+	cout << "Population - End\n";
 }
 
 //Population::Population(const Population &original){
