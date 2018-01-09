@@ -8,6 +8,7 @@
 #include <random>
 
 #include <map>
+#include <vector>
 
 #include "NanoTimer.h"
 #include "Model.h"
@@ -15,6 +16,7 @@
 #include "EventList.h"
 #include "Population.h"
 #include "Profile.h"
+#include "Pool.h"
 
 using namespace std;
 
@@ -26,6 +28,7 @@ private:
 	EventList *events;
 	map<string, Population*> populations;
 	Profile *profile;
+	Pool *pool;
 	mt19937 generator;
 
 public:
@@ -39,6 +42,9 @@ public:
 	Model *getModel() const;
 	EventList *getEvents() const;
 	Profile *getProfile() const;
+	Pool *getPool() const;
+	// Notar que la lista de nombres de poblacion la retorno POR COPIA
+	vector<string> getPopulationNames() const;
 	Population *getPopulation(const string &name) const;
 	
 	void setModel(Model *_model);

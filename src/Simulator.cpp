@@ -12,6 +12,7 @@ Simulator::Simulator(const Simulator &original)
 	model = original.getModel()->clone();
 	events = original.getEvents()->clone();
 	profile = original.getProfile()->clone();
+	pool = original.getPool();
 	// De momento omito la copia de poblaciones
 	// populations = original.getPopulations();
 }
@@ -21,6 +22,7 @@ Simulator& Simulator::operator=(const Simulator& original){
 		model = original.getModel()->clone();
 		events = original.getEvents()->clone();
 		profile = original.getProfile()->clone();
+		pool = original.getPool();
 		// De momento omito la copia de poblaciones
 		// populations = original.getPopulations();
 	}
@@ -44,6 +46,10 @@ Simulator::~Simulator(){
 		delete profile;
 		profile = NULL;
 	}
+	if(pool != NULL){
+		delete pool;
+		pool = NULL;
+	}
 	for(auto it : populations){
 		if( it.second != NULL ){
 			delete it.second;
@@ -64,6 +70,12 @@ void Simulator::setEvents(EventList *_events){
 
 void Simulator::setProfile(Profile *_profile){
 	profile = _profile;
+	// Recreo el pool para este profile
+	if( pool != NULL ){
+		delete pool;
+	}
+	pool = new Pool(profile);
+	
 }
 
 Model *Simulator::getModel() const{
@@ -76,6 +88,18 @@ EventList *Simulator::getEvents() const{
 
 Profile *Simulator::getProfile() const{
 	return profile;
+}
+
+Pool *Simulator::getPool() const{
+	return pool;
+}
+
+vector<string> Simulator::getPopulationNames() const{
+	vector<string> nombres;
+	for(auto it : populations){
+		nombres.push_back(it.first);
+	}
+	return nombres;
 }
 
 Population *Simulator::getPopulation(const string &name) const{
@@ -175,7 +199,7 @@ void Simulator::executeEvent(Event *event){
 		}
 		// Aqui tambien habria que indicar la especie u otras propiedades, quzias del pool
 		// En ese caso, quiza sea reazonable que el pool sea DE la poblacion
-		populations[name] = new Population(size, profile, generator);
+		populations[name] = new Population(size, profile, pool, generator);
 	}
 	else if(type == SPLIT){
 		cout << "Simulator::executeEvent - SPLIT.\n";
@@ -213,8 +237,8 @@ void Simulator::executeEvent(Event *event){
 		// Aqui tambien habria que indicar la especie u otras propiedades, quzias del pool
 		// En ese caso, quiza sea reazonable que el pool sea DE la poblacion
 		
-		populations[dst1] = new Population(0, profile, generator);
-		populations[dst2] = new Population(0, profile, generator);
+		populations[dst1] = new Population(0, profile, pool, generator);
+		populations[dst2] = new Population(0, profile, pool, generator);
 		
 		populations[dst1]->add(populations[src], size1, generator);
 		populations[dst2]->add(populations[src], size2, generator);
@@ -249,7 +273,7 @@ void Simulator::executeEvent(Event *event){
 		
 		// Aqui tambien habria que indicar la especie u otras propiedades, quzias del pool
 		// En ese caso, quiza sea reazonable que el pool sea DE la poblacion
-		populations[dst] = new Population(0, profile, generator);
+		populations[dst] = new Population(0, profile, pool, generator);
 		populations[dst]->add(populations[src], size, generator);
 		
 	}
@@ -278,7 +302,7 @@ void Simulator::executeEvent(Event *event){
 		
 		// Aqui tambien habria que indicar la especie u otras propiedades, quzias del pool
 		// En ese caso, quiza sea reazonable que el pool sea DE la poblacion
-		populations[dst] = new Population(0, profile, generator);
+		populations[dst] = new Population(0, profile, pool, generator);
 		populations[dst]->add(populations[src1], populations[src1]->size(), generator);
 		populations[dst]->add(populations[src2], populations[src1]->size(), generator);
 		
