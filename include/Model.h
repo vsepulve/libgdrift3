@@ -25,7 +25,7 @@ public:
 	virtual Model *clone();
 	virtual ~Model();
 	
-	void run(Population *population, Profile *profile, mt19937 &generator);
+	virtual void run(Population *population, Profile *profile, mt19937 &generator);
 	
 };
 

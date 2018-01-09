@@ -22,5 +22,5 @@ Model::~Model(){
 }
 
 void Model::run(Population *population, Profile *profile, mt19937 &generator){
-	
+	cout << "Model::run - Not Implemented.\n";
 }
