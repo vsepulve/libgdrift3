@@ -17,6 +17,7 @@ class Population{
 private:
 //	unsigned int n_inds;
 	vector<Individual> inds;
+	// Notar que el pool es de la simulation por ahora
 	Pool *pool;
 	// Notar que el profile es de la simulation por ahora
 	Profile *profile;
@@ -24,7 +25,7 @@ private:
 public:
 
 	Population();
-	Population(unsigned int _n_inds, Profile *_profile, mt19937 &generator);
+	Population(unsigned int _n_inds, Profile *_profile, Pool *_pool, mt19937 &generator);
 //	Population(const Population &original);
 //	Population& operator=(const Population& original);
 //	virtual Population *clone();
@@ -37,6 +38,8 @@ public:
 	void decrease(unsigned int num, mt19937 &generator);
 	
 	void add(Population *pop, unsigned int num, mt19937 &generator);
+	
+	void add(Individual &individual);
 	
 	vector<Individual> &getIndividuals();
 	

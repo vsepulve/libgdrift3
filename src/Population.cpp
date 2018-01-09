@@ -6,19 +6,26 @@ Population::Population(){
 	pool = NULL;
 }
 
-Population::Population(unsigned int _n_inds, Profile *_profile, mt19937 &generator){
+Population::Population(unsigned int _n_inds, Profile *_profile, Pool *_pool, mt19937 &generator){
 	assert(_profile != NULL);
+	assert(_pool != NULL);
 
 	cout << "Population - Start\n";
 	
 	profile = _profile;
-	pool = new Pool(profile);
+//	pool = new Pool(profile);
+	pool = _pool;
 	inds.resize(_n_inds);
 	
 	cout << "Population - Preparing Distributions\n";
 	vector< uniform_int_distribution<> > alleles_dist;
-	for(unsigned int marker = 0; marker < pool->getNumMarkers(); ++marker){
-		uniform_int_distribution<> marker_dist(0, pool->getNumAlleles(marker) - 1);
+	
+//	for(unsigned int marker = 0; marker < pool->getNumMarkers(); ++marker){
+	for(unsigned int marker = 0; marker < profile->getNumMarkers(); ++marker){
+//		uniform_int_distribution<> marker_dist(0, pool->getNumAlleles(marker) - 1);
+		// En lugar del numero de alelos actual del pool, usare el un rand en el numero inicial de profile
+		// De este modo, una nueva poblacion también tendra alelos de ese pool inicial
+		uniform_int_distribution<> marker_dist(0, profile->getMarker(marker).getInitialAlleles() - 1);
 		alleles_dist.push_back(marker_dist);
 	}
 	
@@ -51,10 +58,12 @@ Population::Population(unsigned int _n_inds, Profile *_profile, mt19937 &generat
 //}
 
 Population::~Population(){
-	if( pool != NULL ){
-		delete pool;
-		pool = NULL;
-	}
+	// Ahora el pool es de la simulacion
+//	if( pool != NULL ){
+//		delete pool;
+//		pool = NULL;
+//	}
+	pool = NULL;
 	// profile es de la simulacion
 	profile = NULL;
 }
@@ -107,6 +116,10 @@ void Population::add(Population *pop, unsigned int num, mt19937 &generator){
 		pop->getIndividuals().pop_back();
 	}
 	
+}
+	
+void Population::add(Individual &individual){
+	inds.push_back(individual);
 }
 
 vector<Individual> &Population::getIndividuals(){
