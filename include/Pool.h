@@ -27,6 +27,8 @@ public:
 	
 	unsigned int getNewAllele(unsigned int marker_pos, unsigned int allele);
 	
+	unsigned int getParent(unsigned int marker_pos, unsigned int allele);
+	
 	unsigned int getNumAlleles(unsigned int marker_pos);
 	
 	unsigned int getAllele(unsigned int marker, unsigned int pos);

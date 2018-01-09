@@ -41,6 +41,10 @@ unsigned int Pool::getNewAllele(unsigned int marker_pos, unsigned int allele){
 	
 	return new_allele;
 }
+
+unsigned int Pool::getParent(unsigned int marker_pos, unsigned int allele){
+	return mutations_map[marker_pos][allele];
+}
 	
 unsigned int Pool::getNumMarkers(){
 	return mutations_map.size();
