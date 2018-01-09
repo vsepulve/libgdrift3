@@ -33,6 +33,10 @@ public:
 	
 	unsigned int getAllele(unsigned int marker, unsigned int pos);
 	
+	unsigned int getNextAllele(unsigned int marker){
+		return next_allele[marker];
+	}
+	
 };
 
 #endif
