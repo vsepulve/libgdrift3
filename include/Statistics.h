@@ -50,6 +50,28 @@ public:
 	// Notar que este metodo retorna una COPIA del nuevo string
 	string generateAllele(unsigned int marker_pos, ProfileMarker &marker);
 	
+	map<string, vector< map<string, double> > > &getStatistics(){
+		return statistics;
+	}
+	
+	// Metodos de estadisticos particulares
+	// Estos son estaticos, pues no requieren el contexto de la instancia
+	// Tambien notar que algunos de estos pueden preferir los vectores de mutaciones en lugar de los textos
+	
+	static double statNumHaplotypes(vector<string> &alleles);
+		
+	// "number-of-segregating-sites"
+	static double statNumSegregatingSites(vector<string> &alleles);
+	
+	// "mean-of-the-number-of-pairwise-differences"
+	static double statMeanPairwiseDifferences(vector<string> &alleles);
+	
+	// "variance-of-the-number-of-pairwise-differences"
+	static double statVarianceSegregating(vector<string> &alleles, double mean_pairwise_diff);
+	
+	// "tajima-d-statistics"
+	static double statTajimaD(vector<string> &alleles, double num_segregating_sites, double mean_pairwise_diff);
+	
 };
 
 #endif

@@ -22,10 +22,6 @@ Statistics::Statistics(Simulator *sim, float sampling)
 	
 	// Preparo tablas y cualquier otro dato necesario
 	alleles_tables.resize(profile->getNumMarkers());
-//	for(unsigned int i = 0; i < profile->getNumMarkers(); ++i){
-//		map<unsigned int, string> alleles_map;
-//		alleles_tables.push_back(alleles_map);
-//	}
 	
 	Population summary(0, profile, pool, generator);
 	
@@ -111,8 +107,42 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 			<< ", " << alleles.size() << " strings generated from " << pool->getNextAllele(pos_marker) <<"\n";
 		
 		cout << "Statistics::processStatistics - Processing Statistics\n";
+		
 		// TODO: procesar todos los estadisticos con el vector de strings
-		// Notar que aqui seria conveniente tambien tene una tabla de mutaciones
+		// Notar que aqui seria conveniente tambien tener una tabla de mutaciones
+		// Notar que estoy usando los nombres antiguos por estadistico para conservar el orden
+		
+		// "number-of-haplotypes"
+		double num_haplotypes = statNumHaplotypes(alleles);
+		stats["number-of-haplotypes"] = num_haplotypes;
+		
+		// "number-of-segregating-sites"
+		double num_segregating_sites = statNumSegregatingSites(alleles);
+		stats["number-of-segregating-sites"] = num_segregating_sites;
+		
+		// "mean-of-the-number-of-pairwise-differences"
+		double mean_pairwise_diff = statMeanPairwiseDifferences(alleles);
+		stats["mean-of-the-number-of-pairwise-differences"] = mean_pairwise_diff;
+		
+		// "variance-of-the-number-of-pairwise-differences"
+		double var_segregating = statVarianceSegregating(alleles, mean_pairwise_diff);
+		stats["variance-of-the-number-of-pairwise-differences"] = var_segregating;
+		
+		// "tajima-d-statistics"
+		double tajima_d = statTajimaD(alleles, num_segregating_sites, mean_pairwise_diff);
+		stats["tajima-d-statistics"] = tajima_d;
+		
+		
+//		findices.put("number-of-haplotypes",this->number_of_haplotypes(sequences_str[cid][gid]));
+//		findices.put("number-of-segregating-sites",this->number_of_segregating_sites(sequences_str[cid][gid]));
+//		tie(mean_of_the_number_of_pairwise_differences, variance_of_the_number_of_pairwise_differences) = this->pairwise_statistics_seq(sequences[cid][gid]);
+//		
+//		findices.put("mean-of-the-number-of-pairwise-differences", mean_of_the_number_of_pairwise_differences);
+//		findices.put("variance-of-the-number-of-pairwise-differences", variance_of_the_number_of_pairwise_differences);
+
+//		findices.put("tajima-d-statistics", this->tajima_d_statistics(double(sequences[cid][gid].size()),
+//																						 findices.get<double>("number-of-segregating-sites"),
+//																						 mean_of_the_number_of_pairwise_differences));
 		
 		
 		stats_vector.push_back(stats);
@@ -196,6 +226,53 @@ string Statistics::generateAllele(unsigned int marker_pos, ProfileMarker &marker
 }
 
 
+	
+double Statistics::statNumHaplotypes(vector<string> &alleles){
+//	cout<<"Statistics::statNumHaplotypes - Inicio\n";
+//	NanoTimer timer;
+	if(alleles.size() <= 1){
+		return 0.0;
+	}
+	
+	map<string, unsigned int> haplotypes;
+	
+	for( string &allele : alleles ){
+		if( haplotypes.find(allele) == haplotypes.end() ){
+			haplotypes[allele] = 1;
+		}
+		else{
+			++haplotypes[allele];
+		}
+	}
+	
+	double sum = 0.0;
+	double N = alleles.size();
+	for( auto& par : haplotypes ){
+		double f = (double)(par.second);
+		f /= N;
+		sum += (f*f);
+	}
+	double res = ((N/(N-1.0))*(1.0-sum));
+	
+//	cout<<"Statistics::statNumHaplotypes - Fin ("<<timer.getMilisec()<<" ms)\n";
+	return res;
+}
+	
+double Statistics::statNumSegregatingSites(vector<string> &alleles){
+	return 0.0;
+}
+
+double Statistics::statMeanPairwiseDifferences(vector<string> &alleles){
+	return 0.0;
+}
+
+double Statistics::statVarianceSegregating(vector<string> &alleles, double mean_pairwise_diff){
+	return 0.0;
+}
+
+double Statistics::statTajimaD(vector<string> &alleles, double num_segregating_sites, double mean_pairwise_diff){
+	return 0.0;
+}
 
 
 
