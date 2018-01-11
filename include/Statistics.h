@@ -58,16 +58,18 @@ public:
 	// Estos son estaticos, pues no requieren el contexto de la instancia
 	// Tambien notar que algunos de estos pueden preferir los vectores de mutaciones en lugar de los textos
 	
+	static vector<unsigned int> statPairwiseDifferences(vector<string> &alleles);
+	
 	static double statNumHaplotypes(vector<string> &alleles);
 		
 	// "number-of-segregating-sites"
 	static double statNumSegregatingSites(vector<string> &alleles);
 	
 	// "mean-of-the-number-of-pairwise-differences"
-	static double statMeanPairwiseDifferences(vector<string> &alleles);
+	static double statMeanPairwiseDifferences(vector<unsigned int> &differences);
 	
 	// "variance-of-the-number-of-pairwise-differences"
-	static double statVarianceSegregating(vector<string> &alleles, double mean_pairwise_diff);
+	static double statVariancePairwiseDifferences(vector<unsigned int> &differences, double mean_pairwise_diff);
 	
 	// "tajima-d-statistics"
 	static double statTajimaD(vector<string> &alleles, double num_segregating_sites, double mean_pairwise_diff);

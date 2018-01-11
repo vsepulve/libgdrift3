@@ -120,12 +120,14 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 		double num_segregating_sites = statNumSegregatingSites(alleles);
 		stats["number-of-segregating-sites"] = num_segregating_sites;
 		
+		vector<unsigned int> pairwise_differences = statPairwiseDifferences(alleles);
+	
 		// "mean-of-the-number-of-pairwise-differences"
-		double mean_pairwise_diff = statMeanPairwiseDifferences(alleles);
+		double mean_pairwise_diff = statMeanPairwiseDifferences(pairwise_differences);
 		stats["mean-of-the-number-of-pairwise-differences"] = mean_pairwise_diff;
 		
 		// "variance-of-the-number-of-pairwise-differences"
-		double var_segregating = statVarianceSegregating(alleles, mean_pairwise_diff);
+		double var_segregating = statVariancePairwiseDifferences(pairwise_differences, mean_pairwise_diff);
 		stats["variance-of-the-number-of-pairwise-differences"] = var_segregating;
 		
 		// "tajima-d-statistics"
@@ -259,14 +261,67 @@ double Statistics::statNumHaplotypes(vector<string> &alleles){
 }
 	
 double Statistics::statNumSegregatingSites(vector<string> &alleles){
-	return 0.0;
+//	cout<<"Statistics::statNumSegregatingSites - Inicio\n";
+//	NanoTimer timer;
+	if(alleles.size() <= 1){
+		return 0.0;
+	}
+	
+	double res = 0;
+
+	string ref = alleles[0];
+	for(unsigned int i = 0; i < ref.length(); i++){
+		for(unsigned int j = 1; j < alleles.size(); j++){
+			if( ref.at(i) != alleles[j].at(i) ){
+				++res;
+				break;
+			}
+		}
+	}
+//	cout<<"Statistics::statNumSegregatingSites - Fin ("<<timer.getMilisec()<<" ms)\n";
+	return res;
 }
 
-double Statistics::statMeanPairwiseDifferences(vector<string> &alleles){
-	return 0.0;
+vector<unsigned int> Statistics::statPairwiseDifferences(vector<string> &alleles){
+//	cout<<"Statistics::statMeanPairwiseDifferences - Inicio\n";
+//	NanoTimer timer;
+	vector<unsigned int> pairwise_differences;
+	for(unsigned int i = 0; i < alleles.size(); ++i){
+		for(unsigned int j = i+1; j < alleles.size(); ++j){
+			unsigned int diff = 0;
+			for(unsigned int k = 0; k < alleles[i].length(); ++k){
+				if( alleles[i][k] != alleles[j][k] ){
+					++diff;
+				}
+			}
+			pairwise_differences.push_back(diff);
+		}
+	}
+//	cout<<"Sample::pairwise_statistics - Fin ("<<timer.getMilisec()<<" ms)\n";
+	return pairwise_differences;
 }
 
-double Statistics::statVarianceSegregating(vector<string> &alleles, double mean_pairwise_diff){
+double Statistics::statMeanPairwiseDifferences(vector<unsigned int> &differences){
+	if(differences.size() <= 1){
+		return 0.0;
+	}
+	double mean = 0.0;
+	for(unsigned int diff : differences){
+		mean += diff;
+	}
+	mean /= double(differences.size());
+	return mean;
+}	
+
+double Statistics::statVariancePairwiseDifferences(vector<unsigned int> &differences, double mean){
+	if(differences.size() <= 1){
+		return 0.0;
+	}
+	double variance = 0.0;
+	for(unsigned int diff : differences){
+		variance += (diff-mean) * (diff-mean);
+	}
+	variance /= (double)(differences.size());
 	return 0.0;
 }
 
