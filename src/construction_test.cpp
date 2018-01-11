@@ -60,6 +60,18 @@ int main(int argc,char** argv) {
 	cout<<"Test - Verificando Estadisticos\n";
 	float sampling = 0.05;
 	Statistics stats(sim, sampling);
+	map<string, vector< map<string, double> > > statistics = stats.getStatistics();
+	for( auto &par : statistics ){
+		cout<<"Test - Stats Population \""<< par.first <<"\"\n";
+		unsigned int marker_pos = 0;
+		for( map<string, double> &marker_stats : par.second ){
+			cout<<"Test - [ Marker "<<marker_pos++<<" ]\n";
+			for( auto &stat : marker_stats ){
+				cout<<"Test - " << stat.first << ": "<< stat.second <<"\n";
+			}
+			cout<<"-----\n";
+		}
+	}
 	
 	delete sim;
 	
