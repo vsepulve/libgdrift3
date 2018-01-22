@@ -5,6 +5,7 @@ Simulator::Simulator()
 	model = NULL;
 	events = NULL;
 	profile = NULL;
+	pool = NULL;
 }
 
 Simulator::Simulator(const Simulator &original) 
