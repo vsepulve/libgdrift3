@@ -236,7 +236,7 @@ EventList *SimulatorFactory::parseEventsOld(json &scenarios){
 }
 
 Profile *SimulatorFactory::parseProfileOld(json &individual){
-	cout << "SimulatorFactory::parseProfileOld - Fin\n";
+	cout << "SimulatorFactory::parseProfileOld - Inicio\n";
 	
 	Profile *profile = new Profile();
 	
@@ -279,23 +279,23 @@ Profile *SimulatorFactory::parseProfileOld(json &individual){
 }
 
 Simulator *SimulatorFactory::getInstance(){
+	cout << "SimulatorFactory::getInstance - Inicio\n";
 	
 	
+	cout << "SimulatorFactory::getInstance - new Simulator...\n";
 	Simulator *res = new Simulator();
 	// Detectar el model de settings
+	cout << "SimulatorFactory::getInstance - new ModelWF...\n";
 	res->setModel( new ModelWF() );
+	cout << "SimulatorFactory::getInstance - parseEventsOld...\n";
 	res->setEvents( parseEventsOld( settings["scenarios"] ) );
+	cout << "SimulatorFactory::getInstance - parseProfileOld...\n";
 	res->setProfile( parseProfileOld( settings["individual"] ) );
 	
 	
 	
 	
-	
-	
-	
-	
-	
-	
+	cout << "SimulatorFactory::getInstance - Fin\n";
 	return res;
 }
 
