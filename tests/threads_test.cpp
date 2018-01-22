@@ -203,7 +203,9 @@ int main(int argc,char** argv){
 //	fill_queue(fsettings, total, generator);
 	SimulatorFactory factory(settings_file);
 	for(unsigned int i = 0; i < total; ++i){
+		cout<<"Test - Agregando " << work_queue.size() << "\n";
 		work_queue.push_back(factory.getInstance());
+		cout<<"Test - Ok\n";
 	}
 	
 	double ms_preparation = timer.getMilisec();
