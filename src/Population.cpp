@@ -10,14 +10,14 @@ Population::Population(unsigned int _n_inds, Profile *_profile, Pool *_pool, mt1
 	assert(_profile != NULL);
 	assert(_pool != NULL);
 
-	cout << "Population - Start\n";
+//	cout << "Population - Start\n";
 	
 	profile = _profile;
 //	pool = new Pool(profile);
 	pool = _pool;
 	inds.resize(_n_inds);
 	
-	cout << "Population - Preparing Distributions\n";
+//	cout << "Population - Preparing Distributions\n";
 	vector< uniform_int_distribution<> > alleles_dist;
 	
 //	for(unsigned int marker = 0; marker < pool->getNumMarkers(); ++marker){
@@ -29,7 +29,7 @@ Population::Population(unsigned int _n_inds, Profile *_profile, Pool *_pool, mt1
 		alleles_dist.push_back(marker_dist);
 	}
 	
-	cout<<"Population - Randomizing Individuals\n";
+//	cout<<"Population - Randomizing Individuals\n";
 	for(unsigned int i = 0; i < inds.size(); ++i){
 		inds[i].prepare(profile);
 		for(unsigned int marker = 0; marker < profile->getNumMarkers(); ++marker){
@@ -38,7 +38,7 @@ Population::Population(unsigned int _n_inds, Profile *_profile, Pool *_pool, mt1
 			inds[i].setAllele(marker, pool->getAllele(marker, pos));
 		}
 	}
-	cout << "Population - End\n";
+//	cout << "Population - End\n";
 }
 
 //Population::Population(const Population &original){
@@ -103,7 +103,7 @@ void Population::add(Population *pop, unsigned int num, mt19937 &generator){
 		cerr<<"Population::add - Warning, num greater than population size.\n";
 		num = pop->size();
 	}
-	cout<<"Population::add - Moving " << num << " from " << pop->size() << ".\n";
+//	cout<<"Population::add - Moving " << num << " from " << pop->size() << ".\n";
 	
 	// Copio los primeros num individuos aqui
 	// Borro esos individuos (por ejemplo, pasando el resto a un nuevo vector y un swap)
