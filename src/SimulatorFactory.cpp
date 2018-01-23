@@ -121,9 +121,9 @@ EventList *SimulatorFactory::parseEventsOld(json &scenarios){
 	// TODO: Este limite de seguridad al tamaño de la poblacion es arbitrario
 	unsigned int max_value = 100000000;
 //	events->resize( scen["events"].size() );
-	cout << "-----\n";
+//	cout << "-----\n";
 	cout << "SimulatorFactory::parseEventsOld - Iniciando Parsing\n";
-	cout << "-----\n";
+//	cout << "-----\n";
 	for( json json_ev : scen["events"] ){
 //		cout << "SimulatorFactory::parseEventsOld - json_ev[" << count << "]: "<< json_ev <<"\n";
 		cout << "SimulatorFactory::parseEventsOld - Parsing event " << count << "\n";
@@ -226,7 +226,7 @@ EventList *SimulatorFactory::parseEventsOld(json &scenarios){
 		
 //		cout << "SimulatorFactory::parseEventsOld - Event:\n";
 		event->print();
-		cout << "-----\n";
+//		cout << "-----\n";
 		
 		++count;
 	}
