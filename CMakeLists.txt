@@ -21,12 +21,14 @@ file(GLOB SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp")
 
 add_executable(construction_test "${CMAKE_SOURCE_DIR}/tests/construction_test.cpp")
 add_executable(threads_test "${CMAKE_SOURCE_DIR}/tests/threads_test.cpp")
+add_executable(threads_test_serialized "${CMAKE_SOURCE_DIR}/tests/threads_test_serialized.cpp")
 
 add_library(libgdrift3 SHARED ${SOURCES})
 link_directories(${CMAKE_BINARY_DIR})
 
 target_link_libraries(construction_test libgdrift3)
 target_link_libraries(threads_test libgdrift3 pthread)
+target_link_libraries(threads_test_serialized libgdrift3 pthread)
 
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set (CMAKE_INSTALL_PREFIX "/usr/" CACHE PATH "default install path" FORCE )
