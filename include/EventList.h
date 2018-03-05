@@ -109,7 +109,7 @@ public:
 			events.push_back(e);
 		}
 		
-		cout<<"EventList::loadSerialized - Fin\n";
+		cout<<"EventList::loadSerialized - Fin (bytes usados: " << (buff - buff_original) << ")\n";
 		return (buff - buff_original);
 	}
 
