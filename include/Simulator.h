@@ -55,42 +55,54 @@ public:
 	void executeEvent(Event *event);
 
 	char *serialize(){
-		return NULL;
+//		return NULL;
 		
 		// int para el mismo n_bytes
 		unsigned int n_bytes = sizeof(int);
 		n_bytes += model->serializedSize();
-		n_bytes += events->serializedSizd();
-		n_bytes += profile->serializedSizd();
+		n_bytes += events->serializedSize();
+		n_bytes += profile->serializedSize();
 		
-		char *serialized = new char[n_bytes];
+		char *buff = new char[n_bytes];
 		unsigned int pos = 0;
-		memcpy(serialized + pos, (char*)&n_bytes, sizeof(int));
+		memcpy(buff + pos, (char*)&n_bytes, sizeof(int));
 		pos += sizeof(int);
 		
 		// Notar que model es polimorfico
 		// Quizas esto deberia hacerlo un factory
-		model->serialize(serialized + pos);
+		model->serialize(buff + pos);
 		pos += model->serializedSize();
 
-		events->serialize(serialized + pos);
+		events->serialize(buff + pos);
 		pos += events->serializedSize();
 
-		profile->serialize(serialized + pos);
+		profile->serialize(buff + pos);
 		pos += profile->serializedSize();
+		
+		return buff;
 		
 	}
 	
-	void loadSerialized(char *serialized){
-		if( serialized == NULL ){
-			return;
+	unsigned int loadSerialized(char *buff){
+		if( buff == NULL ){
+			return 0;
 		}
+		
+		char *buff_original = buff;
+		
+		// Esto de hecho no es necesario, pero podria usarse para verificacion
 		unsigned int n_bytes = 0;
-		(char*)&n_bytes = serialized;
-		serialized += sizeof(int);
+		memcpy((char*)&n_bytes, buff, sizeof(int));
+		buff += sizeof(int);
  		
-		// continuar leyendo bytes
- 		// ...
+		buff += model->loadSerialized(buff);
+		
+		buff += events->loadSerialized(buff);
+		
+		buff += profile->loadSerialized(buff);
+ 		
+ 		return (buff - buff_original);
+ 		
 	}
 	
 };

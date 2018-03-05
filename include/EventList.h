@@ -73,11 +73,44 @@ public:
 	}
 
 	void serialize(char *buff){
+		cout<<"EventList::serialize - Inicio\n";
+	
+		memcpy(buff, (char*)&id, sizeof(int));
+		buff += sizeof(int);
 		
+		unsigned int n_events = events.size();
+		memcpy(buff, (char*)&n_events, sizeof(int));
+		buff += sizeof(int);
+		
+		for(Event *e : events){
+			e->serialize(buff);
+			buff += e->serializedSize();
+		}
+		
+		cout<<"EventList::serialize - Fin\n";
 	}
 
-	void loadSerialized(char *buff){
+	unsigned int loadSerialized(char *buff){
+		cout<<"EventList::loadSerialized - Inicio\n";
 		
+		// Guardo el original para calcular desplazamiento
+		char *buff_original = buff;
+	
+		memcpy((char*)&id, buff, sizeof(int));
+		buff += sizeof(int);
+		
+		unsigned int n_events = 0;
+		memcpy((char*)&n_events, buff, sizeof(int));
+		buff += sizeof(int);
+		
+		for(unsigned int i = 0; i < n_events; ++i){
+			Event *e = new Event();
+			buff += e->loadSerialized(buff);
+			events.push_back(e);
+		}
+		
+		cout<<"EventList::loadSerialized - Fin\n";
+		return (buff - buff_original);
 	}
 
 };

@@ -301,9 +301,15 @@ Simulator *SimulatorFactory::getInstance(){
 
 char *SimulatorFactory::getInstanceSerialized(){
 	// return NULL;
+	// En una version posterior, la idea es evitar crea un nuevo simulator
+	// La idea es generar directamente cada parte serializadamente
 	Simulator *sim = getInstance();
 	char *serialized = sim->serialize();
 	delete sim;
 	return serialized;
 }
+
+
+
+
 

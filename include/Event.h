@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+#include <string.h>
 
 #include <vector>
 
@@ -124,13 +125,13 @@ public:
 		n_bytes += sizeof(int);
 		for(unsigned int i = 0; i < text_params.size(); ++i){
 			n_bytes += sizeof(int);
-			// guardo length chars mas un \0
-			n_bytes += text_params[i].length() + 1;
+			n_bytes += text_params[i].length();
 		}
 		return n_bytes;
 	}
 	
 	void serialize(char *buff){
+		cout<<"Event::serialize - Inicio\n";
 		memcpy(buff, (char*)&gen, sizeof(int));
 		buff += sizeof(int);
 		
@@ -139,11 +140,77 @@ public:
 
 		unsigned int n_params = num_params.size();
 		memcpy(buff, (char*)&n_params, sizeof(int));
-
+		buff += sizeof(int);
+		for(double param : num_params){
+			cout<<"Event::serialize - Guardando num_params: " << param << "\n";
+			memcpy(buff, (char*)&param, sizeof(double));
+			buff += sizeof(double);
+		}
+		
+		n_params = text_params.size();
+		memcpy(buff, (char*)&n_params, sizeof(int));
+		buff += sizeof(int);
+		for(string param : text_params){
+			cout<<"Event::serialize - Guardando text_params: " << param << " (" << param.length() << ")\n";
+			unsigned int length = param.length();
+			// Primero guardo length en un int
+			memcpy(buff, (char*)&length, sizeof(int));
+			buff += sizeof(int);
+			// Despues guardo los length chars de texto
+			memcpy(buff, param.data(), length);
+			buff += length;
+		}
+		
+		cout<<"Event::serialize - Fin\n";
 	}
 	
-	void loadSerialized(char *buff){
+	unsigned int loadSerialized(char *buff){
+		cout<<"Event::loadSerialized - Inicio\n";
 		
+		// Guardo el original para calcular desplazamiento
+		char *buff_original = buff;
+		
+		memcpy((char*)&gen, buff, sizeof(int));
+		buff += sizeof(int);
+		
+		char type_char = *buff;
+		type = (EventType)type_char;
+		buff += 1;
+		
+		unsigned int n_params = 0;
+		memcpy((char*)&n_params, buff, sizeof(int));
+		buff += sizeof(int);
+		for(unsigned int i = 0; i < n_params; ++i){
+			double param = 0;
+			memcpy((char*)&param, buff, sizeof(double));
+			buff += sizeof(double);
+			cout<<"Event::loadSerialized - Cargando num_params: " << param << "\n";
+			num_params.push_back(param);
+		}
+		
+		n_params = 0;
+		memcpy((char*)&n_params, buff, sizeof(int));
+		buff += sizeof(int);
+		for(unsigned int i = 0; i < n_params; ++i){
+			// Primero cargo length en un int
+			unsigned int length = 0;
+			memcpy((char*)&length, buff, sizeof(int));
+			buff += sizeof(int);
+			// Preparo un buffer local (tambien puede ser pedido con new antes y verificando el largo para repedirlo)
+			cout<<"Event::loadSerialized - Preparando param_buff: " << (length+1) << "\n";
+			char param_buff[length + 1];
+			// Despues cargo los length chars de texto
+			memcpy(param_buff, buff, length);
+			buff += length;
+			param_buff[length] = 0;
+			// Finalmente preparo el string real
+			string param(param_buff);
+			cout<<"Event::loadSerialized - Cargando text_params: " << param << "\n";
+			text_params.push_back(param);
+		}
+		
+		cout<<"Event::loadSerialized - Fin\n";
+		return (buff-buff_original);
 	}
 };
 

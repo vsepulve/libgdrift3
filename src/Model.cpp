@@ -1,14 +1,16 @@
 #include "Model.h"
 
 Model::Model(){
+	type = 1;
 }
 
 Model::Model(const Model &original){
+	type = original.type;
 }
 
 Model& Model::operator=(const Model& original){
 	if (this != &original){
-	
+		type = original.type;
 	}
 	return *this;
 }
