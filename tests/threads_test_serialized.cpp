@@ -14,7 +14,9 @@ using namespace std;
 // Mutex global para controlar acceso a cout u otros objetos compartidos
 mutex global_mutex;
 // Cola de trabajo consumida por los threads procesadores
-vector<Simulator*> work_queue;
+
+// vector<Simulator*> work_queue;
+vector<char*> work_queue;
 unsigned int global_pos = 0;
 
 void SimultionThread(unsigned int pid, unsigned int n_threads, string output_base){
@@ -47,16 +49,18 @@ void SimultionThread(unsigned int pid, unsigned int n_threads, string output_bas
 			break;
 		}
 		
-		Simulator *sim = work_queue[cur_pos];
+		char *serialized = work_queue[cur_pos];
+		Simulator sim;
+		sim.loadSerialized(serialized);
 		++procesados;
 		
-		sim->run();
+		sim.run();
 		
 		// Parte local del analyzer
 		// Esto requiere el target 
 		// Falta definir e implementar la normalizacion
 		
-//		if( sim->detectedErrors() == 0 ){
+//		if( sim.detectedErrors() == 0 ){
 //			vector<double> statistics = get_statistics(sim.samples());
 //			vector<double> params = get_params(fjob);
 //			
@@ -204,7 +208,8 @@ int main(int argc,char** argv){
 	SimulatorFactory factory(settings_file);
 	for(unsigned int i = 0; i < total; ++i){
 		cout<<"Test - Agregando " << work_queue.size() << "\n";
-		work_queue.push_back(factory.getInstance());
+		// work_queue.push_back(factory.getInstance());
+		work_queue.push_back(factory.getInstanceSerialized());
 		cout<<"Test - Ok\n";
 	}
 	
