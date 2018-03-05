@@ -1,7 +1,7 @@
 #include "Model.h"
 
 Model::Model(){
-	type = 1;
+	type = 0;
 }
 
 Model::Model(const Model &original){

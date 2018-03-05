@@ -15,10 +15,12 @@ using namespace std;
 
 class Model{
 
-private:
+protected:
 	// Por ahora no estoy usando el type, pero sera necesario para multiples modelos
 	// Notar que PODRIA REQUERIR UN FACTORY por polimorfismo
 	unsigned int type;
+
+private:
 
 public:
 
@@ -38,10 +40,12 @@ public:
 	}
 	
 	virtual void serialize(char *buff){
+		cout<<"Model::serialize - Guardando type " << type << "\n";
 		memcpy(buff, (char*)&type, sizeof(int));
 	}
 	
 	virtual unsigned int loadSerialized(char *buff){
+		cout<<"Model::loadSerialized - Inicio\n";
 		
 		// Guardo el original para calcular desplazamiento
 		char *buff_original = buff;
@@ -49,7 +53,9 @@ public:
 		memcpy((char*)&type, buff, sizeof(int));
 		buff += sizeof(int);
 		
+		cout<<"Model::loadSerialized - type: " << type << "\n";
 		
+		cout<<"Model::loadSerialized - Fin (bytes usados: " << (buff - buff_original) << ")\n";
 		return (buff - buff_original);
 	}
 	

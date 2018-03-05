@@ -2,13 +2,16 @@
 
 ModelWF::ModelWF(){
 	cout<<"ModelWF - Creating new ModelWF\n";
+	type = 1;
 }
 
 ModelWF::ModelWF(const ModelWF &original){
+	type = original.type;
 }
 
 ModelWF& ModelWF::operator=(const ModelWF& original){
 	if (this != &original){
+		type = original.type;
 	
 	}
 	return *this;
