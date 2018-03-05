@@ -62,14 +62,26 @@ Simulator::~Simulator(){
 
 
 void Simulator::setModel(Model *_model){
+	if(model != NULL){
+		delete model;
+		model = NULL;
+	}
 	model = _model;
 }
 
 void Simulator::setEvents(EventList *_events){
+	if(events != NULL){
+		delete events;
+		events = NULL;
+	}
 	events = _events;
 }
 
 void Simulator::setProfile(Profile *_profile){
+	if(profile != NULL){
+		delete profile;
+		profile = NULL;
+	}
 	profile = _profile;
 	// Recreo el pool para este profile
 	if( pool != NULL ){

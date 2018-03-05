@@ -12,6 +12,7 @@
 
 #include "NanoTimer.h"
 #include "Model.h"
+#include "ModelWF.h"
 #include "Event.h"
 #include "EventList.h"
 #include "Population.h"
@@ -63,6 +64,8 @@ public:
 		n_bytes += events->serializedSize();
 		n_bytes += profile->serializedSize();
 		
+		cout<<"Simulator::serialize - Preparando buffer de " << n_bytes << " bytes\n";
+		
 		char *buff = new char[n_bytes];
 		unsigned int pos = 0;
 		memcpy(buff + pos, (char*)&n_bytes, sizeof(int));
@@ -84,23 +87,33 @@ public:
 	}
 	
 	unsigned int loadSerialized(char *buff){
+		cout<<"Simulator::loadSerialized - Inicio\n";
 		if( buff == NULL ){
 			return 0;
 		}
-		
 		char *buff_original = buff;
 		
 		// Esto de hecho no es necesario, pero podria usarse para verificacion
 		unsigned int n_bytes = 0;
 		memcpy((char*)&n_bytes, buff, sizeof(int));
 		buff += sizeof(int);
+		cout<<"Simulator::loadSerialized - n_bytes: " << n_bytes << "\n";
  		
+ 		// Notar este constructor medio fuera de lugar
+ 		// Esto deberia hacerlo un factory, quizas todo este metodo deberia estar en SimulatorFactory
+ 		Model *model = new ModelWF();
 		buff += model->loadSerialized(buff);
+		setModel(model);
 		
+		EventList *events = new EventList();
 		buff += events->loadSerialized(buff);
+		setEvents(events);
 		
+		Profile *profile = new Profile();
 		buff += profile->loadSerialized(buff);
+		setProfile(profile);
  		
+		cout<<"Simulator::loadSerialized - Fin (bytes usados: " << (buff - buff_original) << ")\n";
  		return (buff - buff_original);
  		
 	}
