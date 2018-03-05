@@ -111,7 +111,40 @@ public:
 		
 		cout<<"\n";
 	}
+
+	unsigned int serializedSize(){
+		unsigned int n_bytes = 0;
+		
+		// gen (int) type (1) n_num_params, num params, n_text_params, cada text
+		n_bytes += sizeof(int) + 1;
+
+		n_bytes += sizeof(int);
+		n_bytes += sizeof(double) * num_params.size();
+		
+		n_bytes += sizeof(int);
+		for(unsigned int i = 0; i < text_params.size(); ++i){
+			n_bytes += sizeof(int);
+			// guardo length chars mas un \0
+			n_bytes += text_params[i].length() + 1;
+		}
+		return n_bytes;
+	}
 	
+	void serialize(char *buff){
+		memcpy(buff, (char*)&gen, sizeof(int));
+		buff += sizeof(int);
+		
+		*buff = (char)type;
+		buff += 1;
+
+		unsigned int n_params = num_params.size();
+		memcpy(buff, (char*)&n_params, sizeof(int));
+
+	}
+	
+	void loadSerialized(char *buff){
+		
+	}
 };
 
 #endif

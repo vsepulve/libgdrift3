@@ -60,6 +60,26 @@ public:
 		events.push_back(event);
 	}
 	
+	unsigned int serializedSize(){
+		// return 0;
+		unsigned int n_bytes = 0;
+		// id, n_events, cada evento
+		n_bytes += sizeof(int);
+		n_bytes += sizeof(int);
+		for(Event *e : events){
+			n_bytes += e->serializedSize();
+		}
+		return n_bytes;
+	}
+
+	void serialize(char *buff){
+		
+	}
+
+	void loadSerialized(char *buff){
+		
+	}
+
 };
 
 #endif

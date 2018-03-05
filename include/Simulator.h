@@ -53,6 +53,45 @@ public:
 	
 	void run();
 	void executeEvent(Event *event);
+
+	char *serialize(){
+		return NULL;
+		
+		// int para el mismo n_bytes
+		unsigned int n_bytes = sizeof(int);
+		n_bytes += model->serializedSize();
+		n_bytes += events->serializedSizd();
+		n_bytes += profile->serializedSizd();
+		
+		char *serialized = new char[n_bytes];
+		unsigned int pos = 0;
+		memcpy(serialized + pos, (char*)&n_bytes, sizeof(int));
+		pos += sizeof(int);
+		
+		// Notar que model es polimorfico
+		// Quizas esto deberia hacerlo un factory
+		model->serialize(serialized + pos);
+		pos += model->serializedSize();
+
+		events->serialize(serialized + pos);
+		pos += events->serializedSize();
+
+		profile->serialize(serialized + pos);
+		pos += profile->serializedSize();
+		
+	}
+	
+	void loadSerialized(char *serialized){
+		if( serialized == NULL ){
+			return;
+		}
+		unsigned int n_bytes = 0;
+		(char*)&n_bytes = serialized;
+		serialized += sizeof(int);
+ 		
+		// continuar leyendo bytes
+ 		// ...
+	}
 	
 };
 

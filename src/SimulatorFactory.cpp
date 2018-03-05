@@ -300,6 +300,10 @@ Simulator *SimulatorFactory::getInstance(){
 }
 
 char *SimulatorFactory::getInstanceSerialized(){
-	return NULL;
+	// return NULL;
+	Simulator *sim = getInstance();
+	char *serialized = sim->serialize();
+	delete sim;
+	return serialized;
 }
 
