@@ -22,6 +22,7 @@ Statistics::Statistics(Simulator *sim, float sampling)
 	
 	// Preparo tablas y cualquier otro dato necesario
 	alleles_tables.resize(profile->getNumMarkers());
+	alleles_mutations_tables.resize(profile->getNumMarkers());
 	
 	Population summary(0, profile, pool, generator);
 	
@@ -98,10 +99,23 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 		
 		cout << "Statistics::processStatistics - Preparing String Vector\n";
 		vector<string> alleles;
+		vector< map<unsigned int, char> > alleles_mutations;
+		set<unsigned int> added_alleles;
 		for(unsigned int ind = 0; ind < n_inds; ++ind){
 			unsigned int pos_ind = inds_usados[ind];
 			unsigned int id_allele = pop->get(pos_ind).getAllele(pos_marker);
 			alleles.push_back( getAllele(pos_marker, id_allele, marker) );
+			alleles_mutations.push_back( alleles_mutations_tables[pos_marker][id_allele] );
+			
+//			if( added_alleles.find( id_allele ) == added_alleles.end() ){
+//				added_alleles.insert(id_allele);
+//				cout << "Statistics::processStatistics - Adding allele " << id_allele << " : ";
+//				for( auto it : alleles_mutations_tables[pos_marker][id_allele] ){
+//					cout << "(" << it.first << " -> \'" << it.second << "\') | ";
+//				}
+//				cout << "\n";
+//			}
+			
 		}
 		cout << "Statistics::processStatistics - alleles_table: " << alleles_tables[pos_marker].size() 
 			<< ", " << alleles.size() << " strings generated from " << pool->getNextAllele(pos_marker) <<"\n";
@@ -113,39 +127,52 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 		// Notar que estoy usando los nombres antiguos por estadistico para conservar el orden
 		
 		// "number-of-haplotypes"
+		NanoTimer timer;
 		double num_haplotypes = statNumHaplotypes(alleles);
 		stats["number-of-haplotypes"] = num_haplotypes;
+		cout << "Statistics::processStatistics - num_haplotypes en " << timer.getMilisec() << " ms\n";
 		
 		// "number-of-segregating-sites"
+		timer.reset();
 		double num_segregating_sites = statNumSegregatingSites(alleles);
 		stats["number-of-segregating-sites"] = num_segregating_sites;
+		cout << "Statistics::processStatistics - num_segregating_sites en " << timer.getMilisec() << " ms\n";
 		
+		timer.reset();
 		vector<unsigned int> pairwise_differences = statPairwiseDifferences(alleles);
+		vector<unsigned int> pairwise_differences_muts = statPairwiseDifferencesMutations(alleles_mutations);
+		
+		cout << "----- TEST -----\n";
+		if( pairwise_differences.size() != pairwise_differences_muts.size() ){
+			cout << "Statistics::processStatistics - ERROR, Largos diferentes (" << pairwise_differences.size() << " != " << pairwise_differences_muts.size() << ")\n";
+		}
+		cout << "Statistics::processStatistics - Comparando " << pairwise_differences.size() << " posiciones\n";
+		for(unsigned int i = 0; i < pairwise_differences.size(); ++i){
+			if( pairwise_differences[i] != pairwise_differences_muts[i] ){
+				cout << "Statistics::processStatistics - ERROR, Valores diferentes (" << pairwise_differences[i] << " != " << pairwise_differences_muts[i] << ")\n";
+			}
+		}
+		cout << "----- TEST -----\n";
+		
+		cout << "Statistics::processStatistics - pairwise_differences (oculto) en " << timer.getMilisec() << " ms\n";
 	
 		// "mean-of-the-number-of-pairwise-differences"
+		timer.reset();
 		double mean_pairwise_diff = statMeanPairwiseDifferences(pairwise_differences);
 		stats["mean-of-the-number-of-pairwise-differences"] = mean_pairwise_diff;
+		cout << "Statistics::processStatistics - mean_pairwise_diff en " << timer.getMilisec() << " ms\n";
 		
 		// "variance-of-the-number-of-pairwise-differences"
-		double var_segregating = statVariancePairwiseDifferences(pairwise_differences, mean_pairwise_diff);
-		stats["variance-of-the-number-of-pairwise-differences"] = var_segregating;
+		timer.reset();
+		double var_pairwise_diff = statVariancePairwiseDifferences(pairwise_differences, mean_pairwise_diff);
+		stats["variance-of-the-number-of-pairwise-differences"] = var_pairwise_diff;
+		cout << "Statistics::processStatistics - var_pairwise_diff en " << timer.getMilisec() << " ms\n";
 		
 		// "tajima-d-statistics"
+		timer.reset();
 		double tajima_d = statTajimaD(alleles, num_segregating_sites, mean_pairwise_diff);
 		stats["tajima-d-statistics"] = tajima_d;
-		
-		
-//		findices.put("number-of-haplotypes",this->number_of_haplotypes(sequences_str[cid][gid]));
-//		findices.put("number-of-segregating-sites",this->number_of_segregating_sites(sequences_str[cid][gid]));
-//		tie(mean_of_the_number_of_pairwise_differences, variance_of_the_number_of_pairwise_differences) = this->pairwise_statistics_seq(sequences[cid][gid]);
-//		
-//		findices.put("mean-of-the-number-of-pairwise-differences", mean_of_the_number_of_pairwise_differences);
-//		findices.put("variance-of-the-number-of-pairwise-differences", variance_of_the_number_of_pairwise_differences);
-
-//		findices.put("tajima-d-statistics", this->tajima_d_statistics(double(sequences[cid][gid].size()),
-//																						 findices.get<double>("number-of-segregating-sites"),
-//																						 mean_of_the_number_of_pairwise_differences));
-		
+		cout << "Statistics::processStatistics - tajima_d en " << timer.getMilisec() << " ms\n";
 		
 		stats_vector.push_back(stats);
 	}
@@ -162,15 +189,29 @@ string &Statistics::getAllele(unsigned int marker_pos, unsigned int id, ProfileM
 		return it->second;
 	}
 	else if( id == 0 ){
-		cout << "Statistics::getAllele - Case 2 (Creating Origin)\n";
+//		cout << "Statistics::getAllele - Case 2 (Creating Origin)\n";
 		alleles_tables[marker_pos][id] = generateAllele(marker_pos, marker);
+		
+		// Mapa de mutaciones para el alelo
+		// TODO: este mapa solo es valido para datos de tipo secuencia
+		map<unsigned int, char> mutations_map;
+		alleles_mutations_tables[marker_pos][id] = mutations_map;
+		
 		return alleles_tables[marker_pos][id];
 	}
 	else{
-		cout << "Statistics::getAllele - Case 3\n";
+//		cout << "Statistics::getAllele - Case 3\n";
 		// Aplicar mutacion
 		// Notar que en la practica, esto depende del tipo de marcador
-		string parent = getAllele(marker_pos, pool->getParent(marker_pos, id), marker);
+		unsigned int parent_id = pool->getParent(marker_pos, id);
+		string parent = getAllele(marker_pos, parent_id, marker);
+		
+		// Aqui ya puedo tomar el mapa de mutaciones del padre porque se genero en getParen
+		// TODO: este mapa solo es valido para datos de tipo secuencia
+		map<unsigned int, char> mutations_map;
+		map<unsigned int, char> mutations_map_parent = alleles_mutations_tables[marker_pos][parent_id];
+		mutations_map.insert(mutations_map_parent.begin(), mutations_map_parent.end());
+		
 		if( marker.getType() == MARKER_SEQUENCE 
 			&& marker.getMutationType() == MUTATION_BASIC){
 			uniform_int_distribution<> pos_dist(0, marker.getLength() - 1);
@@ -178,17 +219,26 @@ string &Statistics::getAllele(unsigned int marker_pos, unsigned int id, ProfileM
 			uniform_int_distribution<> mut_dist(0, 2);
 			unsigned int mut = mut_dist(generator);
 			char new_value = mutation_table[ parent[pos] ][mut];
-			cout << "Statistics::getAllele - Marker " << marker_pos 
-				<< ", allele " << id 
-				<< ", mutation \'" << parent[pos] 
-				<< "\' -> \'" << new_value 
-				<< "\' in position " << pos << "\n";
+//			cout << "Statistics::getAllele - Marker " << marker_pos 
+//				<< ", allele " << id 
+//				<< ", mutation \'" << parent[pos] 
+//				<< "\' -> \'" << new_value 
+//				<< "\' in position " << pos << "\n";
+			
+			mutations_map[pos] = new_value;
+			// En forma especial borro la mutacion si regreso al valor original del primer ancestro
+			// El id del primero (la raiz del arbol) esta fijo en 0
+			if( alleles_tables[marker_pos][0][pos] == new_value ){
+				mutations_map.erase(pos);
+			}
+			
 			parent[pos] = new_value;
 		}
 		else{
 			cerr << "Statistics::getAllele - Mutation model not implemented.\n";
 		}
 		
+		alleles_mutations_tables[marker_pos][id] = mutations_map;
 		
 		alleles_tables[marker_pos][id] = parent;
 		return alleles_tables[marker_pos][id];
@@ -196,7 +246,7 @@ string &Statistics::getAllele(unsigned int marker_pos, unsigned int id, ProfileM
 }
 
 string Statistics::generateAllele(unsigned int marker_pos, ProfileMarker &marker){
-	cout << "Statistics::generateAllele - Start\n";
+//	cout << "Statistics::generateAllele - Start\n";
 	string s;
 	// Generar el string considerando profile
 	// Esto tambien depende del tipo de marcador
@@ -220,17 +270,17 @@ string Statistics::generateAllele(unsigned int marker_pos, ProfileMarker &marker
 		}
 	}
 	else{
-		cerr << "Statistics::generateAllele - Sequence model not implemented.\n";
+//		cerr << "Statistics::generateAllele - Sequence model not implemented.\n";
 	}
 	
-	cout << "Statistics::generateAllele - End (" << s << ", " << s.length() << ")\n";
+//	cout << "Statistics::generateAllele - End (" << s << ", " << s.length() << ")\n";
 	return s;
 }
 
 
 	
 double Statistics::statNumHaplotypes(vector<string> &alleles){
-//	cout<<"Statistics::statNumHaplotypes - Inicio\n";
+//	cout << "Statistics::statNumHaplotypes - Inicio\n";
 //	NanoTimer timer;
 	if(alleles.size() <= 1){
 		return 0.0;
@@ -256,16 +306,20 @@ double Statistics::statNumHaplotypes(vector<string> &alleles){
 	}
 	double res = ((N/(N-1.0))*(1.0-sum));
 	
-//	cout<<"Statistics::statNumHaplotypes - Fin ("<<timer.getMilisec()<<" ms)\n";
+//	cout << "Statistics::statNumHaplotypes - Fin ("<<timer.getMilisec()<<" ms)\n";
 	return res;
 }
 	
 double Statistics::statNumSegregatingSites(vector<string> &alleles){
-//	cout<<"Statistics::statNumSegregatingSites - Inicio\n";
+//	cout << "Statistics::statNumSegregatingSites - Inicio\n";
 //	NanoTimer timer;
 	if(alleles.size() <= 1){
 		return 0.0;
 	}
+	
+//	for( string allele : alleles ){
+//		cout << "Statistics::statNumSegregatingSites - \"" << allele << "\"\n";
+//	}
 	
 	double res = 0;
 
@@ -278,12 +332,12 @@ double Statistics::statNumSegregatingSites(vector<string> &alleles){
 			}
 		}
 	}
-//	cout<<"Statistics::statNumSegregatingSites - Fin ("<<timer.getMilisec()<<" ms)\n";
+//	cout << "Statistics::statNumSegregatingSites - Fin\n";
 	return res;
 }
 
 vector<unsigned int> Statistics::statPairwiseDifferences(vector<string> &alleles){
-//	cout<<"Statistics::statMeanPairwiseDifferences - Inicio\n";
+//	cout << "Statistics::statMeanPairwiseDifferences - Inicio\n";
 //	NanoTimer timer;
 	vector<unsigned int> pairwise_differences;
 	for(unsigned int i = 0; i < alleles.size(); ++i){
@@ -297,7 +351,49 @@ vector<unsigned int> Statistics::statPairwiseDifferences(vector<string> &alleles
 			pairwise_differences.push_back(diff);
 		}
 	}
-//	cout<<"Sample::pairwise_statistics - Fin ("<<timer.getMilisec()<<" ms)\n";
+//	cout << "Sample::pairwise_statistics - Fin ("<<timer.getMilisec()<<" ms)\n";
+	return pairwise_differences;
+}
+
+vector<unsigned int> Statistics::statPairwiseDifferencesMutations(vector< map<unsigned int, char> > &alleles){
+//	cout << "Statistics::statMeanPairwiseDifferences - Inicio\n";
+//	NanoTimer timer;
+	vector<unsigned int> pairwise_differences;
+	
+	for(unsigned int i = 0; i < alleles.size(); ++i){
+		for(unsigned int j = i+1; j < alleles.size(); ++j){
+			unsigned int diff = 0;
+			
+			// Agrego la diferencia simetrica de las mutaciones
+			// Primero agrego desde i, omitiendo solo los pares IDENTICOS con j
+			// Si una mutacion en i y en j afectan la misma posicion (pero con diferente caracter) conservo el primero
+			// Luego agrego desde j omitiendo TODAS las que afecten a posiciones tocadas por i
+			// Asi omito las identicas en ambos sentidos, y las semiidenticas solo en el segundo
+			
+			for( auto it : alleles[i]){
+				unsigned int pos = it.first;
+				char c = it.second;
+				auto it_j = alleles[j].find(pos);
+				if( it_j != alleles[j].end() && c == it_j->second ){
+					// omito por ser identica
+				}
+				else{
+					++diff;
+				}
+			}
+			
+			for( auto it : alleles[j]){
+				unsigned int pos = it.first;
+				auto it_i = alleles[i].find(pos);
+				if( it_i == alleles[i].end() ){
+					++diff;
+				}
+			}
+			
+			pairwise_differences.push_back(diff);
+		}
+	}
+//	cout << "Sample::pairwise_statistics - Fin ("<<timer.getMilisec()<<" ms)\n";
 	return pairwise_differences;
 }
 
@@ -322,11 +418,37 @@ double Statistics::statVariancePairwiseDifferences(vector<unsigned int> &differe
 		variance += (diff-mean) * (diff-mean);
 	}
 	variance /= (double)(differences.size());
-	return 0.0;
+	return variance;
 }
 
 double Statistics::statTajimaD(vector<string> &alleles, double num_segregating_sites, double mean_pairwise_diff){
-	return 0.0;
+//	return 0.0;
+	
+	double n = alleles.size();
+	double ss = num_segregating_sites;
+	double mpd = mean_pairwise_diff;
+	
+	if( n <= 1 || ss == 0 || mpd <= 0){
+		return 0.0;
+	}
+	
+	double a1 = 0.0;
+	double a2 = 0.0;
+
+	for(unsigned int k = 1; k < (unsigned int)n; ++k){
+		a1 += 1.0 / (double)k;
+		a2 += 1.0 / (double)(k*k);
+	}
+
+	double b1 = (n + 1.0) / ( 3.0 * (n - 1.0) );
+	double b2 = (2.0 * (n*n + n + 3.0)) / ( (9.0 * n) * (n - 1.0) );
+	double c1 = b1 - (1.0 / a1);
+	double c2 = b2 + ((n + 2.0) / (a1 * n)) + a2 / (a1 * a1);
+	double e1 = c1 / a1;
+	double e2 = c2 / (a1*a1 + a2);
+	double res = ( (mpd - (ss / a1)) / sqrt(e1*ss + e2*ss*(ss - 1.0)) );
+
+	return res;
 }
 
 
