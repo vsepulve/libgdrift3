@@ -13,12 +13,13 @@ using namespace std;
 
 int main(int argc,char** argv) {
 
-	if(argc != 2){
-		cout<<"\nUsage: ./test json_file\n";
+	if(argc != 3){
+		cout<<"\nUsage: ./test json_file total_tests\n";
 		cout<<"\n";
 		return 0;
 	}
 	const char *json_file = argv[1];
+	unsigned int total_tests = atoi(argv[2]);
 	
 	cout<<"Test - Inicio\n";
 	
@@ -51,7 +52,6 @@ int main(int argc,char** argv) {
 	cout<<"Marker 2: ";
 	marker_2.print();
 	
-	unsigned int total_tests = 10000;
 	NanoTimer sim_timer;
 	cout<<"Test - Probando " << total_tests << " simulaciones\n";
 	cout<<"-----     -----\n";
@@ -67,21 +67,21 @@ int main(int argc,char** argv) {
 		sim->run();
 		double run_milisec = sim_timer.getMilisec();
 	
-	//	cout<<"Test - Verificando Estadisticos\n";
-	//	float sampling = 0.05;
-	//	Statistics stats(sim, sampling);
-	//	map<string, vector< map<string, double> > > statistics = stats.getStatistics();
-	//	for( auto &par : statistics ){
-	//		cout<<"Test - Stats Population \""<< par.first <<"\"\n";
-	//		unsigned int marker_pos = 0;
-	//		for( map<string, double> &marker_stats : par.second ){
-	//			cout<<"Test - [ Marker "<<marker_pos++<<" ]\n";
-	//			for( auto &stat : marker_stats ){
-	//				cout<<"Test - " << stat.first << ": "<< stat.second <<"\n";
-	//			}
-	//			cout<<"-----\n";
-	//		}
-	//	}
+		cout<<"Test - Verificando Estadisticos\n";
+		float sampling = 0.05;
+		Statistics stats(sim, sampling);
+		map<string, vector< map<string, double> > > statistics = stats.getStatistics();
+		for( auto &par : statistics ){
+			cout<<"Test - Stats Population \""<< par.first <<"\"\n";
+			unsigned int marker_pos = 0;
+			for( map<string, double> &marker_stats : par.second ){
+				cout<<"Test - [ Marker "<<marker_pos++<<" ]\n";
+				for( auto &stat : marker_stats ){
+					cout<<"Test - " << stat.first << ": "<< stat.second <<"\n";
+				}
+				cout<<"-----\n";
+			}
+		}
 	
 		delete sim;
 		cout<<"Test - factory_milisec: " << factory_milisec << "\n";
