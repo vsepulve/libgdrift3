@@ -8,6 +8,7 @@
 #include "NanoTimer.h"
 #include "SimulatorFactory.h"
 #include "Simulator.h"
+#include "Statistics.h"
 
 using namespace std;
 
@@ -18,6 +19,26 @@ mutex global_mutex;
 // vector<Simulator*> work_queue;
 vector<char*> work_queue;
 unsigned int global_pos = 0;
+
+vector<double> get_statstics(Simulator *sim, float sampling){
+	vector<double> res;
+	Statistics stats(sim, sampling);
+	map<string, vector< map<string, double> > > statistics = stats.getStatistics();
+	// Agrupo los estadisticos en el mismo orden, population_name primero, n marcadores, y stat name al final
+	for( auto &par : statistics ){
+		cout<<"get_statstics - Stats Population \""<< par.first <<"\"\n";
+		unsigned int marker_pos = 0;
+		for( map<string, double> &marker_stats : par.second ){
+			cout<<"get_statstics - [ Marker "<<marker_pos++<<" ]\n";
+			for( auto &stat : marker_stats ){
+				cout<<"Test - " << stat.first << ": "<< stat.second <<"\n";
+			}
+			cout<<"-----\n";
+			res.push_back(stat.second);
+		}
+	}
+	return res;
+}
 
 void SimultionThread(unsigned int pid, unsigned int n_threads, string output_base){
 	
@@ -33,8 +54,8 @@ void SimultionThread(unsigned int pid, unsigned int n_threads, string output_bas
 	file_name += std::to_string(pid);
 	file_name += ".txt";
 	
-//	unsigned int max_storage = 10;
-//	vector< vector<double> > statistics_storage;
+	unsigned int max_storage = 10;
+	vector< vector<double> > statistics_storage;
 //	vector< vector<double> > params_storage;
 	
 	while(true){
@@ -60,36 +81,35 @@ void SimultionThread(unsigned int pid, unsigned int n_threads, string output_bas
 		// Esto requiere el target 
 		// Falta definir e implementar la normalizacion
 		
-//		if( sim.detectedErrors() == 0 ){
-//			vector<double> statistics = get_statistics(sim.samples());
-//			vector<double> params = get_params(fjob);
-//			
-//			statistics_storage.push_back(statistics);
-//			params_storage.push_back(params);
-//			
-//			if( statistics_storage.size() >= max_storage ){
-//				
-////				global_mutex.lock();
-////				cout<<"SimultionThread["<<pid<<"] - statistics_storage.size: "<<statistics_storage.size()<<", guardando...\n";
-////				global_mutex.unlock();
-//				
-//				fstream writer(file_name, fstream::out | fstream::app);
-//				for(unsigned int i = 0; i < statistics_storage.size(); ++i){
-//					for( double value : statistics_storage[i] ){
-//						writer << value << "\t";
-//					}
-//					for( double value : params_storage[i] ){
-//						writer << value << "\t";
-//					}
-//					writer << "\n";
+		
+		vector<double> statistics = get_statistics(&sim, 0.05);
+//		vector<double> params = get_params(fjob);
+		
+		statistics_storage.push_back(statistics);
+//		params_storage.push_back(params);
+		
+		if( statistics_storage.size() >= max_storage ){
+			
+//			global_mutex.lock();
+//			cout<<"SimultionThread["<<pid<<"] - statistics_storage.size: "<<statistics_storage.size()<<", guardando...\n";
+//			global_mutex.unlock();
+			
+			fstream writer(file_name, fstream::out | fstream::app);
+			for(unsigned int i = 0; i < statistics_storage.size(); ++i){
+				for( double value : statistics_storage[i] ){
+					writer << value << "\t";
+				}
+//				for( double value : params_storage[i] ){
+//					writer << value << "\t";
 //				}
-//				writer.close();
-//				statistics_storage.clear();
-//				params_storage.clear();
-//			}
-//			
-//			
-//		}
+				writer << "\n";
+			}
+			writer.close();
+			statistics_storage.clear();
+//			params_storage.clear();
+		}
+			
+		
 		
 	}
 	
