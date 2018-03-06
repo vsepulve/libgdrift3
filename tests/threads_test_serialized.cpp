@@ -207,7 +207,7 @@ int main(int argc,char** argv){
 //	fill_queue(fsettings, total, generator);
 	SimulatorFactory factory(settings_file);
 	
-	
+	/*
 	cout<<"Test - Prueba de Serializacion\n";
 	
 	char *serialized = factory.getInstanceSerialized();
@@ -221,10 +221,29 @@ int main(int argc,char** argv){
 	cout<<"Cargando Simulator\n";
 	Simulator sim;
 	sim.loadSerialized(serialized);
+	delete [] serialized;
+	
+	sim.print();
+	
+	cout<<"Test - Otra Prueba de Serializacion\n";
+	Simulator *s1 = factory.getInstance();
+	cout<<"Test - Serializando\n";
+	serialized = s1->serialize();
+	cout<<"Test - DeSerializando\n";
+	Simulator s2;
+	s2.loadSerialized(serialized);
+	delete [] serialized;
+	cout<<"Test - Sim 1\n";
+	s1->print();
+	cout<<"Test - Sim 2\n";
+	s2.print();
+	
+	delete s1;
 	
 	if(true){
 		return 0;
 	}
+	*/
 	
 	
 	for(unsigned int i = 0; i < total; ++i){
