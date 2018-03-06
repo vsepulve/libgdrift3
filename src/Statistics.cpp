@@ -139,20 +139,21 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 		cout << "Statistics::processStatistics - num_segregating_sites en " << timer.getMilisec() << " ms\n";
 		
 		timer.reset();
-		vector<unsigned int> pairwise_differences = statPairwiseDifferences(alleles);
-		vector<unsigned int> pairwise_differences_muts = statPairwiseDifferencesMutations(alleles_mutations);
+//		vector<unsigned int> pairwise_differences = statPairwiseDifferences(alleles);
+//		vector<unsigned int> pairwise_differences_muts = statPairwiseDifferencesMutations(alleles_mutations);
+		vector<unsigned int> pairwise_differences = statPairwiseDifferencesMutations(alleles_mutations);
 		
-		cout << "----- TEST -----\n";
-		if( pairwise_differences.size() != pairwise_differences_muts.size() ){
-			cout << "Statistics::processStatistics - ERROR, Largos diferentes (" << pairwise_differences.size() << " != " << pairwise_differences_muts.size() << ")\n";
-		}
-		cout << "Statistics::processStatistics - Comparando " << pairwise_differences.size() << " posiciones\n";
-		for(unsigned int i = 0; i < pairwise_differences.size(); ++i){
-			if( pairwise_differences[i] != pairwise_differences_muts[i] ){
-				cout << "Statistics::processStatistics - ERROR, Valores diferentes (" << pairwise_differences[i] << " != " << pairwise_differences_muts[i] << ")\n";
-			}
-		}
-		cout << "----- TEST -----\n";
+//		cout << "----- TEST -----\n";
+//		if( pairwise_differences.size() != pairwise_differences_muts.size() ){
+//			cout << "Statistics::processStatistics - ERROR, Largos diferentes (" << pairwise_differences.size() << " != " << pairwise_differences_muts.size() << ")\n";
+//		}
+//		cout << "Statistics::processStatistics - Comparando " << pairwise_differences.size() << " posiciones\n";
+//		for(unsigned int i = 0; i < pairwise_differences.size(); ++i){
+//			if( pairwise_differences[i] != pairwise_differences_muts[i] ){
+//				cout << "Statistics::processStatistics - ERROR, Valores diferentes (" << pairwise_differences[i] << " != " << pairwise_differences_muts[i] << ")\n";
+//			}
+//		}
+//		cout << "----- TEST -----\n";
 		
 		cout << "Statistics::processStatistics - pairwise_differences (oculto) en " << timer.getMilisec() << " ms\n";
 	
