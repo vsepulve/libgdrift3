@@ -74,7 +74,7 @@ public:
 	}
 	
 	unsigned int loadSerialized(char *buff){
-		cout<<"Profile::loadSerialized - Inicio\n";
+//		cout << "Profile::loadSerialized - Inicio\n";
 		
 		char *buff_original = buff;
 		
@@ -92,7 +92,7 @@ public:
 			markers.push_back(marker);
 		}
 		
-		cout<<"Profile::loadSerialized - Fin (bytes usados: " << (buff - buff_original) << ")\n";
+//		cout << "Profile::loadSerialized - Fin (bytes usados: " << (buff - buff_original) << ")\n";
 		return (buff - buff_original);
 	}
 	

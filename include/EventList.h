@@ -82,7 +82,7 @@ public:
 	}
 
 	void serialize(char *buff){
-		cout<<"EventList::serialize - Inicio\n";
+//		cout << "EventList::serialize - Inicio\n";
 	
 		memcpy(buff, (char*)&id, sizeof(int));
 		buff += sizeof(int);
@@ -96,11 +96,11 @@ public:
 			buff += e->serializedSize();
 		}
 		
-		cout<<"EventList::serialize - Fin\n";
+//		cout << "EventList::serialize - Fin\n";
 	}
 
 	unsigned int loadSerialized(char *buff){
-		cout<<"EventList::loadSerialized - Inicio\n";
+//		cout << "EventList::loadSerialized - Inicio\n";
 		
 		// Guardo el original para calcular desplazamiento
 		char *buff_original = buff;
@@ -118,7 +118,7 @@ public:
 			events.push_back(e);
 		}
 		
-		cout<<"EventList::loadSerialized - Fin (bytes usados: " << (buff - buff_original) << ")\n";
+//		cout << "EventList::loadSerialized - Fin (bytes usados: " << (buff - buff_original) << ")\n";
 		return (buff - buff_original);
 	}
 

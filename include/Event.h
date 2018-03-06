@@ -63,33 +63,33 @@ public:
 	
 	void print(){
 		// print type
-		cout<<"";
+		cout << "";
 		if( type == CREATE ){
-			cout<<"CREATE ";
+			cout << "CREATE ";
 		}
 		else if( type == SPLIT ){
-			cout<<"SPLIT ";
+			cout << "SPLIT ";
 		}
 		else if( type == MIGRATE ){
-			cout<<"MIGRATE ";
+			cout << "MIGRATE ";
 		}
 		else if( type == MERGE ){
-			cout<<"MERGE ";
+			cout << "MERGE ";
 		}
 		else if( type == INCREASE ){
-			cout<<"INCREASE ";
+			cout << "INCREASE ";
 		}
 		else if( type == DECREASE ){
-			cout<<"DECREASE ";
+			cout << "DECREASE ";
 		}
 		else if( type == EXTINCT ){
-			cout<<"EXTINCT ";
+			cout << "EXTINCT ";
 		}
 		else if( type == ENDSIM ){
-			cout<<"ENDSIM ";
+			cout << "ENDSIM ";
 		}
 		else{
-			cout<<"UNKNOWN ";
+			cout << "UNKNOWN ";
 		}
 		
 		cout << "Generation (" << gen << ") ";
@@ -100,17 +100,17 @@ public:
 			for(unsigned int i = 1; i < text_params.size(); ++i){
 				cout << ", \"" << text_params[i] << "\"";
 			}
-			cout<<") ";
+			cout << ") ";
 		}
 		if( num_params.size() > 0 ){
 			cout << "Num Params (" << num_params[0] << "";
 			for(unsigned int i = 1; i < num_params.size(); ++i){
 				cout << ", " << num_params[i] << "";
 			}
-			cout<<") ";
+			cout << ") ";
 		}
 		
-		cout<<"\n";
+		cout << "\n";
 	}
 
 	unsigned int serializedSize(){
@@ -131,7 +131,7 @@ public:
 	}
 	
 	void serialize(char *buff){
-		cout<<"Event::serialize - Inicio\n";
+//		cout << "Event::serialize - Inicio\n";
 		memcpy(buff, (char*)&gen, sizeof(int));
 		buff += sizeof(int);
 		
@@ -142,7 +142,7 @@ public:
 		memcpy(buff, (char*)&n_params, sizeof(int));
 		buff += sizeof(int);
 		for(double param : num_params){
-			cout<<"Event::serialize - Guardando num_params: " << param << "\n";
+//			cout << "Event::serialize - Guardando num_params: " << param << "\n";
 			memcpy(buff, (char*)&param, sizeof(double));
 			buff += sizeof(double);
 		}
@@ -151,7 +151,7 @@ public:
 		memcpy(buff, (char*)&n_params, sizeof(int));
 		buff += sizeof(int);
 		for(string param : text_params){
-			cout<<"Event::serialize - Guardando text_params: " << param << " (" << param.length() << ")\n";
+//			cout << "Event::serialize - Guardando text_params: " << param << " (" << param.length() << ")\n";
 			unsigned int length = param.length();
 			// Primero guardo length en un int
 			memcpy(buff, (char*)&length, sizeof(int));
@@ -161,11 +161,11 @@ public:
 			buff += length;
 		}
 		
-		cout<<"Event::serialize - Fin\n";
+//		cout << "Event::serialize - Fin\n";
 	}
 	
 	unsigned int loadSerialized(char *buff){
-		cout<<"Event::loadSerialized - Inicio\n";
+//		cout << "Event::loadSerialized - Inicio\n";
 		
 		// Guardo el original para calcular desplazamiento
 		char *buff_original = buff;
@@ -184,7 +184,7 @@ public:
 			double param = 0;
 			memcpy((char*)&param, buff, sizeof(double));
 			buff += sizeof(double);
-			cout<<"Event::loadSerialized - Cargando num_params: " << param << "\n";
+//			cout << "Event::loadSerialized - Cargando num_params: " << param << "\n";
 			num_params.push_back(param);
 		}
 		
@@ -197,7 +197,7 @@ public:
 			memcpy((char*)&length, buff, sizeof(int));
 			buff += sizeof(int);
 			// Preparo un buffer local (tambien puede ser pedido con new antes y verificando el largo para repedirlo)
-			cout<<"Event::loadSerialized - Preparando param_buff: " << (length+1) << "\n";
+//			cout << "Event::loadSerialized - Preparando param_buff: " << (length+1) << "\n";
 			char param_buff[length + 1];
 			// Despues cargo los length chars de texto
 			memcpy(param_buff, buff, length);
@@ -205,11 +205,11 @@ public:
 			param_buff[length] = 0;
 			// Finalmente preparo el string real
 			string param(param_buff);
-			cout<<"Event::loadSerialized - Cargando text_params: " << param << "\n";
+//			cout << "Event::loadSerialized - Cargando text_params: " << param << "\n";
 			text_params.push_back(param);
 		}
 		
-		cout<<"Event::loadSerialized - Fin\n";
+//		cout << "Event::loadSerialized - Fin\n";
 		return (buff-buff_original);
 	}
 };

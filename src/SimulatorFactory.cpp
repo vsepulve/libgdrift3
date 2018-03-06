@@ -105,12 +105,12 @@ double SimulatorFactory::parseValue(json &json_val, bool force_limits, double fo
 // Este es uno de los metodos que DEBE conocer la estructura del json
 // Los metodos old* usan la estructura heredada de settings, previo a optimizaciones
 EventList *SimulatorFactory::parseEventsOld(json &scenarios){
-	cout << "SimulatorFactory::parseEventsOld - Inicio (num of scenarios: " << scenarios.size() << ")\n";
+//	cout << "SimulatorFactory::parseEventsOld - Inicio (num of scenarios: " << scenarios.size() << ")\n";
 //	cout << "parseEventsOld - N of Scenarios: " << scenarios.size() << " ("<< scenarios <<")\n";
 	EventList *events = new EventList();
 	unsigned int pos = (*generator)() % scenarios.size();
 	json scen = scenarios[pos];
-	cout << "SimulatorFactory::parseEventsOld - scen: "<< pos <<" (" << scen << ")\n";
+//	cout << "SimulatorFactory::parseEventsOld - scen: "<< pos <<" (" << scen << ")\n";
 //	events->setId( scen["id"].get<unsigned int>() );
 	events->setId( stoi(scen["id"].get<string>()) );
 	
@@ -122,11 +122,11 @@ EventList *SimulatorFactory::parseEventsOld(json &scenarios){
 	unsigned int max_value = 100000000;
 //	events->resize( scen["events"].size() );
 //	cout << "-----\n";
-	cout << "SimulatorFactory::parseEventsOld - Iniciando Parsing\n";
+//	cout << "SimulatorFactory::parseEventsOld - Iniciando Parsing\n";
 //	cout << "-----\n";
 	for( json json_ev : scen["events"] ){
 //		cout << "SimulatorFactory::parseEventsOld - json_ev[" << count << "]: "<< json_ev <<"\n";
-		cout << "SimulatorFactory::parseEventsOld - Parsing event " << count << "\n";
+//		cout << "SimulatorFactory::parseEventsOld - Parsing event " << count << "\n";
 //		Event event = events->getEvent(count);
 		Event *event = new Event();
 		events->addEvent(event);
@@ -161,7 +161,7 @@ EventList *SimulatorFactory::parseEventsOld(json &scenarios){
 			string dst2;
 			unsigned int partitions = stoi(json_params["partitions"].get<string>());
 			if( partitions != 2 ){
-				cerr<<"SimulatorFactory::parseEventsOld - SPLIT Warning, partitions != 2 (" << partitions << ").\n";
+//				cerr<<"SimulatorFactory::parseEventsOld - SPLIT Warning, partitions != 2 (" << partitions << ").\n";
 				dst1 = "dst_1_" + to_string(gen);
 				dst2 = "dst_2_" + to_string(gen);
 			}
@@ -191,7 +191,7 @@ EventList *SimulatorFactory::parseEventsOld(json &scenarios){
 			event->setType(MERGE);
 			unsigned int n_sources = json_params["source"].size();
 			if( n_sources != 2 ){
-				cerr<<"SimulatorFactory::parseEventsOld - MERGE Warning, sources != 2 (" << n_sources << ").\n";
+//				cerr<<"SimulatorFactory::parseEventsOld - MERGE Warning, sources != 2 (" << n_sources << ").\n";
 			}
 			string src1 = json_params["source"][0]["population"]["name"];
 			string src2 = json_params["source"][1]["population"]["name"];
@@ -225,18 +225,18 @@ EventList *SimulatorFactory::parseEventsOld(json &scenarios){
 		}
 		
 //		cout << "SimulatorFactory::parseEventsOld - Event:\n";
-		event->print();
+//		event->print();
 //		cout << "-----\n";
 		
 		++count;
 	}
 	
-	cout << "SimulatorFactory::parseEventsOld - Fin\n";
+//	cout << "SimulatorFactory::parseEventsOld - Fin\n";
 	return events;
 }
 
 Profile *SimulatorFactory::parseProfileOld(json &individual){
-	cout << "SimulatorFactory::parseProfileOld - Inicio\n";
+//	cout << "SimulatorFactory::parseProfileOld - Inicio\n";
 	
 	Profile *profile = new Profile();
 	
@@ -256,25 +256,25 @@ Profile *SimulatorFactory::parseProfileOld(json &individual){
 				if( mutation_type == 0 ){
 					// MUTATION_BASIC
 					double rate = parseValue(this_gene["mutation"]["rate"], true, 0, 1.0);
-					cout << "SimulatorFactory::parseProfileOld - Agregando marcador (length: " << length 
-						<< ", initial_alleles: " << initial_alleles 
-						<< ", rate: " << rate << ")\n";
+//					cout << "SimulatorFactory::parseProfileOld - Agregando marcador (length: " << length 
+//						<< ", initial_alleles: " << initial_alleles 
+//						<< ", rate: " << rate << ")\n";
 					vector<double> params;
 					params.push_back(rate);
 					ProfileMarker marker(MARKER_SEQUENCE, length, initial_alleles, MUTATION_BASIC, params);
 					profile->addMarker(marker);
 				}
 				else{
-					cerr << "SimulatorFactory::parseProfileOld - Unknown Mutation Type (" << mutation_type << ")\n";
+//					cerr << "SimulatorFactory::parseProfileOld - Unknown Mutation Type (" << mutation_type << ")\n";
 				}
 			}
 			else{
-				cerr << "SimulatorFactory::parseProfileOld - Unknown Marker Type (" << type << ")\n";
+//				cerr << "SimulatorFactory::parseProfileOld - Unknown Marker Type (" << type << ")\n";
 			}
 		}
 	}
 	
-	cout << "SimulatorFactory::parseProfileOld - Fin\n";
+//	cout << "SimulatorFactory::parseProfileOld - Fin\n";
 	return profile;
 }
 
@@ -282,14 +282,14 @@ Simulator *SimulatorFactory::getInstance(){
 	cout << "SimulatorFactory::getInstance - Inicio\n";
 	
 	
-	cout << "SimulatorFactory::getInstance - new Simulator...\n";
+//	cout << "SimulatorFactory::getInstance - new Simulator...\n";
 	Simulator *res = new Simulator();
 	// Detectar el model de settings
-	cout << "SimulatorFactory::getInstance - new ModelWF...\n";
+//	cout << "SimulatorFactory::getInstance - new ModelWF...\n";
 	res->setModel( new ModelWF() );
-	cout << "SimulatorFactory::getInstance - parseEventsOld...\n";
+//	cout << "SimulatorFactory::getInstance - parseEventsOld...\n";
 	res->setEvents( parseEventsOld( settings["scenarios"] ) );
-	cout << "SimulatorFactory::getInstance - parseProfileOld...\n";
+//	cout << "SimulatorFactory::getInstance - parseProfileOld...\n";
 	res->setProfile( parseProfileOld( settings["individual"] ) );
 	
 	

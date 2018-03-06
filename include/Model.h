@@ -45,12 +45,12 @@ public:
 	}
 	
 	virtual void serialize(char *buff){
-		cout<<"Model::serialize - Guardando type " << type << "\n";
+//		cout<<"Model::serialize - Guardando type " << type << "\n";
 		memcpy(buff, (char*)&type, sizeof(int));
 	}
 	
 	virtual unsigned int loadSerialized(char *buff){
-		cout<<"Model::loadSerialized - Inicio\n";
+//		cout<<"Model::loadSerialized - Inicio\n";
 		
 		// Guardo el original para calcular desplazamiento
 		char *buff_original = buff;
@@ -58,9 +58,9 @@ public:
 		memcpy((char*)&type, buff, sizeof(int));
 		buff += sizeof(int);
 		
-		cout<<"Model::loadSerialized - type: " << type << "\n";
+//		cout<<"Model::loadSerialized - type: " << type << "\n";
 		
-		cout<<"Model::loadSerialized - Fin (bytes usados: " << (buff - buff_original) << ")\n";
+//		cout<<"Model::loadSerialized - Fin (bytes usados: " << (buff - buff_original) << ")\n";
 		return (buff - buff_original);
 	}
 	

@@ -102,7 +102,7 @@ public:
 		n_bytes += events->serializedSize();
 		n_bytes += profile->serializedSize();
 		
-		cout<<"Simulator::serialize - Preparando buffer de " << n_bytes << " bytes\n";
+//		cout<<"Simulator::serialize - Preparando buffer de " << n_bytes << " bytes\n";
 		
 		char *buff = new char[n_bytes];
 		unsigned int pos = 0;
@@ -135,7 +135,7 @@ public:
 		unsigned int n_bytes = 0;
 		memcpy((char*)&n_bytes, buff, sizeof(int));
 		buff += sizeof(int);
-		cout<<"Simulator::loadSerialized - n_bytes: " << n_bytes << "\n";
+//		cout<<"Simulator::loadSerialized - n_bytes: " << n_bytes << "\n";
  		
  		// Notar este constructor medio fuera de lugar
  		// Esto deberia hacerlo un factory, quizas todo este metodo deberia estar en SimulatorFactory

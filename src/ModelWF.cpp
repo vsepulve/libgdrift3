@@ -1,7 +1,7 @@
 #include "ModelWF.h"
 
 ModelWF::ModelWF(){
-	cout<<"ModelWF - Creating new ModelWF\n";
+//	cout<<"ModelWF - Creating new ModelWF\n";
 	type = 1;
 }
 
