@@ -1,6 +1,7 @@
 #ifndef _STATISTICS_H_
 #define _STATISTICS_H_
 
+#include <set>
 #include <map>
 #include <vector>
 #include <random>
@@ -23,6 +24,11 @@ private:
 	map<string, vector< map<string, double> > > statistics;
 	// Notar que es un vector de tablas, una por cada marcador
 	vector<map<unsigned int, string>> alleles_tables;
+	
+	// Mapa de mutaciones aplicadas a cada alelo
+	// TODO: este mapa solo es valido para datos de tipo secuencia
+	vector<map<unsigned int, map<unsigned int, char> >> alleles_mutations_tables;
+	
 	// Notar que el profile y el pool son de la simulacion, guardo punteros por comodidad
 	Profile *profile;
 	Pool *pool;
@@ -59,6 +65,9 @@ public:
 	// Tambien notar que algunos de estos pueden preferir los vectores de mutaciones en lugar de los textos
 	
 	static vector<unsigned int> statPairwiseDifferences(vector<string> &alleles);
+	
+	// Esta version se basa en el mapa de mutaciones, EXCLUSIVO para secuencias
+	static vector<unsigned int> statPairwiseDifferencesMutations(vector< map<unsigned int, char> > &alleles);
 	
 	static double statNumHaplotypes(vector<string> &alleles);
 		
