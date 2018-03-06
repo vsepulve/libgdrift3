@@ -36,6 +36,15 @@ public:
 	
 	void addMarker(ProfileMarker &marker);
 	
+	// Metodo de debug
+	void print(){
+		cout << "Profile::print - ploidy: " << (unsigned int)ploidy << "\n";
+		cout << "Profile::print - n_markers: " << markers.size() << "\n";
+		for( ProfileMarker marker : markers ){
+			marker.print();
+		}
+	}
+	
 	// Metodos de Serializacion
 	
 	unsigned int serializedSize(){

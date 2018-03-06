@@ -32,6 +32,11 @@ public:
 	
 	virtual void run(Population *population, Profile *profile, mt19937 &generator);
 	
+	// Metodo de debug
+	virtual void print(){
+		cout << "Model::print - type: " << type << "\n";
+	}
+	
 	// Notar que por ahora solo estoy guardando un entero type en la serializacion
 	// Esto es solo una formalidad, no lo estoy usando de momento
 	

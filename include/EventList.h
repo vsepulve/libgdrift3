@@ -60,6 +60,15 @@ public:
 		events.push_back(event);
 	}
 	
+	// Metodo de debug
+	void print(){
+		cout << "EventList::print - id: " << id << "\n";
+		cout << "EventList::print - n_events: " << events.size() << "\n";
+		for( Event *e : events ){
+			e->print();
+		}
+	}
+	
 	unsigned int serializedSize(){
 		// return 0;
 		unsigned int n_bytes = 0;

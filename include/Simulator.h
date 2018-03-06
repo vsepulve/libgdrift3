@@ -27,9 +27,9 @@ private:
 
 	Model *model;
 	EventList *events;
-	map<string, Population*> populations;
 	Profile *profile;
 	Pool *pool;
+	map<string, Population*> populations;
 	mt19937 generator;
 
 public:
@@ -54,7 +54,45 @@ public:
 	
 	void run();
 	void executeEvent(Event *event);
-
+	
+	// Metodo de debug
+	void print(){
+		cout << "-----\n";
+		cout << "Simulator::print - Inicio\n";
+		if(model == NULL){
+			cout << "Simulator::print - Model NULL\n";	
+		}
+		else{
+			model->print();
+		}
+		if(events == NULL){
+			cout << "Simulator::print - EventList NULL\n";	
+		}
+		else{
+			events->print();
+		}
+		if(profile == NULL){
+			cout << "Simulator::print - Profile NULL\n";	
+		}
+		else{
+			profile->print();
+		}
+		if(pool == NULL){
+			cout << "Simulator::print - Pool NULL\n";	
+		}
+		else{
+			pool->print();
+		}
+		
+		cout << "Simulator::print - Populations: " << populations.size() << "\n";
+		for(auto it : populations){
+			cout << "Simulator::print - (" << it.first << ", " << it.second->size() << " individuos)\n";
+		}
+		
+		cout << "Simulator::print - Fin\n";
+		cout << "-----\n";
+	}
+	
 	char *serialize(){
 //		return NULL;
 		

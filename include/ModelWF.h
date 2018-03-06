@@ -23,6 +23,11 @@ public:
 	
 	virtual void run(Population *population, Profile *profile, mt19937 &generator);
 	
+	// Metodo de debug
+	virtual void print(){
+		cout << "ModelWF::print - type: " << type << "\n";
+	}
+	
 };
 
 #endif

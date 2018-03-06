@@ -37,6 +37,15 @@ public:
 		return next_allele[marker];
 	}
 	
+	// Metodo de debug
+	void print(){
+		cout << "Pool::print - n_markers: " << mutations_map.size() << " (" << next_allele.size() << ")\n";
+		for( unsigned int i = 0; i < mutations_map.size(); ++i ){
+			cout << "Pool::print - mutations[" << i << "]: " << mutations_map[i].size() << "\n";
+			cout << "Pool::print - next_allele[" << i << "]: " << next_allele[i] << "\n";
+		}
+	}
+	
 };
 
 #endif
