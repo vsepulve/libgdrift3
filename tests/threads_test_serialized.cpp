@@ -20,25 +20,55 @@ mutex global_mutex;
 vector<char*> work_queue;
 unsigned int global_pos = 0;
 
-vector<double> get_statstics(Simulator *sim, float sampling){
+vector<double> get_statistics(Simulator *sim, float sampling){
 	vector<double> res;
 	Statistics stats(sim, sampling);
 	map<string, vector< map<string, double> > > statistics = stats.getStatistics();
 	// Agrupo los estadisticos en el mismo orden, population_name primero, n marcadores, y stat name al final
 	for( auto &par : statistics ){
-		cout<<"get_statstics - Stats Population \""<< par.first <<"\"\n";
+		cout<<"get_statistics - Stats Population \""<< par.first <<"\"\n";
 		unsigned int marker_pos = 0;
 		for( map<string, double> &marker_stats : par.second ){
-			cout<<"get_statstics - [ Marker "<<marker_pos++<<" ]\n";
+			cout<<"get_statistics - [ Marker "<<marker_pos++<<" ]\n";
 			for( auto &stat : marker_stats ){
 				cout<<"Test - " << stat.first << ": "<< stat.second <<"\n";
+				res.push_back(stat.second);
 			}
 			cout<<"-----\n";
-			res.push_back(stat.second);
 		}
 	}
 	return res;
 }
+
+vector<double> get_params(Simulator *sim){
+	vector<double> res;
+	
+	// No voy a comparar parametros punto a punto con los datos antiguos, solo las distribuciones
+	// Por esto, en este caso el orden NO esta atado a los nombres json de las variables
+	// Simplemente extraere los parametros del profile, y luego de cada evento
+	// Esto asume obviamente que todas las simulaciones comparadas tienen los mismos parametros
+	
+	Profile *profile = sim->getProfile();
+	for(unsigned int i = 0; i < profile->getNumMarkers(); ++i){
+		ProfileMarker marker = profile->getMarker(i);
+		for(unsigned int j = 0; j < marker.getNumParam(); ++j){
+			res.push_back( marker.getParam(j) );
+		}
+	}
+	
+	// Obviamente en el caso de los eventos solo considero la generacion y los parametros numericos
+	EventList *events = sim->getEvents();
+	for(unsigned int i = 0; i < events->size(); ++i){
+		Event *event = events->getEvent(i);
+		res.push_back( (double)(event->getGeneration()) );
+		for( double value : event->getNumParams() ){
+			res.push_back(value);
+		}
+	}
+	
+	return res;
+}
+
 
 void SimultionThread(unsigned int pid, unsigned int n_threads, string output_base){
 	
@@ -56,7 +86,7 @@ void SimultionThread(unsigned int pid, unsigned int n_threads, string output_bas
 	
 	unsigned int max_storage = 10;
 	vector< vector<double> > statistics_storage;
-//	vector< vector<double> > params_storage;
+	vector< vector<double> > params_storage;
 	
 	while(true){
 		global_mutex.lock();
@@ -81,12 +111,11 @@ void SimultionThread(unsigned int pid, unsigned int n_threads, string output_bas
 		// Esto requiere el target 
 		// Falta definir e implementar la normalizacion
 		
-		
 		vector<double> statistics = get_statistics(&sim, 0.05);
-//		vector<double> params = get_params(fjob);
+		vector<double> params = get_params(&sim);
 		
 		statistics_storage.push_back(statistics);
-//		params_storage.push_back(params);
+		params_storage.push_back(params);
 		
 		if( statistics_storage.size() >= max_storage ){
 			
@@ -99,42 +128,39 @@ void SimultionThread(unsigned int pid, unsigned int n_threads, string output_bas
 				for( double value : statistics_storage[i] ){
 					writer << value << "\t";
 				}
-//				for( double value : params_storage[i] ){
-//					writer << value << "\t";
-//				}
+				for( double value : params_storage[i] ){
+					writer << value << "\t";
+				}
 				writer << "\n";
 			}
 			writer.close();
 			statistics_storage.clear();
-//			params_storage.clear();
+			params_storage.clear();
 		}
-			
-		
 		
 	}
 	
 	// Si quedaron resultados pendientes, los guardo aqui
-//	if( statistics_storage.size() > 0 ){
-//		
-////		global_mutex.lock();
-////		cout<<"SimultionThread["<<pid<<"] - statistics_storage.size: "<<statistics_storage.size()<<", guardando...\n";
-////		global_mutex.unlock();
-//		
-//		fstream writer(file_name, fstream::out | fstream::app);
-//		for(unsigned int i = 0; i < statistics_storage.size(); ++i){
-//			for( double value : statistics_storage[i] ){
-//				writer << value << "\t";
-//			}
-//			for( double value : params_storage[i] ){
-//				writer << value << "\t";
-//			}
-//			writer << "\n";
-//		}
-//		writer.close();
-//		statistics_storage.clear();
-//		params_storage.clear();
-//	}
-	
+	if( statistics_storage.size() > 0 ){
+		
+//		global_mutex.lock();
+//		cout<<"SimultionThread["<<pid<<"] - statistics_storage.size: "<<statistics_storage.size()<<", guardando...\n";
+//		global_mutex.unlock();
+		
+		fstream writer(file_name, fstream::out | fstream::app);
+		for(unsigned int i = 0; i < statistics_storage.size(); ++i){
+			for( double value : statistics_storage[i] ){
+				writer << value << "\t";
+			}
+			for( double value : params_storage[i] ){
+				writer << value << "\t";
+			}
+			writer << "\n";
+		}
+		writer.close();
+		statistics_storage.clear();
+		params_storage.clear();
+	}
 	
 	global_mutex.lock();
 	cout<<"SimultionThread["<<pid<<"] - Fin (Total trabajos: "<<procesados<<", Total ms: "<<timer.getMilisec()<<")\n";
@@ -224,7 +250,6 @@ int main(int argc,char** argv){
 //	cout<<"Test - Terminados: "<<terminados<<", Total efectivo: "<<total<<"\n";
 	
 	cout<<"Test - Preparando Cola de Trabajo\n";
-//	fill_queue(fsettings, total, generator);
 	SimulatorFactory factory(settings_file);
 	
 	for(unsigned int i = 0; i < total; ++i){

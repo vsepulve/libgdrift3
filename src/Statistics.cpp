@@ -371,25 +371,43 @@ vector<unsigned int> Statistics::statPairwiseDifferencesMutations(vector< map<un
 			// Luego agrego desde j omitiendo TODAS las que afecten a posiciones tocadas por i
 			// Asi omito las identicas en ambos sentidos, y las semiidenticas solo en el segundo
 			
-			for( auto it : alleles[i]){
-				unsigned int pos = it.first;
-				char c = it.second;
-				auto it_j = alleles[j].find(pos);
-				if( it_j != alleles[j].end() && c == it_j->second ){
-					// omito por ser identica
-				}
-				else{
+//			for( auto it : alleles[i]){
+//				unsigned int pos = it.first;
+//				char c = it.second;
+//				auto it_j = alleles[j].find(pos);
+//				if( it_j != alleles[j].end() && c == it_j->second ){
+//					// omito por ser identica
+//				}
+//				else{
+//					++diff;
+//				}
+//			}
+//			
+//			for( auto it : alleles[j]){
+//				unsigned int pos = it.first;
+//				auto it_i = alleles[i].find(pos);
+//				if( it_i == alleles[i].end() ){
+//					++diff;
+//				}
+//			}
+			
+			// Una forma mas rapida deberia ser usando una diferencia simetrica lineal
+			// Se sacan las posiciones replicadas a posteriori
+			vector< pair<unsigned int, char> > res;
+			std::set_symmetric_difference(alleles[i].begin(), alleles[i].end(), alleles[j].begin(), alleles[j].end(), back_inserter(res));
+//			unsigned int diff2 = 0;
+			unsigned int last = 0xffffffff;
+			for( pair<unsigned int, char> it : res ){
+				if( it.first != last ){
 					++diff;
+					last = it.first;
 				}
 			}
 			
-			for( auto it : alleles[j]){
-				unsigned int pos = it.first;
-				auto it_i = alleles[i].find(pos);
-				if( it_i == alleles[i].end() ){
-					++diff;
-				}
-			}
+//			if( diff != diff2 ){
+//				cout << "Statistics::statPairwiseDifferencesMutations - Error, " << diff << " vs " << diff2 << "\n";
+//			}
+			
 			
 			pairwise_differences.push_back(diff);
 		}
