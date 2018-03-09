@@ -31,7 +31,9 @@ private:
 	EventList *parseEventsOld(json &scenarios);
 	Profile *parseProfileOld(json &individual);
 	
-	// Retorna verdadero en caso de reemplazo (false si, por ejemplo, es el parametro es fixed)
+	// Retorna verdadero en caso de reemplazo
+	// Originalmente retornaba true si hacia el cambio
+	// Pero ahora que aplica fixed en varianza 0, es innecesario
 	bool replaceDistribution(json &param, pair<double, double> &values);
 
 public:

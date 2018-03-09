@@ -281,26 +281,36 @@ Profile *SimulatorFactory::parseProfileOld(json &individual){
 bool SimulatorFactory::replaceDistribution(json &param, pair<double, double> &values){
 //	cout << "SimulatorFactory::replaceDistribution - Inicio\n";
 //	cout << "SimulatorFactory::replaceDistribution - param: " << param << "\n";
-	string type = param["type"];
-//	cout << "SimulatorFactory::replaceDistribution - Value type: " << type << "\n";
-	if( type.compare("random") == 0 ){
-		// Elimino distribucion antigua (tecnicamente innecesario)
-//		cout << "SimulatorFactory::replaceDistribution - param.erase\n";
-		param.erase("distribution");
-		// Preparo nueva distribucion
+
+	if(values.second == 0 ){
+		param["type"] = "fixed";
+		param["value"] = std::to_string(values.first);
+	}
+	else{
+		param["type"] = "random";
 		json this_distribution;
 		this_distribution["type"] = "normal";
 		this_distribution["params"]["mean"] = std::to_string(values.first);
 		this_distribution["params"]["stddev"] = std::to_string(values.second);
-		// Reintegro la nueva distribucion
-//		cout << "SimulatorFactory::replaceDistribution - reemplazando\n";
 		param["distribution"] = this_distribution;
-//		cout << "SimulatorFactory::replaceDistribution - param: " << param << "\n";
-//		cout << "SimulatorFactory::replaceDistribution - Fin (Ajustado)\n";
-		return true;
 	}
+
+//	string type = param["type"];
+//	if( type.compare("random") == 0 && values.second != 0 ){
+//		// Elimino distribucion antigua (tecnicamente innecesario)
+//		param.erase("distribution");
+//		// Preparo nueva distribucion
+//		json this_distribution;
+//		this_distribution["type"] = "normal";
+//		this_distribution["params"]["mean"] = std::to_string(values.first);
+//		this_distribution["params"]["stddev"] = std::to_string(values.second);
+//		// Reintegro la nueva distribucion
+//		param["distribution"] = this_distribution;
+//		return true;
+//	}
+	
 //	cout << "SimulatorFactory::replaceDistribution - Fin (Omitido)\n";
-	return false;
+	return true;
 }
 
 // Recibe un vector de pares <mean, stddev> en el orden de los parametros
