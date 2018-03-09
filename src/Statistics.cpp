@@ -9,12 +9,12 @@ Statistics::Statistics(Simulator *sim, float sampling)
 	assert(sampling >= 0.0);
 	assert(sampling <= 1.0);
 	
-	cout << "Statistics - Start\n";
+//	cout << "Statistics - Start\n";
 	
 	pool = sim->getPool();
 	profile = sim->getProfile();
 	
-	cout << "Statistics - Preparing mutations table\n";
+//	cout << "Statistics - Preparing mutations table\n";
 	mutation_table['A'] = {'C', 'G', 'T'};
 	mutation_table['C'] = {'A', 'G', 'T'};
 	mutation_table['G'] = {'A', 'C', 'T'};
@@ -28,22 +28,22 @@ Statistics::Statistics(Simulator *sim, float sampling)
 	
 	vector<string> pop_names = sim->getPopulationNames();
 	
-	cout << "Statistics - Processing " << pop_names.size() << " populations\n";
+//	cout << "Statistics - Processing " << pop_names.size() << " populations\n";
 	for(string name : pop_names){
-		cout << "Statistics - Population " << name << "\n";
+//		cout << "Statistics - Population " << name << "\n";
 		Population *pop = sim->getPopulation(name);
 		processStatistics(pop, name, sampling);
 		
-		cout << "Statistics - Adding individuals to summary\n";
+//		cout << "Statistics - Adding individuals to summary\n";
 		for(unsigned int i = 0; i < pop->size(); ++i){
 			summary.add( pop->get(i) );
 		}
 	}
 	
-	cout << "Statistics - Processing the combined population\n";
+//	cout << "Statistics - Processing the combined population\n";
 	processStatistics(&summary, "summary", sampling);
 	
-	cout << "Statistics - End\n";
+//	cout << "Statistics - End\n";
 }
 	
 //Statistics::Statistics(const Statistics &original){
@@ -68,7 +68,7 @@ Statistics::~Statistics(){
 // Procesa todos los estadisticos y los agrega a statistics[name][stat]
 void Statistics::processStatistics(Population *pop, string name, float sampling){
 	
-	cout << "Statistics::processStatistics - Start (population " << name << ", size " << pop->size() << ", sampling " << sampling << ")\n";
+//	cout << "Statistics::processStatistics - Start (population " << name << ", size " << pop->size() << ", sampling " << sampling << ")\n";
 	
 	unsigned int n_inds = pop->size() * sampling;
 	if(n_inds < min_sampling){
@@ -80,7 +80,7 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 	
 	// Necesito un shuffle de la poblacion
 	// Para simularlo, puedo desordenar las posiciones
-	cout << "Statistics::processStatistics - Preparing selected individuals (n_inds: " << n_inds << ")\n";
+//	cout << "Statistics::processStatistics - Preparing selected individuals (n_inds: " << n_inds << ")\n";
 	vector<unsigned int> inds_usados;
 	for(unsigned int i = 0; i < pop->size(); ++i){
 		inds_usados.push_back(i);
@@ -92,12 +92,12 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 	// Para cada marcador, calcular SU mapa de estadisticos y agregarlo
 	
 	vector<map<string, double>> stats_vector;
-	cout << "Statistics::processStatistics - Processing " << profile->getNumMarkers() << " markers\n";
+//	cout << "Statistics::processStatistics - Processing " << profile->getNumMarkers() << " markers\n";
 	for(unsigned int pos_marker = 0; pos_marker < profile->getNumMarkers(); ++pos_marker){
 		map<string, double> stats;
 		ProfileMarker marker = profile->getMarker(pos_marker);
 		
-		cout << "Statistics::processStatistics - Preparing String Vector\n";
+//		cout << "Statistics::processStatistics - Preparing String Vector\n";
 		vector<string> alleles;
 		vector< map<unsigned int, char> > alleles_mutations;
 		set<unsigned int> added_alleles;
@@ -107,36 +107,25 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 			alleles.push_back( getAllele(pos_marker, id_allele, marker) );
 			alleles_mutations.push_back( alleles_mutations_tables[pos_marker][id_allele] );
 			
-//			if( added_alleles.find( id_allele ) == added_alleles.end() ){
-//				added_alleles.insert(id_allele);
-//				cout << "Statistics::processStatistics - Adding allele " << id_allele << " : ";
-//				for( auto it : alleles_mutations_tables[pos_marker][id_allele] ){
-//					cout << "(" << it.first << " -> \'" << it.second << "\') | ";
-//				}
-//				cout << "\n";
-//			}
-			
 		}
-		cout << "Statistics::processStatistics - alleles_table: " << alleles_tables[pos_marker].size() 
-			<< ", " << alleles.size() << " strings generated from " << pool->getNextAllele(pos_marker) <<"\n";
+//		cout << "Statistics::processStatistics - alleles_table: " << alleles_tables[pos_marker].size() 
+//			<< ", " << alleles.size() << " strings generated from " << pool->getNextAllele(pos_marker) <<"\n";
 		
-		cout << "Statistics::processStatistics - Processing Statistics\n";
+//		cout << "Statistics::processStatistics - Processing Statistics\n";
 		
-		// TODO: procesar todos los estadisticos con el vector de strings
-		// Notar que aqui seria conveniente tambien tener una tabla de mutaciones
 		// Notar que estoy usando los nombres antiguos por estadistico para conservar el orden
 		
 		// "number-of-haplotypes"
 		NanoTimer timer;
 		double num_haplotypes = statNumHaplotypes(alleles);
 		stats["number-of-haplotypes"] = num_haplotypes;
-		cout << "Statistics::processStatistics - num_haplotypes en " << timer.getMilisec() << " ms\n";
+//		cout << "Statistics::processStatistics - num_haplotypes en " << timer.getMilisec() << " ms\n";
 		
 		// "number-of-segregating-sites"
 		timer.reset();
 		double num_segregating_sites = statNumSegregatingSites(alleles);
 		stats["number-of-segregating-sites"] = num_segregating_sites;
-		cout << "Statistics::processStatistics - num_segregating_sites en " << timer.getMilisec() << " ms\n";
+//		cout << "Statistics::processStatistics - num_segregating_sites en " << timer.getMilisec() << " ms\n";
 		
 		timer.reset();
 //		vector<unsigned int> pairwise_differences = statPairwiseDifferences(alleles);
@@ -155,25 +144,25 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 //		}
 //		cout << "----- TEST -----\n";
 		
-		cout << "Statistics::processStatistics - pairwise_differences (oculto) en " << timer.getMilisec() << " ms\n";
+//		cout << "Statistics::processStatistics - pairwise_differences (oculto) en " << timer.getMilisec() << " ms\n";
 	
 		// "mean-of-the-number-of-pairwise-differences"
 		timer.reset();
 		double mean_pairwise_diff = statMeanPairwiseDifferences(pairwise_differences);
 		stats["mean-of-the-number-of-pairwise-differences"] = mean_pairwise_diff;
-		cout << "Statistics::processStatistics - mean_pairwise_diff en " << timer.getMilisec() << " ms\n";
+//		cout << "Statistics::processStatistics - mean_pairwise_diff en " << timer.getMilisec() << " ms\n";
 		
 		// "variance-of-the-number-of-pairwise-differences"
 		timer.reset();
 		double var_pairwise_diff = statVariancePairwiseDifferences(pairwise_differences, mean_pairwise_diff);
 		stats["variance-of-the-number-of-pairwise-differences"] = var_pairwise_diff;
-		cout << "Statistics::processStatistics - var_pairwise_diff en " << timer.getMilisec() << " ms\n";
+//		cout << "Statistics::processStatistics - var_pairwise_diff en " << timer.getMilisec() << " ms\n";
 		
 		// "tajima-d-statistics"
 		timer.reset();
 		double tajima_d = statTajimaD(alleles, num_segregating_sites, mean_pairwise_diff);
 		stats["tajima-d-statistics"] = tajima_d;
-		cout << "Statistics::processStatistics - tajima_d en " << timer.getMilisec() << " ms\n";
+//		cout << "Statistics::processStatistics - tajima_d en " << timer.getMilisec() << " ms\n";
 		
 		stats_vector.push_back(stats);
 	}

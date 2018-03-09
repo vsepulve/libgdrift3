@@ -125,7 +125,7 @@ public:
 	}
 	
 	unsigned int loadSerialized(char *buff){
-		cout<<"Simulator::loadSerialized - Inicio\n";
+//		cout<<"Simulator::loadSerialized - Inicio\n";
 		if( buff == NULL ){
 			return 0;
 		}
@@ -151,7 +151,7 @@ public:
 		buff += profile->loadSerialized(buff);
 		setProfile(profile);
  		
-		cout<<"Simulator::loadSerialized - Fin (bytes usados: " << (buff - buff_original) << ")\n";
+//		cout<<"Simulator::loadSerialized - Fin (bytes usados: " << (buff - buff_original) << ")\n";
  		return (buff - buff_original);
  		
 	}

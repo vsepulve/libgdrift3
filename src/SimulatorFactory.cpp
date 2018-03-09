@@ -279,7 +279,7 @@ Profile *SimulatorFactory::parseProfileOld(json &individual){
 }
 
 Simulator *SimulatorFactory::getInstance(){
-	cout << "SimulatorFactory::getInstance - Inicio\n";
+//	cout << "SimulatorFactory::getInstance - Inicio\n";
 	
 	
 //	cout << "SimulatorFactory::getInstance - new Simulator...\n";
@@ -295,7 +295,7 @@ Simulator *SimulatorFactory::getInstance(){
 	
 	
 	
-	cout << "SimulatorFactory::getInstance - Fin\n";
+//	cout << "SimulatorFactory::getInstance - Fin\n";
 	return res;
 }
 
