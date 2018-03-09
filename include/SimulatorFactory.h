@@ -30,6 +30,9 @@ private:
 	
 	EventList *parseEventsOld(json &scenarios);
 	Profile *parseProfileOld(json &individual);
+	
+	// Retorna verdadero en caso de reemplazo (false si, por ejemplo, es el parametro es fixed)
+	bool replaceDistribution(json &param, pair<double, double> &values);
 
 public:
 	
@@ -53,6 +56,7 @@ public:
 	double generate(json &json_dist);
 	double parseValue(json &json_val, bool force_limits, double forced_min, double forced_max);
 	
+	void reloadParameters(vector<pair<double, double>> &values);
 };
 
 

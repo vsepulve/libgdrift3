@@ -278,9 +278,139 @@ Profile *SimulatorFactory::parseProfileOld(json &individual){
 	return profile;
 }
 
+bool SimulatorFactory::replaceDistribution(json &param, pair<double, double> &values){
+//	cout << "SimulatorFactory::replaceDistribution - Inicio\n";
+//	cout << "SimulatorFactory::replaceDistribution - param: " << param << "\n";
+	string type = param["type"];
+//	cout << "SimulatorFactory::replaceDistribution - Value type: " << type << "\n";
+	if( type.compare("random") == 0 ){
+		// Elimino distribucion antigua (tecnicamente innecesario)
+//		cout << "SimulatorFactory::replaceDistribution - param.erase\n";
+		param.erase("distribution");
+		// Preparo nueva distribucion
+		json this_distribution;
+		this_distribution["type"] = "normal";
+		this_distribution["params"]["mean"] = std::to_string(values.first);
+		this_distribution["params"]["stddev"] = std::to_string(values.second);
+		// Reintegro la nueva distribucion
+//		cout << "SimulatorFactory::replaceDistribution - reemplazando\n";
+		param["distribution"] = this_distribution;
+//		cout << "SimulatorFactory::replaceDistribution - param: " << param << "\n";
+//		cout << "SimulatorFactory::replaceDistribution - Fin (Ajustado)\n";
+		return true;
+	}
+//	cout << "SimulatorFactory::replaceDistribution - Fin (Omitido)\n";
+	return false;
+}
+
+// Recibe un vector de pares <mean, stddev> en el orden de los parametros
+void SimulatorFactory::reloadParameters(vector<pair<double, double>> &values){
+//	cout <<  "SimulatorFactory::reloadParameters - Inicio\n";
+	unsigned int next_param = 0;
+	
+//	cout <<  "SimulatorFactory::reloadParameters - Ajustando Perfil\n";
+	// Primero el profile
+	json &individual = settings["individual"];
+	json &chromosomes = individual["chromosomes"];
+	for(unsigned int chr = 0; chr < chromosomes.size(); ++chr){
+		json &genes = chromosomes[chr]["genes"];
+		for(unsigned int gen = 0; gen < genes.size(); ++gen){
+			json &this_gene = genes[gen];
+			unsigned int type = stoi(this_gene["type"].get<string>());
+			if( type == 0 ){
+				// MARKER_SEQUENCE
+//				cout <<  "SimulatorFactory::reloadParameters - Tomando mutation_type\n";
+				unsigned int mutation_type = stoi(this_gene["mutation"]["model"].get<string>());
+//				cout <<  "SimulatorFactory::reloadParameters - mutation_type: " << mutation_type << "\n";
+				if( mutation_type == 0 ){
+					// MUTATION_BASIC
+//					cout <<  "SimulatorFactory::reloadParameters - [mutation][rate]\n";
+					json &this_param = this_gene["mutation"]["rate"];
+					if( replaceDistribution(this_param, values[next_param]) ){
+						++next_param;
+					}
+				}
+				else{
+//					cerr << "SimulatorFactory::parseProfileOld - Unknown Mutation Type (" << mutation_type << ")\n";
+				}
+			}
+			else{
+//				cerr << "SimulatorFactory::parseProfileOld - Unknown Marker Type (" << type << ")\n";
+			}
+		}
+	}
+	
+	// Luego proceso los eventos en el mismo orden de generacion
+	// Por ahora asumo escenario 0
+	// Una opcion es recibir el escenario como parametro
+	// Si se recibe el id, hay que iterar por los escenario hasta elegir el correcto
+	
+//	cout <<  "SimulatorFactory::reloadParameters - Tomando Escenario 0\n";
+	json &scen = settings["scenarios"][0];
+	
+//	cout <<  "SimulatorFactory::reloadParameters - Ajustando Eventos\n";
+	for( json &json_ev : scen["events"] ){
+		
+		// Notar que SIEMPRE se carga prmero la generacion, luego los parametros en orden de lectura
+		
+		json &this_param = json_ev["timestamp"];
+		if( replaceDistribution(this_param, values[next_param]) ){
+			++next_param;
+		}
+		
+		// Tipo del evento
+		string type = json_ev["type"];
+		
+		// Parametros especificos
+		json &json_params = json_ev["params"];
+		if( type.compare("create") == 0 ){
+			// create -> size
+			json &this_param = json_params["population"]["size"];
+			if( replaceDistribution(this_param, values[next_param]) ){
+				++next_param;
+			}
+		}
+		else if( type.compare("split") == 0 ){
+			// split -> SIN parametros (el porcentaje lo fijamos en 0.5 en old)
+		}
+		else if( type.compare("migration") == 0 ){
+			// migration -> percentage
+			json &this_param = json_params["source"]["population"]["percentage"];
+			if( replaceDistribution(this_param, values[next_param]) ){
+				++next_param;
+			}
+		}
+		else if( type.compare("merge") == 0 ){
+			// merge -> SIN parametros (spñp los nombres)
+		}
+		else if( type.compare("increment") == 0 ){
+			// increment -> percentage
+			json &this_param = json_params["source"]["population"]["percentage"];
+			if( replaceDistribution(this_param, values[next_param]) ){
+				++next_param;
+			}
+		}
+		else if( type.compare("decrement") == 0 ){
+			// decrement -> percentage
+			json &this_param = json_params["source"]["population"]["percentage"];
+			if( replaceDistribution(this_param, values[next_param]) ){
+				++next_param;
+			}
+		}
+		else if( type.compare("extinction") == 0 ){
+			// merge -> SIN parametros (spñp el nombre)
+		}
+		else if( type.compare("endsim") == 0 ){
+			// Este evento NO tiene parametros, solo la generacion y el tipo
+		}
+	}
+	
+//	cout <<  "SimulatorFactory::reloadParameters - Fin\n";
+	
+}
+
 Simulator *SimulatorFactory::getInstance(){
 //	cout << "SimulatorFactory::getInstance - Inicio\n";
-	
 	
 //	cout << "SimulatorFactory::getInstance - new Simulator...\n";
 	Simulator *res = new Simulator();
@@ -291,9 +421,6 @@ Simulator *SimulatorFactory::getInstance(){
 	res->setEvents( parseEventsOld( settings["scenarios"] ) );
 //	cout << "SimulatorFactory::getInstance - parseProfileOld...\n";
 	res->setProfile( parseProfileOld( settings["individual"] ) );
-	
-	
-	
 	
 //	cout << "SimulatorFactory::getInstance - Fin\n";
 	return res;
