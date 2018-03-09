@@ -26,15 +26,15 @@ vector<double> get_statistics(Simulator *sim, float sampling){
 	map<string, vector< map<string, double> > > statistics = stats.getStatistics();
 	// Agrupo los estadisticos en el mismo orden, population_name primero, n marcadores, y stat name al final
 	for( auto &par : statistics ){
-		cout<<"get_statistics - Stats Population \""<< par.first <<"\"\n";
-		unsigned int marker_pos = 0;
+//		cout<<"get_statistics - Stats Population \""<< par.first <<"\"\n";
+//		unsigned int marker_pos = 0;
 		for( map<string, double> &marker_stats : par.second ){
-			cout<<"get_statistics - [ Marker "<<marker_pos++<<" ]\n";
+//			cout<<"get_statistics - [ Marker "<<marker_pos++<<" ]\n";
 			for( auto &stat : marker_stats ){
-				cout<<"Test - " << stat.first << ": "<< stat.second <<"\n";
+//				cout<<"Test - " << stat.first << ": "<< stat.second <<"\n";
 				res.push_back(stat.second);
 			}
-			cout<<"-----\n";
+//			cout<<"-----\n";
 		}
 	}
 	return res;
@@ -221,33 +221,33 @@ int main(int argc,char** argv){
 	cout<<"Test - Inicio (total: "<<total<<", n_threads: "<<n_threads<<", output_base: "<<output_base<<")\n";
 	NanoTimer timer;
 	
-//	cout<<"Test - Revisando trabajos terminados\n";
-//	unsigned int terminados = 0;
-//	unsigned int buff_size = 1020*1024;
-//	char buff[buff_size];
-//	for(unsigned int pid = 0; pid < n_threads; ++pid){
-//		string file_name = output_base;
-//		file_name += std::to_string(pid);
-//		file_name += ".txt";
-//		fstream reader(file_name, fstream::in);
-//		
-//		while(true){
-//			reader.getline(buff, buff_size);
-//			if( !reader.good() || strlen(buff) < 1 ){
-//				break;
-//			}
-//			++terminados;
-//		}
-//		
-//		reader.close();
-//	}
-//	if(terminados < total){
-//		total -= terminados;
-//	}
-//	else{
-//		total = 0;
-//	}
-//	cout<<"Test - Terminados: "<<terminados<<", Total efectivo: "<<total<<"\n";
+	cout<<"Test - Revisando trabajos terminados\n";
+	unsigned int terminados = 0;
+	unsigned int buff_size = 1020*1024;
+	char buff[buff_size];
+	for(unsigned int pid = 0; pid < n_threads; ++pid){
+		string file_name = output_base;
+		file_name += std::to_string(pid);
+		file_name += ".txt";
+		fstream reader(file_name, fstream::in);
+		
+		while(true){
+			reader.getline(buff, buff_size);
+			if( !reader.good() || strlen(buff) < 1 ){
+				break;
+			}
+			++terminados;
+		}
+		
+		reader.close();
+	}
+	if(terminados < total){
+		total -= terminados;
+	}
+	else{
+		total = 0;
+	}
+	cout<<"Test - Terminados: "<<terminados<<", Total efectivo: "<<total<<"\n";
 	
 	cout<<"Test - Preparando Cola de Trabajo\n";
 	SimulatorFactory factory(settings_file);
