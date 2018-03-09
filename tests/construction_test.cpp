@@ -48,6 +48,7 @@ int main(int argc,char** argv) {
 	// Quizas seria mejor un metodo mas seguro que ese
 	vector<pair<double, double>> new_params;
 	new_params.push_back(pair<double, double>(0.005, 0.001));
+	new_params.push_back(pair<double, double>(100, 0));
 	new_params.push_back(pair<double, double>(5000, 1000));
 	new_params.push_back(pair<double, double>(1000, 100));
 	new_params.push_back(pair<double, double>(0.2, 0.1));
