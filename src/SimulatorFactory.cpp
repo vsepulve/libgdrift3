@@ -79,6 +79,12 @@ double SimulatorFactory::generate(json &json_dist){
 
 double SimulatorFactory::parseValue(json &json_val, bool force_limits, double forced_min, double forced_max){
 //	cout<<"parseValue - Inicio ("<< json_val <<")\n";
+	// Si es directamente un string, solo hay que convertirlo
+	if( json_val.type() == json::value_t::string ){
+//		cout<<"parseValue - Valor directo, parseando\n";
+		string text = json_val.get<string>();
+		return stod(text);
+	}
 	string type = json_val["type"];
 //	cout<<"parseValue - " << type << "\n";
 	double value = 0.0;
@@ -104,12 +110,12 @@ double SimulatorFactory::parseValue(json &json_val, bool force_limits, double fo
 
 // Este es uno de los metodos que DEBE conocer la estructura del json
 // Los metodos old* usan la estructura heredada de settings, previo a optimizaciones
-EventList *SimulatorFactory::parseEventsOld(json &scenarios){
-//	cout << "SimulatorFactory::parseEventsOld - Inicio (num of scenarios: " << scenarios.size() << ")\n";
-//	cout << "parseEventsOld - N of Scenarios: " << scenarios.size() << " ("<< scenarios <<")\n";
+EventList *SimulatorFactory::parseEventsOld(json &scen){
+//	cout << "SimulatorFactory::parseEventsOld - Inicio\n";
+//	cout << "SimulatorFactory::parseEventsOld - N of Scenarios: " << scenarios.size() << " ("<< scenarios <<")\n";
 	EventList *events = new EventList();
-	unsigned int pos = (*generator)() % scenarios.size();
-	json scen = scenarios[pos];
+//	unsigned int pos = (*generator)() % scenarios.size();
+//	json scen = scenarios[pos];
 //	cout << "SimulatorFactory::parseEventsOld - scen: "<< pos <<" (" << scen << ")\n";
 //	events->setId( scen["id"].get<unsigned int>() );
 	events->setId( stoi(scen["id"].get<string>()) );
@@ -161,7 +167,7 @@ EventList *SimulatorFactory::parseEventsOld(json &scenarios){
 			string dst2;
 			unsigned int partitions = stoi(json_params["partitions"].get<string>());
 			if( partitions != 2 ){
-//				cerr<<"SimulatorFactory::parseEventsOld - SPLIT Warning, partitions != 2 (" << partitions << ").\n";
+				cerr<<"SimulatorFactory::parseEventsOld - SPLIT Warning, partitions != 2 (" << partitions << ").\n";
 				dst1 = "dst_1_" + to_string(gen);
 				dst2 = "dst_2_" + to_string(gen);
 			}
@@ -191,7 +197,7 @@ EventList *SimulatorFactory::parseEventsOld(json &scenarios){
 			event->setType(MERGE);
 			unsigned int n_sources = json_params["source"].size();
 			if( n_sources != 2 ){
-//				cerr<<"SimulatorFactory::parseEventsOld - MERGE Warning, sources != 2 (" << n_sources << ").\n";
+				cerr<<"SimulatorFactory::parseEventsOld - MERGE Warning, sources != 2 (" << n_sources << ").\n";
 			}
 			string src1 = json_params["source"][0]["population"]["name"];
 			string src2 = json_params["source"][1]["population"]["name"];
@@ -428,7 +434,23 @@ Simulator *SimulatorFactory::getInstance(){
 //	cout << "SimulatorFactory::getInstance - new ModelWF...\n";
 	res->setModel( new ModelWF() );
 //	cout << "SimulatorFactory::getInstance - parseEventsOld...\n";
-	res->setEvents( parseEventsOld( settings["scenarios"] ) );
+	
+	// Verificar si settings tiene solo 1 scenario, o varios.
+	if( settings.find("scenarios") != settings.end() 
+		&& settings["scenarios"].size() > 0 ){
+//		cout << "SimulatorFactory::getInstance - Multiple Scenarios\n";
+		unsigned int pos = (*generator)() % settings["scenarios"].size();
+//		cout << "SimulatorFactory::getInstance - Parsing scenario " << pos << " / " << settings["scenarios"].size() << "\n";
+		res->setEvents( parseEventsOld( settings["scenarios"][pos] ) );
+	}
+	else if( settings.find("scenario") != settings.end() ){
+//		cout << "SimulatorFactory::getInstance - Single Scenario\n";
+		res->setEvents( parseEventsOld( settings["scenario"] ) );
+	}
+	else{
+		cerr << "SimulatorFactory::getInstance - No Scenario found\n";
+	}
+	
 //	cout << "SimulatorFactory::getInstance - parseProfileOld...\n";
 	res->setProfile( parseProfileOld( settings["individual"] ) );
 	
