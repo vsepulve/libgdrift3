@@ -14,7 +14,12 @@ class Pool{
 
 private:
 	
-	vector< map<unsigned int, unsigned int> > mutations_map;
+//	vector< map<unsigned int, unsigned int> > mutations_map;
+	
+	// Version con vector posicionale en lugar de mapa
+	// Aqui el id del alelo es directamente la posicion
+	vector< vector<unsigned int> > mutations_map;
+	
 	vector<unsigned int> next_allele;
 
 public:
@@ -31,7 +36,7 @@ public:
 	
 	unsigned int getNumAlleles(unsigned int marker_pos);
 	
-	unsigned int getAllele(unsigned int marker, unsigned int pos);
+//	unsigned int getAllele(unsigned int marker, unsigned int pos);
 	
 	unsigned int getNextAllele(unsigned int marker){
 		return next_allele[marker];

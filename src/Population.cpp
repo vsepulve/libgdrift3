@@ -35,7 +35,8 @@ Population::Population(unsigned int _n_inds, Profile *_profile, Pool *_pool, mt1
 		for(unsigned int marker = 0; marker < profile->getNumMarkers(); ++marker){
 			// escogo al azar un alelo para este marcador
 			unsigned int pos = alleles_dist[marker](generator);
-			inds[i].setAllele(marker, pool->getAllele(marker, pos));
+			inds[i].setAllele(marker, pool->getParent(marker, pos));
+//			inds[i].setAllele(marker, pool->getAllele(marker, pos));
 		}
 	}
 //	cout << "Population - End\n";
