@@ -35,20 +35,20 @@ void SimultionThread(unsigned int pid, const char *settings_file) {
 	global_mutex.unlock();
 	
 	// Extrer estadisticos
-	vector<double> res;
-	Statistics stats(sim, 0.05);
-	map<string, vector< map<string, double> > > statistics = stats.getStatistics();
-	// Agrupo los estadisticos en el mismo orden, population_name primero, n marcadores, y stat name al final
-	for( auto &par : statistics ){
-//		unsigned int marker_pos = 0;
-		for( map<string, double> &marker_stats : par.second ){
-//			cout<<"get_statistics - [ Marker "<<marker_pos++<<" ]\n";
-			for( auto &stat : marker_stats ){
-//				cout<<"Test - " << stat.first << ": "<< stat.second <<"\n";
-				res.push_back(stat.second);
-			}
-		}
-	}
+//	vector<double> res;
+//	Statistics stats(sim, 0.05);
+//	map<string, vector< map<string, double> > > statistics = stats.getStatistics();
+//	// Agrupo los estadisticos en el mismo orden, population_name primero, n marcadores, y stat name al final
+//	for( auto &par : statistics ){
+////		unsigned int marker_pos = 0;
+//		for( map<string, double> &marker_stats : par.second ){
+////			cout<<"get_statistics - [ Marker "<<marker_pos++<<" ]\n";
+//			for( auto &stat : marker_stats ){
+////				cout<<"Test - " << stat.first << ": "<< stat.second <<"\n";
+//				res.push_back(stat.second);
+//			}
+//		}
+//	}
 	// Aqui podrian usarse los estadisticos
 	
 	delete sim;
