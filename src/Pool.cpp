@@ -37,6 +37,7 @@ Pool::~Pool(){
 }
 
 unsigned int Pool::getNewAllele(unsigned int marker_pos, unsigned int allele){
+	assert(marker_pos < mutations_map.size());
 	
 //	unsigned int new_allele = ++(next_allele[marker_pos]);
 //	mutations_map[marker_pos][new_allele] = allele;
