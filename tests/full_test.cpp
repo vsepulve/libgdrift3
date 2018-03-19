@@ -162,6 +162,72 @@ void SimultionThread(unsigned int pid, unsigned int n_threads, string output_bas
 	
 }
 
+// Notar que recibo una COPIA del target para normalizar de modo independiente
+vector<pair<double, double>> getDistributions(string &feedback_output, unsigned int n_threads, unsigned int n_stats, unsigned int n_params, float f_training, vector<double> target){
+	
+	
+	vector< vector<double> > stats;
+	vector< vector<double> > stats_norm;
+	vector< vector<double> > params;
+	unsigned int buff_size = 1020*1024;
+	char buff[buff_size];
+	fstream lector;
+	double value = 0;
+	
+	// Cargar todos los resultados de este feedback
+	cout << "getDistributions - Leyendo resultados\n";
+	for(unsigned int pid = 0; pid < n_threads; ++pid){
+		string file_name = feedback_output;
+		file_name += std::to_string(pid);
+		file_name += ".txt";
+		lector.open(file_name, fstream::in);
+		
+		while(true){
+			lector.getline(buff, buff_size);
+			if( !lector.good() || strlen(buff) < 1 ){
+				break;
+			}
+			
+			string line(buff);
+			stringstream toks(line);
+			
+			vector<double> res_stats;
+			vector<double> res_stats_norm;
+			for(unsigned int i = 0; i < n_stats; ++i){
+				value = 0.0;
+				toks >> value;
+				res_stats.push_back(value);
+				res_stats_norm.push_back(value);
+			}
+			stats.push_back(res_stats);
+			stats_norm.push_back(res_stats_norm);
+			
+			vector<double> res_params;
+			for(unsigned int i = 0; i < n_stats; ++i){
+				value = 0.0;
+				toks >> value;
+				res_params.push_back(value);
+			}
+			params.push_back(res_params);
+			
+		}
+		
+		lector.close();
+	}
+	
+	// Normalizar los datos y el target
+	
+	// Calcular distancia y agregar a cada dato
+	
+	// Ordenar por distancia y escoger los mejores
+	
+	// Calcular estadisticos de cada parametro del muestreo
+	
+	// Generar resultado con medias y stddev de cada parametro
+	
+	
+}
+
 int main(int argc,char** argv){
 
 	if(argc != 9){
@@ -240,7 +306,7 @@ int main(int argc,char** argv){
 		cout << "Test - Procesamiento terminado en "<<(ms_processing - ms_preparation)<<" ms\n";
 		
 		// Training
-//		vector<pair<double, double>> distributions = getDistributions(feedback_output, n_stats, n_params, f_training);
+//		vector<pair<double, double>> distributions = getDistributions(feedback_output, n_threads, n_stats, n_params, f_training);
 		
 		
 		
