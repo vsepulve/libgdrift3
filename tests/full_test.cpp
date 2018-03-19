@@ -265,11 +265,16 @@ int main(int argc,char** argv){
 		cout << "Test - Procesamiento terminado en "<<(ms_processing - ms_preparation)<<" ms\n";
 		
 		// Training
+		cout << "Test - Procesando datos para entrenamiento\n";
 		vector<pair<double, double>> distributions = getDistributions(feedback_output, n_threads, n_stats, n_params, f_training, target_file);
 		
+		cout << "Test - Actualizando Parametros\n";
+		factory.reloadParameters(distributions);
 		
 		
 		
+		
+		cout << "Test - Vaciando cola de trabajo\n";
 		for(unsigned int i = 0; i < total; ++i){
 			delete [] work_queue[i];
 		}
