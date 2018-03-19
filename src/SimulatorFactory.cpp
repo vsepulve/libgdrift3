@@ -1,6 +1,6 @@
 #include "SimulatorFactory.h"
 
-SimulatorFactory::SimulatorFactory(const char *json_file, mt19937 *_generator){
+SimulatorFactory::SimulatorFactory(string json_file, mt19937 *_generator){
 
 	if(_generator != NULL){
 		generator = _generator;

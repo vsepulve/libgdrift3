@@ -39,7 +39,7 @@ private:
 public:
 	
 	// Constructor principal, recive el json de settings (con las distribuciones)
-	SimulatorFactory(const char *json_file, mt19937 *_generator = NULL);
+	SimulatorFactory(string json_file, mt19937 *_generator = NULL);
 	SimulatorFactory(const SimulatorFactory &original);
 	SimulatorFactory& operator=(const SimulatorFactory& original);
 	virtual SimulatorFactory *clone();
