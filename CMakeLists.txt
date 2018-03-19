@@ -23,8 +23,9 @@ add_executable(construction_test "${CMAKE_SOURCE_DIR}/tests/construction_test.cp
 add_executable(threads_test "${CMAKE_SOURCE_DIR}/tests/threads_test.cpp")
 add_executable(threads_test_serialized "${CMAKE_SOURCE_DIR}/tests/threads_test_serialized.cpp")
 add_executable(full_test "${CMAKE_SOURCE_DIR}/tests/full_test.cpp")
-add_executable(generate_statistics "${CMAKE_SOURCE_DIR}/tests/generate_statistics.cpp")
 add_executable(test_parallel "${CMAKE_SOURCE_DIR}/tests/test_parallel.cpp")
+add_executable(generate_statistics "${CMAKE_SOURCE_DIR}/tests/generate_statistics.cpp")
+add_executable(distributions_comparison "${CMAKE_SOURCE_DIR}/tests/distributions_comparison.cpp")
 
 add_library(libgdrift3 SHARED ${SOURCES})
 link_directories(${CMAKE_BINARY_DIR})
