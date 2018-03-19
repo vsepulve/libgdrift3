@@ -13,8 +13,11 @@
 #include <map>
 #include <vector>
 
+#include "ResultsReader.h"
+
 using namespace std;
 
+/*
 double distance(vector<double> &stats, vector<double> &target){
 	double d = 0.0;
 	for(unsigned int i = 0; i < target.size(); ++i){
@@ -66,6 +69,7 @@ double get_variance(vector<double> &data, double mean){
 	}
 	return suma/data.size();
 }
+*/
 
 int main(int argc,char** argv){
 
@@ -86,6 +90,65 @@ int main(int argc,char** argv){
 	
 	cout << "Statistics - Inicio (n_stats: " << n_stats << ", n_params: " << n_params << ", percentage: " << percentage << ")\n";
 	
+	
+	ResultsReader reader;
+	
+	// Agrega los datos de TODOS los n_threads resultados parciales
+	reader.readThreadsData(results_base, n_threads, n_stats, n_params);
+	
+	// Agrega el target
+	reader.setTarget(target_file);
+	
+	// Normaliza tanto los datos como el target
+	reader.normalize();
+	
+	// Calcula la distancia de cada dato normalizado al target
+	reader.computeDistances();
+	
+	// Ordena por distancia y selecciona los mejores resultados para el training
+	reader.selectBestResults(percentage);
+	
+	// Retorna pares <mean, stddev> de cada parametro calculado de los datos seleccionados
+	vector< pair<double, double> > dist_post = reader.getPosteriori();
+	
+	fstream writer(distributions_file, fstream::out | fstream::trunc);
+	// Calculo de estadisticos reales
+	for(unsigned int i = 0; i < dist_post.size(); ++i){
+		double mean = dist_post[i].first;
+		double stddev = dist_post[i].second;
+		
+		cout << "Statistics - Posteriori[" << i << "]: (mean: " << mean << ", stddev: " << stddev << ")\n";
+		writer << "Posteriori[" << i << "]: mean: " << mean << " | stddev: " << stddev << "\n";
+		
+	}
+	writer.close();
+	
+	vector< pair<double, unsigned int> > distancias = reader.getDistances();
+	writer.open(final_results, fstream::out | fstream::trunc);
+	for(unsigned int i = 0; i < distancias.size(); ++i){
+		double d = distancias[i].first;
+		unsigned pos = distancias[i].second;
+		vector<double> res_stats = reader.getStats(pos);
+		vector<double> res_params = reader.getParams(pos);
+		
+		writer << d << "\t";
+		
+		for(unsigned int j = 0; j < n_stats; ++j){
+			writer << res_stats[j] << "\t";
+		}
+		
+		for(unsigned int j = 0; j < n_params; ++j){
+			writer << res_params[j] << "\t";
+		}
+		
+		writer << "\n";
+		
+		
+	}
+	writer.close();
+	
+	
+	/*
 	vector< vector<double> > stats;
 	vector< vector<double> > stats_norm;
 	vector< vector<double> > params;
@@ -298,7 +361,6 @@ int main(int argc,char** argv){
 	}
 	writer.close();
 	
-	
 	writer.open(final_results, fstream::out | fstream::trunc);
 	for(unsigned int i = 0; i < distancias.size(); ++i){
 		double d = distancias[i].first;
@@ -322,6 +384,7 @@ int main(int argc,char** argv){
 	}
 	writer.close();
 	
+	*/
 	
 	cout << "Statistics - Fin\n";
 	

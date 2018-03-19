@@ -35,6 +35,7 @@ target_link_libraries(threads_test libgdrift3 pthread)
 target_link_libraries(threads_test_serialized libgdrift3 pthread)
 target_link_libraries(full_test libgdrift3 pthread)
 target_link_libraries(test_parallel libgdrift3 pthread)
+target_link_libraries(generate_statistics libgdrift3)
 
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set (CMAKE_INSTALL_PREFIX "/usr/" CACHE PATH "default install path" FORCE )
