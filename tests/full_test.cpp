@@ -166,55 +166,6 @@ void SimultionThread(unsigned int pid, unsigned int n_threads, string output_bas
 // Notar que recibo una COPIA del target para normalizar de modo independiente
 vector<pair<double, double>> getDistributions(string &feedback_output, unsigned int n_threads, unsigned int n_stats, unsigned int n_params, float f_training, string &target_file){
 	
-//	vector< vector<double> > stats;
-//	vector< vector<double> > stats_norm;
-//	vector< vector<double> > params;
-//	unsigned int buff_size = 1020*1024;
-//	char buff[buff_size];
-//	fstream lector;
-//	double value = 0;
-//	
-//	// Cargar todos los resultados de este feedback
-//	cout << "getDistributions - Leyendo resultados\n";
-//	for(unsigned int pid = 0; pid < n_threads; ++pid){
-//		string file_name = feedback_output;
-//		file_name += std::to_string(pid);
-//		file_name += ".txt";
-//		lector.open(file_name, fstream::in);
-//		
-//		while(true){
-//			lector.getline(buff, buff_size);
-//			if( !lector.good() || strlen(buff) < 1 ){
-//				break;
-//			}
-//			
-//			string line(buff);
-//			stringstream toks(line);
-//			
-//			vector<double> res_stats;
-//			vector<double> res_stats_norm;
-//			for(unsigned int i = 0; i < n_stats; ++i){
-//				value = 0.0;
-//				toks >> value;
-//				res_stats.push_back(value);
-//				res_stats_norm.push_back(value);
-//			}
-//			stats.push_back(res_stats);
-//			stats_norm.push_back(res_stats_norm);
-//			
-//			vector<double> res_params;
-//			for(unsigned int i = 0; i < n_stats; ++i){
-//				value = 0.0;
-//				toks >> value;
-//				res_params.push_back(value);
-//			}
-//			params.push_back(res_params);
-//			
-//		}
-//		
-//		lector.close();
-//	}
-	
 	ResultsReader reader;
 	reader.readThreadsData(feedback_output, n_threads, n_stats, n_params);
 	
@@ -232,25 +183,27 @@ vector<pair<double, double>> getDistributions(string &feedback_output, unsigned 
 	// Generar resultado con medias y stddev de cada parametro
 	vector< pair<double, double> > distributions = reader.getPosteriori();
 	
+	return distributions;
 	
 }
 
 int main(int argc,char** argv){
 
-	if(argc != 9){
-		cout << "\nUsage: ./test json_file total_jobs max_feedback n_threads output_base n_stats n_params f_training\n";
+	if(argc != 10){
+		cout << "\nUsage: ./test json_file total_jobs max_feedback n_threads output_base n_stats n_params f_training target_file\n";
 		cout << "\n";
 		return 0;
 	}
 	
-	const char *settings_file = argv[1];
+	string settings_file = argv[1];
 	unsigned int total = atoi(argv[2]);
 	unsigned int max_feedback = atoi(argv[3]);
 	unsigned int n_threads = atoi(argv[4]);
-	const char *output_base = argv[5];
+	string output_base = argv[5];
 	unsigned int n_stats = atoi(argv[6]);
 	unsigned int n_params = atoi(argv[7]);
 	float f_training = atof(argv[8]);
+	string target_file = argv[9];
 	
 	cout << "Test - Inicio (total: "<<total<<", n_threads: "<<n_threads<<", output_base: "<<output_base<<")\n";
 	
@@ -289,9 +242,8 @@ int main(int argc,char** argv){
 	for( unsigned int feedback = 0; feedback < max_feedback; ++feedback ){
 		
 		NanoTimer timer;
-		char feedback_output[ strlen(output_base) + 10];
-		sprintf(feedback_output, "%s", output_base);
-		sprintf(feedback_output + strlen(feedback_output), "f%u_", feedback);
+		string feedback_output = output_base;
+		feedback_output += "f" + to_string(feedback) + "_";
 	
 		cout << "Test - Agregando " << total << " jobs a la cola, feedback " << feedback << "\n";
 		for(unsigned int i = 0; i < total; ++i){
@@ -304,7 +256,7 @@ int main(int argc,char** argv){
 		cout << "Test - Iniciando " << n_threads << " threads\n";
 		vector<thread> threads_list;
 		for(unsigned int i = 0; i < n_threads; ++i){
-			threads_list.push_back( thread(SimultionThread, i, n_threads, (const char*)feedback_output) );
+			threads_list.push_back( thread(SimultionThread, i, n_threads, feedback_output) );
 		}
 		for(unsigned int i = 0; i < n_threads; ++i){
 			threads_list[i].join();
@@ -313,7 +265,7 @@ int main(int argc,char** argv){
 		cout << "Test - Procesamiento terminado en "<<(ms_processing - ms_preparation)<<" ms\n";
 		
 		// Training
-//		vector<pair<double, double>> distributions = getDistributions(feedback_output, n_threads, n_stats, n_params, f_training);
+		vector<pair<double, double>> distributions = getDistributions(feedback_output, n_threads, n_stats, n_params, f_training, target_file);
 		
 		
 		
