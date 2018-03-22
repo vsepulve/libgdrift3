@@ -397,7 +397,7 @@ void SimulatorFactory::reloadParameters(vector<pair<double, double>> &values){
 			}
 		}
 		else if( type.compare("merge") == 0 ){
-			// merge -> SIN parametros (spñp los nombres)
+			// merge -> SIN parametros (solo los nombres)
 		}
 		else if( type.compare("increment") == 0 ){
 			// increment -> percentage
@@ -414,7 +414,7 @@ void SimulatorFactory::reloadParameters(vector<pair<double, double>> &values){
 			}
 		}
 		else if( type.compare("extinction") == 0 ){
-			// merge -> SIN parametros (spñp el nombre)
+			// merge -> SIN parametros (solo el nombre)
 		}
 		else if( type.compare("endsim") == 0 ){
 			// Este evento NO tiene parametros, solo la generacion y el tipo
