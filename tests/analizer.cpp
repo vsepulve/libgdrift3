@@ -61,6 +61,8 @@ int main(int argc,char** argv){
 	bool procesar = true;
 	while( procesar ){
 		
+		cout << "-----\n";
+		
 		cout << "Server::main - Esperando clientes.\n";
 		// La idea es convertir el accept en la construccion de un objeto adecuado para la comunicacion
 		// Este objeto, sin embargo, NO puede ser pasado al thread y al mismo tiempo encargarse del cerrado del socket
@@ -76,6 +78,8 @@ int main(int argc,char** argv){
 			continue;
 		}
 		
+		// Recepcion de un mensaje de prueba: string en el formato length (4 bytes) + chars (length bytes)
+		// Notar que esto se puede recibir con readString, lo leo por separado para mayor control
 		unsigned int len = 0;
 		conexion.readUInt(len);
 		cout << "Server::main - len: " << len << "\n";
@@ -83,6 +87,11 @@ int main(int argc,char** argv){
 		conexion.readData(buff, len);
 		buff[len] = 0;
 		cout << "Server::main - buff: " << buff << "\n";
+		
+		// Envio de un mensaje de prueba: un entero (4 bytes) con el valor "1"
+		cout << "Server::main - Enviando respuesta (1)\n";
+		conexion.writeUInt(1);
+		
 		
 		
 	
