@@ -86,7 +86,7 @@ int main(int argc,char** argv){
 		char buff[len + 1];
 		conexion.readData(buff, len);
 		buff[len] = 0;
-		cout << "Server::main - buff: " << buff << "\n";
+		cout << "Server::main - buff: \"" << buff << "\"\n";
 		
 		// Envio de un mensaje de prueba: un entero (4 bytes) con el valor "1"
 		cout << "Server::main - Enviando respuesta (1)\n";
