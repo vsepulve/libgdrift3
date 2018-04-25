@@ -4,6 +4,7 @@ atomic<unsigned int> ClientReception::next_id(1);
 
 ClientReception::ClientReception(){
 	sock_fd = -1;
+	request_type = 0;
 	instance_id = next_id++;
 }
 
@@ -14,7 +15,7 @@ ClientReception::ClientReception(int listen_socket, struct sockaddr *addr, sockl
 
 ClientReception::ClientReception(const ClientReception &original){
 	sock_fd = original.sock_fd;
-	request = original.request;
+	request_type = original.request_type;
 	instance_id = next_id++;
 	cout << "ClientReception - Copia (fd "<<original.sock_fd<<", id "<<instance_id<<")\n";
 }
@@ -30,64 +31,13 @@ ClientReception::~ClientReception(){
 
 bool ClientReception::receiveRequest(){
 	cout << "ClientReception::receiveRequest (id "<<instance_id<<")\n";
-	
-	char user_ok = 1;
-	if( ! request.receive(sock_fd) ){
-		cout << "ClientReception::receiveRequest - Error al leer ID.\n";
-		user_ok = 0;
+	if( ! readByte(request_type) ){
+		cerr << "ClientReception::receiveRequest - Error receiving Request\n";
+		request_type = 0;
+		return false;
 	}
-	if( writeBytes(sock_fd, &user_ok, 1 ) != 1 ){
-		cout << "Server::main - Error al confirmar usuario.\n";
-		user_ok = 0;
-	}
-	return (user_ok == 1);
+	return true;
 }
-
-//int ClientReception::connectServer(const char *host, int port){
-//	int res = 0;
-//	struct hostent *server = NULL;
-//	struct sockaddr_in serv_addr;
-//	res = socket(AF_INET, SOCK_STREAM, 0);
-//	if(res < 0){
-//		cerr<<"ClientReception::connectServer - Error al crear socket.\n";
-//		return -1;
-//	}
-//	server = gethostbyname(host);
-//	if(server == NULL){
-//		cerr<<"ClientReception::connectServer - Error al buscar host.\n";
-//		return -1;
-//	}
-//	bzero( (char*)&serv_addr, sizeof(serv_addr) );
-//	serv_addr.sin_family = AF_INET;
-//	bcopy( (char*)server->h_addr, (char*)&serv_addr.sin_addr.s_addr, server->h_length );
-//	serv_addr.sin_port = htons(port);
-//	if( connect(res, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0 ){
-//		cerr<<"ClientReception::connectServer - Error al conectar.\n";
-//		close(res);
-//		return -1;
-//	}
-//	return res;	
-//}
-
-// Envia un mensaje de request al server
-// Retorna true en exito
-//bool ClientReception::sendRequest(unsigned char req){
-//	// Creacion y envio de request
-//	RequestID request;
-//	request.user_id = user_id;
-//	request.type = req;
-//	memset( request.md5, '0', 16 );
-//	request.md5[16] = 0;
-//	if( ! request.send(sock_fd) ){
-//		return false;
-//	}
-//	// Recepcion de byte de aprobacion
-//	char ok = 0;
-//	if( readBytes(sock_fd, &ok, 1) != 1 || ok == 0 ){
-//		return false;
-//	}
-//	return true;
-//}
 
 
 

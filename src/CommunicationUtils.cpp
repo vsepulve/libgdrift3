@@ -8,7 +8,7 @@ unsigned int writeBytes(int sock_fd, const char *buff, unsigned int size){
 	while( total < size ){
 		res = write(sock_fd, buff + total, size - total);
 		if(res < 0){
-			cout<<"ServerConnection::writeBytes - Error en write.\n";
+			cerr << "CommunicationUtils::writeBytes - Error in write.\n";
 			break;
 		}
 		total += res;
@@ -21,18 +21,16 @@ unsigned int writeBytes(int sock_fd, const char *buff, unsigned int size){
 // Notar que este metodo NO agrega el '\0' final para un c-string valido
 // Retorna el numero de bytes leidos
 unsigned int readBytes(int sock_fd, char *buff, unsigned int size){
-//	cout<<"ServerConnection::readBytes - Inicio (sock_fd: "<<sock_fd<<", size: "<<size<<")\n";
 	unsigned int total = 0;
 	unsigned int res = 0;
 	while( total < size ){
 		res = read(sock_fd, buff + total, size - total);
 		if(res < 0){
-			cout<<"ServerConnection::readBytes - Error en read.\n";
+			cerr << "CommunicationUtils::readBytes - Error in read.\n";
 			break;
 		}
 		total += res;
 	}
-//	cout<<"ServerConnection::readBytes - Fin (total: "<<total<<")\n";
 	return total;
 }
 
@@ -101,7 +99,7 @@ bool readStringSimple(int sock_fd, char *buff, unsigned int buff_size, char *inn
 		// read y verificacion de lectura
 		res = read(sock_fd, inner_buff, inner_buff_size);
 		if(res < 0){
-			cout<<"ServerConnection::readString - Error en read.\n";
+			cerr << "CommunicationUtils::readString - Error in read.\n";
 			break;
 		}
 		total += res;

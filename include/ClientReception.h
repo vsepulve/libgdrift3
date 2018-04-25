@@ -1,9 +1,7 @@
 #ifndef _CLIENT_RECEPTION_H
 #define _CLIENT_RECEPTION_H
 
-//#include "ConcurrentLogger.h"
 #include "Communicator.h"
-//#include "CheckUser.h"
 
 #include <atomic>
 
@@ -25,8 +23,10 @@ using namespace std;
 class ClientReception : public Communicator {
 private:
 //	int sock_fd;
-	RequestID request;
+	unsigned char request_type;
 	
+	// Variables para id de instancia
+	// Notar que ambas (instance_id y next_id) son SOLO PARA DEBUG
 	static atomic<unsigned int> next_id;
 	unsigned int instance_id;
 	
@@ -52,12 +52,8 @@ public:
 		sock_fd = _sock_fd;
 	}
 	
-	unsigned int getUser(){
-		return request.user_id;
-	}
-	
 	unsigned char getType(){
-		return request.type;
+		return request_type;
 	}
 	
 	
