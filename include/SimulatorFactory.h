@@ -59,6 +59,20 @@ public:
 	double parseValue(json &json_val, bool force_limits, double forced_min, double forced_max);
 	
 	void reloadParameters(vector<pair<double, double>> &values);
+	
+	// Revisa el json de settings completo para determinar el numero de estadisticos
+	// NOTE: de momento esto es el numero de estatisticos usados (5) por el numero de poblaciones final + 1 (summary)
+	// Si se especifica esto en el json de otro modo, habria que agregarlo
+	unsigned int getNumStatistics(){
+		return 0;
+	}
+	
+	// Revisa el json de settings completo para determinar el numero de parametros
+	// Para eso evalua los individuos y eventos en el mismo orden que reloadParameters
+	unsigned int getNumParams(){
+		return 0;
+	}
+	
 };
 
 
