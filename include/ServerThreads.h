@@ -19,6 +19,12 @@
 
 #include "CommunicationUtils.h"
 #include "ClientReception.h"
+#include "WorkManager.h"
+
+#include "NanoTimer.h"
+#include "SimulatorFactory.h"
+#include "Simulator.h"
+#include "Statistics.h"
 
 using namespace std;
 
@@ -27,7 +33,7 @@ using namespace std;
 //void thread_stat(int sock_cliente, Configuration *config);
 void thread_analyzer_init(int sock_cliente, string json_file_base);
 
-
+void simultion_thread(unsigned int pid, string output_base, WorkManager *manager);
 
 
 
