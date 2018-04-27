@@ -19,16 +19,23 @@
 #include "Statistics.h"
 
 #include "CommunicationUtils.h"
-//#include "ServerThreads.h"
+#include "ServerThreads.h"
 #include "ClientReception.h"
 
 using namespace std;
 
 int main(int argc,char** argv){
 
+	if(argc != 3){
+		cout<<"\nUsage: ./analyzer json_base port\n";
+		cout<<"\n";
+		return 0;
+	}
 	
-	// Prueba de comunicacion con go
-	unsigned int port = 12345;
+	string json_base = argv[1];
+	unsigned int port = atoi(argv[2]);
+	
+	
 	
 	// Inicio de enlace del puerto
 	cout << "Server::main - Enlazando puerto " << port << "\n";
@@ -53,7 +60,7 @@ int main(int argc,char** argv){
 	cout << "Server::main - Iniciando listen.\n";
 	listen(sock_servidor, 100);
 	// Datos para conexion de cliente
-//	int sock_cliente = -1;
+	int sock_cliente = -1;
 	// Esto es innecesario en nuestro caso
 //	struct sockaddr_in cli_addr;
 //	socklen_t clilen = sizeof(cli_addr);
@@ -80,42 +87,44 @@ int main(int argc,char** argv){
 		
 		// Recepcion de un mensaje de prueba: string en el formato length (4 bytes) + chars (length bytes)
 		// Notar que esto se puede recibir con readString, lo leo por separado para mayor control
-		unsigned int len = 0;
-		conexion.readUInt(len);
-		cout << "Server::main - len: " << len << "\n";
-		char buff[len + 1];
-		conexion.readData(buff, len);
-		buff[len] = 0;
-		cout << "Server::main - buff: \"" << buff << "\"\n";
-		
-		// Envio de un mensaje de prueba: un entero (4 bytes) con el valor "1"
-		cout << "Server::main - Enviando respuesta (1)\n";
-		conexion.writeUInt(1);
-		
-		
+//		unsigned int len = 0;
+//		conexion.readUInt(len);
+//		cout << "Server::main - len: " << len << "\n";
+//		char buff[len + 1];
+//		conexion.readData(buff, len);
+//		buff[len] = 0;
+//		cout << "Server::main - buff: \"" << buff << "\"\n";
+//		
+//		// Envio de un mensaje de prueba: un entero (4 bytes) con el valor "1"
+//		cout << "Server::main - Enviando respuesta (1)\n";
+//		conexion.writeUInt(1);
 		
 	
-//		cout << "Server::main - user "<<conexion.getUser()<<", request "<<(unsigned int)conexion.getType()<<"\n";
-//		ConcurrentLogger::addUserLock(conexion.getUser());
-//		switch( conexion.getType() ){
-//			case 0:
-//				cout << "Server::main - Request vacio, ignorando.\n";
-//				break;
-//			case REMOTE_INITIALIZE:
-//				cout << "Server::main - Creando thread_initialize para user "<<conexion.getUser()<<".\n";
-//				sock_cliente = conexion.getSocket();
-//				conexion.setSocket(-1);
-//				thread( thread_initialize, sock_cliente, conexion.getUser(), &config ).detach();
-//				break;
+		cout << "Server::main - request "<<(unsigned int)conexion.getType()<<"\n";
+		switch( conexion.getType() ){
+			case 0:
+				cout << "Server::main - Request vacio, ignorando.\n";
+				break;
+			case 1:
+				cout << "Server::main - Creando thread_init\n";
+				sock_cliente = conexion.getSocket();
+				conexion.setSocket(-1);
+//				thread( thread_analyzer_init, sock_cliente, &config ).detach();
+				thread( thread_analyzer_init, sock_cliente, json_base ).detach();
+				break;
+				
+				
+				
+				
 //			case KILL_SERVER:
 //				cout << "Server::main - Cerrando Server.\n";
 //				close( sock_servidor );
 //				procesar = false;
 //				break;
-//			default:
-//				cout << "Server::main - Handler NO definido para usuario "<<conexion.getUser()<<", ignorando.\n";
-//				break;
-//		}
+			default:
+				cout << "Server::main - Handler NO definido, ignorando.\n";
+				break;
+		}
 	
 	
 	
