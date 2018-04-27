@@ -1,10 +1,20 @@
 #include "WorkManager.h"
 
 WorkManager::WorkManager(){
+	killed = false;
 }
 
 WorkManager::~WorkManager(){
-	
+}
+
+void WorkManager::setKilled(){
+	lock_guard<mutex> lock(inner_mutex);
+	killed = true;
+}
+
+bool WorkManager::isKilled(){
+	lock_guard<mutex> lock(inner_mutex);
+	return killed;
 }
 
 // Prepara un nuevo SimulatorFactory con json_file, y lo asocia a sim_id en la tabla
@@ -96,5 +106,23 @@ unsigned int WorkManager::getFinished(unsigned int sim_id){
 //	res = status_table.getFinished(sim_id);
 	return res;
 }
+
+	
+// Transfiere el calculo de n_stats directo del factory de sim_id
+unsigned int WorkManager::getNumStatistics(unsigned int sim_id){
+	unsigned int res = 0;
+	lock_guard<mutex> lock(inner_mutex);
+//	res = status_table.getFactory(sim_id)->getNumStatistics();
+	return res;
+}
+
+// Transfiere el calculo de n_params directo del factory de sim_id
+unsigned int WorkManager::getNumParams(unsigned int sim_id){
+	unsigned int res = 0;
+	lock_guard<mutex> lock(inner_mutex);
+//	res = status_table.getFactory(sim_id)->getNumParams();
+	return res;
+}
+
 
 

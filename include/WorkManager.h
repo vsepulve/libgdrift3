@@ -34,6 +34,9 @@ private:
 	// Para mantener el acceso exclusivo a las estructuras, mantengo un mutex
 	// NOTAR: Podria ser conveniente usar 2 independientes (uno para la tabla y otro para la lista)
 	mutex inner_mutex;
+	
+	// Flag de estado general del sistema (se setea true para terminar)
+	bool killed;
 
 public:
 
@@ -58,8 +61,16 @@ public:
 	// Retorna el numero de simulaciones MARCADAS como terminadas
 	unsigned int getFinished(unsigned int sim_id);
 	
+	// Mensaje de termino para los threads procesadores
+	bool isKilled();
 	
+	void setKilled();
 	
+	// Transfiere el calculo de n_stats directo del factory de sim_id
+	unsigned int getNumStatistics(unsigned int sim_id);
+	
+	// Transfiere el calculo de n_params directo del factory de sim_id
+	unsigned int getNumParams(unsigned int sim_id);
 	
 };
 
