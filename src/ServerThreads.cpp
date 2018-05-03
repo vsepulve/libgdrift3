@@ -54,7 +54,7 @@ vector<double> get_params(Simulator *sim){
 }
 
 // Thread de procesamiento principal
-void processing_thread(unsigned int pid, string output_base, WorkManager *manager, Analizer *analizer){
+void processing_thread(unsigned int pid, string output_base, WorkManager *manager, Analyzer *analyzer){
 	
 //	global_mutex.lock();
 	cout << "processing_thread[" << pid << "] - Inicio\n";
@@ -81,8 +81,7 @@ void processing_thread(unsigned int pid, string output_base, WorkManager *manage
 		sim.loadSerialized(serialized);
 		++procesados;
 		
-		unsigned int sim_id = 0;
-//		unsigned int sim_id = sim.getId();
+		unsigned int sim_id = sim.getId();
 		// NOTE: Lo que sigue asume que el id ES UNICO
 		string file_name = output_base;
 		file_name += std::to_string(sim_id);
@@ -90,6 +89,7 @@ void processing_thread(unsigned int pid, string output_base, WorkManager *manage
 		file_name += std::to_string(pid);
 		file_name += ".txt";
 		
+		cout << "processing_thread[" << pid << "] - Ejecutando Sim " << sim_id << "\n";
 		sim.run();
 		
 		// Parte local del analyzer
@@ -109,12 +109,13 @@ void processing_thread(unsigned int pid, string output_base, WorkManager *manage
 		writer << "\n";
 		writer.close();
 		
-		// Verificar si es necesario ejecutar el analizer
+		// Verificar si es necesario ejecutar el analyzer
 		manager->addFinished(sim_id);
 		unsigned int finished = manager->getFinished(sim_id);
 		unsigned int total = manager->getTotal(sim_id);
 		if( finished >= total ){
-			 analizer->execute(sim_id);
+			cout << "processing_thread[" << pid << "] - Ejecutando Analyzer por fin de batch (" << finished << " / " << total << ")\n";
+			analyzer->execute(sim_id);
 		}
 		
 	}// while... trabajo en la cola
@@ -143,30 +144,34 @@ void thread_analyzer_init(int sock_cliente, string json_file_base, WorkManager *
 	
 	// Empiezo recibiendo sim_id
 	if( ! error && ! conexion.readUInt(sim_id) ){
-		cerr << "Server::thread_analyzer_init - Error receiving sim_id\n";	
+		cerr << "Server::thread_analyzer_init - Error receiving sim_id\n";
 		sim_id = 0;
 		error = true;
 	}
-	cout << "Server::main - sim_id: " << sim_id << "\n";
+	cout << "Server::thread_analyzer_init - sim_id: " << sim_id << "\n";
 	
 	// Luego recibo n_sims
 	if( ! error && ! conexion.readUInt(n_sims) ){
-		cerr << "Server::thread_analyzer_init - Error receiving n_sims\n";	
+		cerr << "Server::thread_analyzer_init - Error receiving n_sims\n";
 		n_sims = 0;
 		error = true;
 	}
-	cout << "Server::main - n_sims: " << n_sims << "\n";
+	cout << "Server::thread_analyzer_init - n_sims: " << n_sims << "\n";
 	
 	// Luego recibo el string con el json (size + chars)
 	if( ! error && ! conexion.readUInt(size) ){
-		cerr << "Server::thread_analyzer_init - Error receiving json size\n";	
+		cerr << "Server::thread_analyzer_init - Error receiving json size\n";
 		size = 0;
 		error = true;
 	}
-	cout << "Server::main - size: " << size << "\n";
+	if(size > MAX_READ){
+		cerr << "Server::thread_analyzer_init - Warning, size > MAX_READ (size: " << size << ")\n";
+		size = MAX_READ;
+	}
+	cout << "Server::thread_analyzer_init - size: " << size << "\n";
 	char buff[size + 1];
 	if( ! error && ! conexion.readData(buff, size) ){
-		cerr << "Server::thread_analyzer_init - Error receiving json data\n";	
+		cerr << "Server::thread_analyzer_init - Error receiving json data\n";
 		size = 0;
 		error = true;
 	}
@@ -191,6 +196,7 @@ void thread_analyzer_init(int sock_cliente, string json_file_base, WorkManager *
 		}
 		
 		// Agregar el batch de trabajo al manager
+		cout << "Server::thread_analyzer_init - Todo ok, agregando trabajo.\n";
 		manager->addWork(sim_id, json_file, n_sims);
 	
 	}
@@ -209,14 +215,14 @@ void thread_analyzer_init(int sock_cliente, string json_file_base, WorkManager *
 	
 //	unsigned int len = 0;
 //	conexion.readUInt(len);
-//	cout << "Server::main - len: " << len << "\n";
+//	cout << "Server::thread_analyzer_init - len: " << len << "\n";
 //	char buff[len + 1];
 //	conexion.readData(buff, len);
 //	buff[len] = 0;
-//	cout << "Server::main - buff: \"" << buff << "\"\n";
+//	cout << "Server::thread_analyzer_init - buff: \"" << buff << "\"\n";
 //	
 //	// Envio de un mensaje de prueba: un entero (4 bytes) con el valor "1"
-//	cout << "Server::main - Enviando respuesta (1)\n";
+//	cout << "Server::thread_analyzer_init - Enviando respuesta (1)\n";
 //	conexion.writeUInt(1);
 	
 

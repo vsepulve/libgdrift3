@@ -20,12 +20,14 @@
 #include "CommunicationUtils.h"
 #include "ClientReception.h"
 #include "WorkManager.h"
-#include "Analizer.h"
+#include "Analyzer.h"
 
 #include "NanoTimer.h"
 #include "SimulatorFactory.h"
 #include "Simulator.h"
 #include "Statistics.h"
+
+#define MAX_READ 1000000
 
 using namespace std;
 
@@ -34,7 +36,7 @@ using namespace std;
 //void thread_stat(int sock_cliente, Configuration *config);
 void thread_analyzer_init(int sock_cliente, string json_file_base, WorkManager *manager);
 
-void processing_thread(unsigned int pid, string output_base, WorkManager *manager, Analizer *analizer);
+void processing_thread(unsigned int pid, string output_base, WorkManager *manager, Analyzer *analyzer);
 
 
 
