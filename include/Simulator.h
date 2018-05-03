@@ -24,7 +24,9 @@ using namespace std;
 class Simulator{
 
 private:
-
+	
+	unsigned int sim_id;
+	
 	Model *model;
 	EventList *events;
 	Profile *profile;
@@ -51,6 +53,14 @@ public:
 	void setModel(Model *_model);
 	void setEvents(EventList *_events);
 	void setProfile(Profile *_profile);
+	
+	void setId(unsigned int _sim_id){
+		sim_id = _sim_id;
+	}
+	
+	unsigned int getId() const{
+		return sim_id;
+	}
 	
 	void run();
 	void executeEvent(Event *event);
@@ -96,8 +106,8 @@ public:
 	char *serialize(){
 //		return NULL;
 		
-		// int para el mismo n_bytes
-		unsigned int n_bytes = sizeof(int);
+		// int para el mismo n_bytes, y otro para el id
+		unsigned int n_bytes = sizeof(int) * 2;
 		n_bytes += model->serializedSize();
 		n_bytes += events->serializedSize();
 		n_bytes += profile->serializedSize();
@@ -107,6 +117,9 @@ public:
 		char *buff = new char[n_bytes];
 		unsigned int pos = 0;
 		memcpy(buff + pos, (char*)&n_bytes, sizeof(int));
+		pos += sizeof(int);
+		
+		memcpy(buff + pos, (char*)&sim_id, sizeof(int));
 		pos += sizeof(int);
 		
 		// Notar que model es polimorfico
@@ -137,6 +150,10 @@ public:
 		buff += sizeof(int);
 //		cout<<"Simulator::loadSerialized - n_bytes: " << n_bytes << "\n";
  		
+ 		sim_id = 0;
+		memcpy((char*)&sim_id, buff, sizeof(int));
+		buff += sizeof(int);
+		
  		// Notar este constructor medio fuera de lugar
  		// Esto deberia hacerlo un factory, quizas todo este metodo deberia estar en SimulatorFactory
  		Model *model = new ModelWF();

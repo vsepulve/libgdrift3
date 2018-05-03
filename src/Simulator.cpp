@@ -6,6 +6,7 @@ Simulator::Simulator()
 	events = NULL;
 	profile = NULL;
 	pool = NULL;
+	sim_id = 0;
 }
 
 Simulator::Simulator(const Simulator &original) 
@@ -14,6 +15,7 @@ Simulator::Simulator(const Simulator &original)
 	events = original.getEvents()->clone();
 	profile = original.getProfile()->clone();
 	pool = original.getPool();
+	sim_id = original.getId();
 	// De momento omito la copia de poblaciones
 	// populations = original.getPopulations();
 }
@@ -24,6 +26,7 @@ Simulator& Simulator::operator=(const Simulator& original){
 		events = original.getEvents()->clone();
 		profile = original.getProfile()->clone();
 		pool = original.getPool();
+		sim_id = original.getId();
 		// De momento omito la copia de poblaciones
 		// populations = original.getPopulations();
 	}

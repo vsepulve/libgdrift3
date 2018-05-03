@@ -42,6 +42,7 @@ private:
 	unsigned int n_stats;
 	unsigned int n_params;
 	vector<string> param_names;
+	unsigned int sim_id;
 	
 	void loadScenario();
 

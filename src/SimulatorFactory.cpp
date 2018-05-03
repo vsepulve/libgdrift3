@@ -331,6 +331,7 @@ void SimulatorFactory::loadScenario(){
 	n_params = 0;
 //	vector<string> param_names;
 	string param_name;
+	sim_id = stoi( settings["id"].get<string>() );
 	
 	// Primero el profile
 	json &individual = settings["individual"];
@@ -561,6 +562,7 @@ Simulator *SimulatorFactory::getInstance(){
 	
 //	cout << "SimulatorFactory::getInstance - new Simulator...\n";
 	Simulator *res = new Simulator();
+	res->setId(sim_id);
 	// Detectar el model de settings
 //	cout << "SimulatorFactory::getInstance - new ModelWF...\n";
 	res->setModel( new ModelWF() );
@@ -594,6 +596,7 @@ char *SimulatorFactory::getInstanceSerialized(){
 	// En una version posterior, la idea es evitar crea un nuevo simulator
 	// La idea es generar directamente cada parte serializadamente
 	Simulator *sim = getInstance();
+	sim->setId(sim_id);
 	char *serialized = sim->serialize();
 	delete sim;
 	return serialized;
