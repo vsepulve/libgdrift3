@@ -28,6 +28,8 @@ void Analizer::execute(unsigned int sim_id){
 	assert( manager != NULL);
 	assert( n_threads > 0);
 	
+	cout << "Analizer::execute - Inicio (sim_id: " << sim_id << ")\n";
+	
 	// Leer los archivos de los threads de la simulacion
 	string sim_file_base = file_base;
 	sim_file_base += to_string(sim_id);
@@ -66,6 +68,7 @@ void Analizer::execute(unsigned int sim_id){
 	// El metodo siguiente asume el mismo orden de lectura en el builder
 	vector<string> params_names = manager->getParams(sim_id);
 	unsigned int feedback = manager->getFeedback(sim_id);
+	manager->addFeedback(sim_id);
 	
 	assert( params_names.size() == dist_post.size() );
 	
@@ -89,10 +92,12 @@ void Analizer::execute(unsigned int sim_id){
 	// De este modo, siempre se realizaran 2 * batch_size simulaciones
 	if( feedback == 0 ){
 		// Actualizar distribuciones y agregar nuevas simulaciones
-		
+		cout << "Analizer::execute - feedback == 0, agregando nuevo batch\n";
+		manager->addTraining(sim_id, dist_post);
 	}
 	else{
 		// los resultados ya estan guardados, bastaria con terminar aqui
+		cout << "Analizer::execute - feedback > 0, terminando simulation " << sim_id <<" \n";
 		
 	}
 	
