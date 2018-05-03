@@ -41,6 +41,11 @@ private:
 	
 	// Flag de estado general del sistema (se setea true para terminar)
 	bool killed;
+	
+	// Este metodo interno NO esta protegido por el mutex
+	// Eso es porque puede ser llamado por cualquier otro metodo de la clase
+	// Asume que el factory de sim_id esta listo
+	void addBatch(unsigned int sim_id);
 
 public:
 
@@ -50,6 +55,9 @@ public:
 	// Prepara un nuevo SimulatorFactory con json_file, y lo asocia a sim_id en la tabla
 	// Agrega n_sims Simulators del factory de sim_id a la cola
 	void addWork(unsigned int sim_id, string &json_file, unsigned int n_sims);
+	
+	// Recarga los parametros del simulador, e inicia un nuevo bacth de trabajo
+	void addTraining(unsigned int sim_id, vector< pair<double, double> > &dist_post);
 	
 	// Retorna el proximo trabajo de la cola (y lo saca de la cola)
 	// Retorna NULL si la cola esta vacia
