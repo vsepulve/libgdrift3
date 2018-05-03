@@ -113,7 +113,8 @@ void processing_thread(unsigned int pid, string output_base, WorkManager *manage
 		manager->addFinished(sim_id);
 		unsigned int finished = manager->getFinished(sim_id);
 		unsigned int total = manager->getTotal(sim_id);
-		if( finished >= total ){
+		// Cambio la condicion para que SOLO lo ejecute en el caso de igualdad
+		if( finished == total ){
 			cout << "processing_thread[" << pid << "] - Ejecutando Analyzer por fin de batch (" << finished << " / " << total << ")\n";
 			analyzer->execute(sim_id);
 		}
