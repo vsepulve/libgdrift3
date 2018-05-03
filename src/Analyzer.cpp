@@ -78,7 +78,7 @@ void Analyzer::execute(unsigned int sim_id){
 	string results_file = results_base;
 	results_file += to_string(sim_id);
 	results_file += "_f";
-	results_file += feedback;
+	results_file += std::to_string(feedback);
 	results_file += ".txt";
 	
 	fstream writer(results_file, fstream::out | fstream::trunc);
