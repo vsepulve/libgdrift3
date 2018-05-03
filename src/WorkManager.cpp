@@ -78,6 +78,7 @@ void WorkManager::addWork(unsigned int sim_id, string &json_file, unsigned int n
 	lock_guard<mutex> lock(inner_mutex);
 	status_table.addSimulation(sim_id, factory, n_sims);
 	addBatch(sim_id);
+	status_table.resetFinished(sim_id);
 
 	cout << "WorkManager::addWork - Fin (new size: " << work_queue.size() << ")\n";
 }
@@ -88,6 +89,7 @@ void WorkManager::addTraining(unsigned int sim_id, vector<pair<double, double>> 
 	lock_guard<mutex> lock(inner_mutex);
 	status_table.getFactory(sim_id)->reloadParameters(dist_post);
 	addBatch(sim_id);
+	status_table.resetFinished(sim_id);
 
 	cout << "WorkManager::addTraining - Fin (new size: " << work_queue.size() << ")\n";
 }
