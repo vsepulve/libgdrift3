@@ -442,6 +442,8 @@ void SimulatorFactory::loadScenario(){
 	}
 	
 	// Notar que este 5 depende de los estadisticos
+	// Agrego la poblacion de summay
+	++n_populations;
 	n_stats = 5 * n_populations;
 	n_params = param_names.size();
 	
