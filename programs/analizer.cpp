@@ -110,7 +110,7 @@ int main(int argc,char** argv){
 				sock_cliente = conexion.getSocket();
 				conexion.setSocket(-1);
 //				thread( thread_analyzer_init, sock_cliente, &config ).detach();
-				thread( thread_analyzer_init, sock_cliente, json_base ).detach();
+//				thread( thread_analyzer_init, sock_cliente, json_base ).detach();
 				break;
 				
 				
