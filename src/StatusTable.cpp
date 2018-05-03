@@ -22,6 +22,10 @@ unsigned int StatusTable::getFinished(unsigned int sim_id){
 	return table[sim_id].finished;
 }
 
+void StatusTable::resetFinished(unsigned int sim_id){
+	table[sim_id].finished = 0;
+}
+
 unsigned int StatusTable::getTotal(unsigned int sim_id){
 	return table[sim_id].n_sims;
 }

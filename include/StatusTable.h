@@ -51,6 +51,8 @@ public:
 	
 	unsigned int getFinished(unsigned int sim_id);
 	
+	void resetFinished(unsigned int sim_id);
+	
 	unsigned int getTotal(unsigned int sim_id);
 	
 	void addFeedback(unsigned int sim_id);
