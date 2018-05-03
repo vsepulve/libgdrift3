@@ -1,6 +1,6 @@
-#include "Analizer.h"
+#include "Analyzer.h"
 
-Analizer::Analizer(){
+Analyzer::Analyzer(){
 	manager = NULL;
 	n_threads = 0;
 	percentage = 0;
@@ -9,7 +9,7 @@ Analizer::Analizer(){
 	results_base = "";
 }
 
-Analizer::Analizer(WorkManager *_manager, unsigned int _n_threads, float _percentage, string _file_base, string _target_base, string _results_base){
+Analyzer::Analyzer(WorkManager *_manager, unsigned int _n_threads, float _percentage, string _file_base, string _target_base, string _results_base){
 	manager = _manager;
 	n_threads = _n_threads;
 	percentage = _percentage;
@@ -18,17 +18,17 @@ Analizer::Analizer(WorkManager *_manager, unsigned int _n_threads, float _percen
 	results_base = _results_base;
 }
 
-Analizer::~Analizer(){
+Analyzer::~Analyzer(){
 	// notar que el manager es del daemon
 	manager = NULL;
 }
 
-void Analizer::execute(unsigned int sim_id){
+void Analyzer::execute(unsigned int sim_id){
 
 	assert( manager != NULL);
 	assert( n_threads > 0);
 	
-	cout << "Analizer::execute - Inicio (sim_id: " << sim_id << ")\n";
+	cout << "Analyzer::execute - Inicio (sim_id: " << sim_id << ")\n";
 	
 	// Leer los archivos de los threads de la simulacion
 	string sim_file_base = file_base;
@@ -92,12 +92,12 @@ void Analizer::execute(unsigned int sim_id){
 	// De este modo, siempre se realizaran 2 * batch_size simulaciones
 	if( feedback == 0 ){
 		// Actualizar distribuciones y agregar nuevas simulaciones
-		cout << "Analizer::execute - feedback == 0, agregando nuevo batch\n";
+		cout << "Analyzer::execute - feedback == 0, agregando nuevo batch\n";
 		manager->addTraining(sim_id, dist_post);
 	}
 	else{
 		// los resultados ya estan guardados, bastaria con terminar aqui
-		cout << "Analizer::execute - feedback > 0, terminando simulation " << sim_id <<" \n";
+		cout << "Analyzer::execute - feedback > 0, terminando simulation " << sim_id <<" \n";
 		
 	}
 	
