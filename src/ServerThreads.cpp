@@ -126,8 +126,10 @@ void processing_thread(unsigned int pid, string output_base, WorkManager *manage
 }
 
 
-// NOTE: que uno de los trabajos del init de servicio es CREAR el target
-void thread_analyzer_init(int sock_cliente, string json_file_base){
+// NOTE: Falta el creador del target, que tambien asigna el id de la simulacion
+// Ese trabajo, de hecho, quizas pueda hacerlo directamente un servicio go
+// Recordar que en el modelo actual, cada simulacion tiene solo un escenario
+void thread_analyzer_init(int sock_cliente, string json_file_base, WorkManager *manager){
 	
 	ClientReception conexion;
 	conexion.setSocket(sock_cliente);
@@ -136,16 +138,33 @@ void thread_analyzer_init(int sock_cliente, string json_file_base){
 	
 	bool error = false;
 	unsigned int size = 0;
+	unsigned int sim_id = 0;
+	unsigned int n_sims = 0;
 	
-	// Primero recibo el string con el json
-	if( ! conexion.readUInt(size) ){
+	// Empiezo recibiendo sim_id
+	if( ! error && ! conexion.readUInt(sim_id) ){
+		cerr << "Server::thread_analyzer_init - Error receiving sim_id\n";	
+		sim_id = 0;
+		error = true;
+	}
+	cout << "Server::main - sim_id: " << sim_id << "\n";
+	
+	// Luego recibo n_sims
+	if( ! error && ! conexion.readUInt(n_sims) ){
+		cerr << "Server::thread_analyzer_init - Error receiving n_sims\n";	
+		n_sims = 0;
+		error = true;
+	}
+	cout << "Server::main - n_sims: " << n_sims << "\n";
+	
+	// Luego recibo el string con el json (size + chars)
+	if( ! error && ! conexion.readUInt(size) ){
 		cerr << "Server::thread_analyzer_init - Error receiving json size\n";	
 		size = 0;
 		error = true;
 	}
 	cout << "Server::main - size: " << size << "\n";
 	char buff[size + 1];
-	
 	if( ! error && ! conexion.readData(buff, size) ){
 		cerr << "Server::thread_analyzer_init - Error receiving json data\n";	
 		size = 0;
@@ -156,10 +175,11 @@ void thread_analyzer_init(int sock_cliente, string json_file_base){
 	// Luego guardo el texto en un archivo (esto puede cambiar a envio directo luego)
 	if(! error ){
 		string json_file = json_file_base;
-		unsigned long long milisec = (unsigned long long)(std::time(0));
-		json_file += to_string(milisec);
+//		unsigned long long milisec = (unsigned long long)(std::time(0));
+//		json_file += to_string(milisec);
+		json_file += to_string(sim_id);
 		json_file += ".json";
-	
+		
 		fstream writer(json_file, fstream::out | fstream::trunc);
 		if( writer.good() ){
 			writer.write(buff, size);
@@ -169,15 +189,12 @@ void thread_analyzer_init(int sock_cliente, string json_file_base){
 			cerr << "Server::thread_analyzer_init - Error opening file \"" << json_file << "\"\n";
 			error = true;
 		}
+		
+		// Agregar el batch de trabajo al manager
+		manager->addWork(sim_id, json_file, n_sims);
+	
 	}
 	
-	// Abro comunicacion con el server Scheduler
-	
-	// Envio el request_type
-	
-	// Envio la ruta del archivo json
-	
-	// Espero respuesta del scheduler
 	
 	// Envio codigo de exito al cliente
 	if( error ){

@@ -32,7 +32,7 @@ using namespace std;
 
 
 //void thread_stat(int sock_cliente, Configuration *config);
-void thread_analyzer_init(int sock_cliente, string json_file_base);
+void thread_analyzer_init(int sock_cliente, string json_file_base, WorkManager *manager);
 
 void processing_thread(unsigned int pid, string output_base, WorkManager *manager, Analizer *analizer);
 
