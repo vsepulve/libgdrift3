@@ -25,6 +25,9 @@ SimulatorFactory::SimulatorFactory(string json_file, mt19937 *_generator){
 //	parseEventsOld(settings["scenarios"]);
 	
 	
+	// Aqui se podrian determinar los parametros globales que seran usados inter training
+	loadScenario();
+	
 }
 
 SimulatorFactory::SimulatorFactory(const SimulatorFactory &original){
@@ -317,6 +320,134 @@ bool SimulatorFactory::replaceDistribution(json &param, pair<double, double> &va
 	
 //	cout << "SimulatorFactory::replaceDistribution - Fin (Omitido)\n";
 	return true;
+}
+// Recibe un vector de pares <mean, stddev> en el orden de los parametros
+void SimulatorFactory::loadScenario(){
+//	cout <<  "SimulatorFactory::loadScenario - Inicio\n";
+	
+	// Parametros a preparar
+	n_populations = 0;
+	n_stats = 0;
+	n_params = 0;
+//	vector<string> param_names;
+	string param_name;
+	
+	// Primero el profile
+	json &individual = settings["individual"];
+	json &chromosomes = individual["chromosomes"];
+	for(unsigned int chr = 0; chr < chromosomes.size(); ++chr){
+		json &genes = chromosomes[chr]["genes"];
+		for(unsigned int gen = 0; gen < genes.size(); ++gen){
+			json &this_gene = genes[gen];
+			unsigned int type = stoi(this_gene["type"].get<string>());
+			if( type == 0 ){
+				// MARKER_SEQUENCE
+				unsigned int mutation_type = stoi(this_gene["mutation"]["model"].get<string>());
+				if( mutation_type == 0 ){
+					// MUTATION_BASIC
+					param_name = "mutation.rate." + param_names.size();
+					param_names.push_back(param_name);
+				}
+				else{
+//					cerr << "SimulatorFactory::parseProfileOld - Unknown Mutation Type (" << mutation_type << ")\n";
+				}
+			}
+			else{
+//				cerr << "SimulatorFactory::parseProfileOld - Unknown Marker Type (" << type << ")\n";
+			}
+		}
+	}
+	
+	// De aqui en adelante asumo que solo hay un escenario por simulacion (nuevo modelo)
+//	cout <<  "SimulatorFactory::loadScenario - Tomando Escenario 0\n";
+	json &scen = settings["scenarios"][0];
+	map<string, unsigned int> counted_events;
+	
+//	cout <<  "SimulatorFactory::loadScenario - Ajustando Eventos\n";
+	for( json &json_ev : scen["events"] ){
+		
+		// Notar que SIEMPRE se carga prmero la generacion, luego los parametros en orden de lectura
+		
+		// Tipo del evento
+		string type = json_ev["type"];
+		counted_events[type]++;
+		
+		param_name = type + ".";
+		if( counted_events[type] > 1 ){
+			param_name += to_string(counted_events[type]) + ".";
+		}
+		param_name += "generation";
+		param_names.push_back(param_name);
+		
+		// Parametros especificos
+		if( type.compare("create") == 0 ){
+			// create -> size
+			param_name = "create.";
+			if( counted_events[type] > 1 ){
+				param_name += to_string(counted_events[type]) + ".";
+			}
+			param_name += "size";
+			param_names.push_back(param_name);
+			// Se crea una poblacion
+			++n_populations;
+		}
+		else if( type.compare("split") == 0 ){
+			// split -> SIN parametros (el porcentaje lo fijamos en 0.5 en old)
+			// Se elimina una poblacion, y se agregan 2 (por ahora fijo en old)
+			++n_populations;
+		}
+		else if( type.compare("migration") == 0 ){
+			// migration -> percentage
+			param_name = "migration.";
+			if( counted_events[type] > 1 ){
+				param_name += to_string(counted_events[type]) + ".";
+			}
+			param_name += "percentage";
+			param_names.push_back(param_name);
+			// Crea una nueva poblacion
+			++n_populations;
+		}
+		else if( type.compare("merge") == 0 ){
+			// merge -> SIN parametros (solo los nombres)
+			// Elimina 2 poblaciones, crea solo 1
+			--n_populations;
+		}
+		else if( type.compare("increment") == 0 ){
+			// increment -> percentage
+			param_name = "increment.";
+			if( counted_events[type] > 1 ){
+				param_name += to_string(counted_events[type]) + ".";
+			}
+			param_name += "percentage";
+			param_names.push_back(param_name);
+		}
+		else if( type.compare("decrement") == 0 ){
+			// decrement -> percentage
+			param_name = "decrement.";
+			if( counted_events[type] > 1 ){
+				param_name += to_string(counted_events[type]) + ".";
+			}
+			param_name += "percentage";
+			param_names.push_back(param_name);
+		}
+		else if( type.compare("extinction") == 0 ){
+			// merge -> SIN parametros (solo el nombre)
+			// Elimina 1 poblacion
+			--n_populations;
+		}
+		else if( type.compare("endsim") == 0 ){
+			// Este evento NO tiene parametros, solo la generacion y el tipo
+		}
+	}
+	
+	// Notar que este 5 depende de los estadisticos
+	n_stats = 5 * n_populations;
+	n_params = param_names.size();
+	
+	cout <<  "SimulatorFactory::loadScenario - n_populations: " << n_populations << ", n_stats: " << n_stats << ", n_params: " << n_params << "\n";
+
+//	cout <<  "SimulatorFactory::loadScenario - Fin\n";
+	
 }
 
 // Recibe un vector de pares <mean, stddev> en el orden de los parametros

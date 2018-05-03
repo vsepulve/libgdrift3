@@ -35,6 +35,15 @@ private:
 	// Originalmente retornaba true si hacia el cambio
 	// Pero ahora que aplica fixed en varianza 0, es innecesario
 	bool replaceDistribution(json &param, pair<double, double> &values);
+	
+	// Caracteristicas de esta simulacion
+	// Para determinarlos, escaneo el json en el constructor
+	unsigned int n_populations;
+	unsigned int n_stats;
+	unsigned int n_params;
+	vector<string> param_names;
+	
+	void loadScenario();
 
 public:
 	
@@ -64,13 +73,19 @@ public:
 	// NOTE: de momento esto es el numero de estatisticos usados (5) por el numero de poblaciones final + 1 (summary)
 	// Si se especifica esto en el json de otro modo, habria que agregarlo
 	unsigned int getNumStatistics(){
-		return 0;
+		return n_stats;
 	}
 	
 	// Revisa el json de settings completo para determinar el numero de parametros
 	// Para eso evalua los individuos y eventos en el mismo orden que reloadParameters
 	unsigned int getNumParams(){
-		return 0;
+		return n_params;
+	}
+	
+	// Revisa el json de settings completo para determinar el numero de parametros
+	// Para eso evalua los individuos y eventos en el mismo orden que reloadParameters
+	vector<string> &getParams(){
+		return param_names;
 	}
 	
 };
