@@ -22,13 +22,16 @@ private:
 	WorkManager *manager;
 	string file_base;
 	string target_base;
+	string results_base;
 	// Numero de threads de procesamiento
 	unsigned int n_threads;
+	// Porcentage de los topK para calcular las dist posteriori
+	float percentage;
 
 public:
 
 	Analizer();
-	Analizer(WorkManager *_manager, unsigned int _n_threads, string _file_base, string _target_base);
+	Analizer(WorkManager *_manager, unsigned int _n_threads, float _percentage, string _file_base, string _target_base, string _results_base);
 	virtual ~Analizer();
 	
 	
