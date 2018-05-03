@@ -82,14 +82,17 @@ void processing_thread(unsigned int pid, string output_base, WorkManager *manage
 		++procesados;
 		
 		unsigned int sim_id = sim.getId();
+		unsigned int feedback = manager->getFeedback(sim_id);
 		// NOTE: Lo que sigue asume que el id ES UNICO
 		string file_name = output_base;
 		file_name += std::to_string(sim_id);
+		file_name += "_f";
+		file_name += std::to_string(feedback);
 		file_name += "_";
 		file_name += std::to_string(pid);
 		file_name += ".txt";
 		
-		cout << "processing_thread[" << pid << "] - Ejecutando Sim " << sim_id << "\n";
+		cout << "processing_thread[" << pid << "] - Ejecutando Sim " << sim_id << ", feedback " << feedback << "\n";
 		sim.run();
 		
 		// Parte local del analyzer

@@ -28,11 +28,15 @@ void Analyzer::execute(unsigned int sim_id){
 	assert( manager != NULL);
 	assert( n_threads > 0);
 	
-	cout << "Analyzer::execute - Inicio (sim_id: " << sim_id << ")\n";
+	unsigned int feedback = manager->getFeedback(sim_id);
+	
+	cout << "Analyzer::execute - Inicio (sim_id: " << sim_id << ", feedback: " << feedback << ")\n";
 	
 	// Leer los archivos de los threads de la simulacion
 	string sim_file_base = file_base;
 	sim_file_base += to_string(sim_id);
+	sim_file_base += "_f";
+	sim_file_base += std::to_string(feedback);
 	sim_file_base += "_";
 	
 	unsigned int n_stats = manager->getNumStatistics(sim_id);
@@ -67,7 +71,6 @@ void Analyzer::execute(unsigned int sim_id){
 	// Tambien notar que para guardar los resultados seria util darle nombre a cada parametro
 	// El metodo siguiente asume el mismo orden de lectura en el builder
 	vector<string> params_names = manager->getParams(sim_id);
-	unsigned int feedback = manager->getFeedback(sim_id);
 	manager->addFeedback(sim_id);
 	
 	assert( params_names.size() == dist_post.size() );
