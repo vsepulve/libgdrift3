@@ -11,260 +11,141 @@
 #include "NanoTimer.h"
 #include "SimulatorFactory.h"
 #include "Simulator.h"
-#include "Statistics.h"
+
+#include "WorkManager.h"
+#include "Analyzer.h"
+
+#include "ServerThreads.h"
+#include "CommunicationUtils.h"
+#include "ClientReception.h"
 
 using namespace std;
 
-// Mutex global para controlar acceso a cout u otros objetos compartidos
-mutex global_mutex;
-
-// Cola de trabajo consumida por los threads procesadores
-list<char*> work_queue;
-
-void addWork(string &json_file, unsigned int n_sims){
-	
-	cout << "addWork - Inicio (" << n_sims << " sims desde \"" << json_file << "\")\n";
-	
-	SimulatorFactory factory(json_file);
-	
-	cout << "addWork - Factory preparado, tomando lock\n";
-	lock_guard<mutex> lock(global_mutex);
-	
-	unsigned int old_size = work_queue.size();
-	
-	if( old_size == 0 ){
-		// Llenado inicial
-		cout << "addWork - Llenado directo, Cola de trabajo vacia\n";
-		for( unsigned int i = 0; i < n_sims; ++i ){
-			work_queue.push_back(factory.getInstanceSerialized());
-		}
-	}
-	else if( old_size >= n_sims ){
-		// Llenado disperso
-		unsigned int s = (unsigned int)(old_size / n_sims);
-		auto it = work_queue.begin();
-//		unsigned int pos = 0;
-		cout << "addWork - Llenado disperso (old_size: " << old_size << ", n_sims: " << n_sims << ", s: " << s << ")\n";
-		for( unsigned int i = 0; i < n_sims; ++i ){
-//			cout << "addWork - Insert en pos " << pos << "\n";
-			it = work_queue.insert(it, factory.getInstanceSerialized());
-			for( unsigned int j = 0; j < s+1; ++j ){
-				it++;
-//				++pos;
-			}
-		}
-	}
-	else{
-		// Llenado denso
-		unsigned int s = (unsigned int)(n_sims / old_size);
-		unsigned int e = n_sims - old_size * s;
-		auto it = work_queue.begin();
-//		unsigned int pos = 0;
-		cout << "addWork - Llenado denso (old_size: " << old_size << ", n_sims: " << n_sims << ", s: " << s << ", e: " << e << ")\n";
-		for( unsigned int i = 0; i < old_size; ++i ){
-			unsigned int limit = (i<e)?(s+1):(s);
-			for( unsigned int j = 0; j < limit; ++j ){
-//				cout << "addWork - Insert en pos " << pos << "\n";
-				it = work_queue.insert(it, factory.getInstanceSerialized());
-				it++;
-//				++pos;
-			}
-			it++;
-//			++pos;
-		}
-	}
-	
-	cout << "addWork - Fin (new size: " << work_queue.size() << ")\n";
-	
-}
-
-vector<double> get_statistics(Simulator *sim, float sampling){
-	vector<double> res;
-	Statistics stats(sim, sampling);
-	map<string, vector< map<string, double> > > statistics = stats.getStatistics();
-	// Agrupo los estadisticos en el mismo orden, population_name primero, n marcadores, y stat name al final
-	for( auto &par : statistics ){
-//		cout<<"get_statistics - Stats Population \""<< par.first <<"\"\n";
-//		unsigned int marker_pos = 0;
-		for( map<string, double> &marker_stats : par.second ){
-//			cout<<"get_statistics - [ Marker "<<marker_pos++<<" ]\n";
-			for( auto &stat : marker_stats ){
-//				cout<<"Test - " << stat.first << ": "<< stat.second <<"\n";
-				res.push_back(stat.second);
-			}
-//			cout<<"-----\n";
-		}
-	}
-	return res;
-}
-
-vector<double> get_params(Simulator *sim){
-	vector<double> res;
-	
-	// No voy a comparar parametros punto a punto con los datos antiguos, solo las distribuciones
-	// Por esto, en este caso el orden NO esta atado a los nombres json de las variables
-	// Simplemente extraere los parametros del profile, y luego de cada evento
-	// Esto asume obviamente que todas las simulaciones comparadas tienen los mismos parametros
-	
-	Profile *profile = sim->getProfile();
-	for(unsigned int i = 0; i < profile->getNumMarkers(); ++i){
-		ProfileMarker marker = profile->getMarker(i);
-		for(unsigned int j = 0; j < marker.getNumParam(); ++j){
-			res.push_back( marker.getParam(j) );
-		}
-	}
-	
-	// Obviamente en el caso de los eventos solo considero la generacion y los parametros numericos
-	EventList *events = sim->getEvents();
-	for(unsigned int i = 0; i < events->size(); ++i){
-		Event *event = events->getEvent(i);
-		res.push_back( (double)(event->getGeneration()) );
-		for( double value : event->getNumParams() ){
-			res.push_back(value);
-		}
-	}
-	
-	return res;
-}
-
-
-
-// TODO: Ajustar para usar nueva lista de trabajo
-void SimultionThread(unsigned int pid, unsigned int n_threads, string output_base){
-	
-	global_mutex.lock();
-	cout<<"SimultionThread["<<pid<<"] - Inicio\n";
-	global_mutex.unlock();
-	
-	NanoTimer timer;
-	unsigned int procesados = 0;
-	
-	string file_name = output_base;
-	file_name += std::to_string(pid);
-	file_name += ".txt";
-	
-	unsigned int sleep_time = 5;
-	unsigned int max_storage = 10;
-	vector< vector<double> > statistics_storage;
-	vector< vector<double> > params_storage;
-	
-	while(true){
-		
-		char *serialized = NULL;
-		
-		global_mutex.lock();
-		if( work_queue.empty() ){
-			// Sleep
-			cout<<"SimultionThread["<<pid<<"] - Durmiendo...\n";
-			global_mutex.unlock();
-			std::this_thread::sleep_for (std::chrono::seconds(sleep_time));
-			continue;
-		}
-		else{
-			cout<<"SimultionThread["<<pid<<"] - Tomando Simulacion...\n";
-			serialized = work_queue.front();
-			work_queue.pop_front();
-			global_mutex.unlock();
-		}
-		
-		Simulator sim;
-		sim.loadSerialized(serialized);
-		++procesados;
-		
-		sim.run();
-		
-		// Parte local del analyzer
-		// Esto requiere el target 
-		// Falta definir e implementar la normalizacion
-		
-		vector<double> statistics = get_statistics(&sim, 0.05);
-		vector<double> params = get_params(&sim);
-		
-		statistics_storage.push_back(statistics);
-		params_storage.push_back(params);
-		
-		if( statistics_storage.size() >= max_storage ){
-			
-//			global_mutex.lock();
-//			cout<<"SimultionThread["<<pid<<"] - statistics_storage.size: "<<statistics_storage.size()<<", guardando...\n";
-//			global_mutex.unlock();
-			
-			fstream writer(file_name, fstream::out | fstream::app);
-			for(unsigned int i = 0; i < statistics_storage.size(); ++i){
-				for( double value : statistics_storage[i] ){
-					writer << value << "\t";
-				}
-				for( double value : params_storage[i] ){
-					writer << value << "\t";
-				}
-				writer << "\n";
-			}
-			writer.close();
-			statistics_storage.clear();
-			params_storage.clear();
-		}
-		
-	}
-	
-	// Si quedaron resultados pendientes, los guardo aqui
-	if( statistics_storage.size() > 0 ){
-		
-//		global_mutex.lock();
-//		cout<<"SimultionThread["<<pid<<"] - statistics_storage.size: "<<statistics_storage.size()<<", guardando...\n";
-//		global_mutex.unlock();
-		
-		fstream writer(file_name, fstream::out | fstream::app);
-		for(unsigned int i = 0; i < statistics_storage.size(); ++i){
-			for( double value : statistics_storage[i] ){
-				writer << value << "\t";
-			}
-			for( double value : params_storage[i] ){
-				writer << value << "\t";
-			}
-			writer << "\n";
-		}
-		writer.close();
-		statistics_storage.clear();
-		params_storage.clear();
-	}
-	
-	global_mutex.lock();
-	cout<<"SimultionThread["<<pid<<"] - Fin (Total trabajos: "<<procesados<<", Total ms: "<<timer.getMilisec()<<")\n";
-	global_mutex.unlock();
-	
-}
-
-
-
 int main(int argc,char** argv){
 
-	
 	// Definiciones inciales
+	if(argc != 7){
+		cout<<"\nUsage: ./server port n_threads json_base output_base target_base results_base\n";
+		cout<<"\nExample: ./bin/server 12345 4 ./data/json_ ./data/data_ ./data/target_ ./data/results_\n";
+		cout<<"\n";
+		return 0;
+	}
+	unsigned int port = atoi(argv[1]);
+	unsigned int n_threads = atoi(argv[2]);
+	string json_base = argv[3];
+	string output_base = argv[4];
+	string target_base = argv[5];
+	string results_base = argv[6];
+	
+	cout << "Server - Inicio (port: " << port << ", n_threads: " << n_threads << ", output_base: " << output_base << ", target_base: " << target_base << ", results_base: " << results_base << ")\n";
 	
 	// Preparacion de elementos compartidos
+	cout << "Server - Iniciando WorkManager\n";
+	WorkManager *manager = new WorkManager();
+	cout << "Server - Iniciando Analyzer\n";
+	Analyzer *analyzer = new Analyzer(manager, n_threads, 0.05, output_base, target_base, results_base);
 	
 	// Preparacion y lanzamiento de Threads procesadores (con sleep interno)
+	// En esta version, los threads de procesamiento de lanzan detached
+	cout << "Server - Iniciando Threads\n";
+	unsigned int pids[n_threads];
+	for(unsigned int i = 0; i < n_threads; ++i){
+		pids[i] = i;
+		thread( processing_thread, pids[i], output_base, manager, analizer ).detach();
+	}
 	
 	// Preparacion e inicio del sistema de comunicacion
-	
 	// Procesamiento de llamadas (de aqui en adelante queda escuchando como daemon)
 	
-	// Cada vez que recibe un nuevo json para procesar, lo agregar a la cola de trabajo
+	// Inicio de enlace del puerto
+	cout << "Server - Creando Socket\n";
+	int sock_servidor = socket(AF_INET, SOCK_STREAM, 0);
+	if (sock_servidor < 0){
+		cout << "Server - Error al crear socket.\n";
+		return 0;
+	}
+	// Datos para conexion de server
+	struct sockaddr_in serv_addr;
+	memset((char*)&serv_addr, 0, sizeof(serv_addr));
+	serv_addr.sin_family = AF_INET;
+	serv_addr.sin_addr.s_addr = INADDR_ANY;
+	serv_addr.sin_port = htons(port);
+	cout << "Server - Enlazando.\n";
+	if( bind(sock_servidor, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0 ){
+		cout << "Server - Error en bind.\n";
+		return 0;
+	}
+	
+	cout << "Server - Iniciando listen.\n";
+	listen(sock_servidor, 100);
+	// Datos para conexion de cliente
+	int sock_cliente = -1;
+	// Esto es innecesario en nuestro caso
+//	struct sockaddr_in cli_addr;
+//	socklen_t clilen = sizeof(cli_addr);
+	// Inicio de proceso
+	bool procesar = true;
+	while( procesar ){
+		
+		cout << "-----\n";
+		
+		cout << "Server - Esperando clientes.\n";
+		
+		// En esta version uso esa opcion, le quito el socket al objeto local y creare otro en el thread.
+//		ClientReception conexion(sock_servidor, (struct sockaddr *)&cli_addr, &clilen);
+		ClientReception conexion(sock_servidor, NULL, NULL);
+		cout << "Server - Cliente aceptado.\n";
+		
+		if( ! conexion.receiveRequest() ){
+			cout << "Server - Error al recibir Request.\n";
+			continue;
+		}
+		
+		cout << "Server - request " << (unsigned int)conexion.getType() << "\n";
+		switch( conexion.getType() ){
+			case 0:
+				cout << "Server - Request vacio, ignorando.\n";
+				break;
+			case 1:
+				cout << "Server - Creando thread_init\n";
+				sock_cliente = conexion.getSocket();
+				conexion.setSocket(-1);
+//				thread( thread_analyzer_init, sock_cliente, &config ).detach();
+				thread( thread_analyzer_init, sock_cliente, json_base, manager ).detach();
+				break;
+				
+				
+				
+				
+//			case KILL_SERVER:
+//				cout << "Server - Cerrando Server.\n";
+//				close( sock_servidor );
+//				procesar = false;
+//				break;
+			default:
+				cout << "Server - Handler NO definido, ignorando.\n";
+				break;
+		}
 	
 	
-	string json = "/home/vsepulve/Escritorio/libgdrift3/data/settings_test.json";
 	
-	addWork(json, 4);
-	cout << " ----- \n";
 	
-	addWork(json, 3);
-	cout << " ----- \n";
 	
-	addWork(json, 3);
-	cout << " ----- \n";
 	
-	addWork(json, 13);
-	cout << " ----- \n";
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	}
+	
+	
 	
 	
 }
