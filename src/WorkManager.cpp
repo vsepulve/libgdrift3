@@ -107,7 +107,6 @@ unsigned int WorkManager::getFinished(unsigned int sim_id){
 	return res;
 }
 
-	
 // Transfiere el calculo de n_stats directo del factory de sim_id
 unsigned int WorkManager::getNumStatistics(unsigned int sim_id){
 	unsigned int res = 0;
@@ -124,5 +123,31 @@ unsigned int WorkManager::getNumParams(unsigned int sim_id){
 	return res;
 }
 
+// Transfiere la extraccion de nombres de parametros directo del factory de sim_id
+vector<string> &WorkManager::getParams(unsigned int sim_id){
+	vector<string> res;
+	lock_guard<mutex> lock(inner_mutex);
+//	return status_table.getFactory(sim_id)->getParams();
+	return res;
+}
+
+// Feedback actual de la simulacion (controlado por addFeedback)
+unsigned int WorkManager::getFeedback(unsigned int sim_id){
+	unsigned int res = 0;
+	lock_guard<mutex> lock(inner_mutex);
+//	res = status_table.getFeedback(sim_id);
+	return res;
+}
+
+// Incrementa el feedback de la simulacion en uno
+void WorkManager::addFeedback(unsigned int sim_id){
+	lock_guard<mutex> lock(inner_mutex);
+//	status_table.addFeedback(sim_id);
+}
+	
+	
+	
+	
+	
 
 

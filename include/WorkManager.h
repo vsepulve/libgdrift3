@@ -19,6 +19,10 @@
 
 using namespace std;
 
+// NOTE: De aqui en adelante estoy asumiendo que cada simulacion tiene solo un escenario
+// Esto es para identificar el escenario con todas sus caracteristicas por sim_id
+// Obviamente eso implica que varios escenarios seran tratados como simulaciones diferentes
+
 class WorkManager{
 
 protected:
@@ -71,6 +75,17 @@ public:
 	
 	// Transfiere el calculo de n_params directo del factory de sim_id
 	unsigned int getNumParams(unsigned int sim_id);
+	
+	// Transfiere la extraccion de nombres de parametros directo del factory de sim_id
+	vector<string> &getParams(unsigned int sim_id);
+	
+	// Feedback actual de la simulacion (controlado por addFeedback)
+	unsigned int getFeedback(unsigned int sim_id);
+	
+	// Incrementa el feedback de la simulacion en uno
+	void addFeedback(unsigned int sim_id);
+	
+	
 	
 };
 
