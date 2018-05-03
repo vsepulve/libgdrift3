@@ -1,6 +1,6 @@
 #include "ServerThreads.h"
 
-// Metodo solo para comodidad del simultion_thread
+// Metodo solo para comodidad del processing_thread
 // Este metodo podria ser parte de un paquete utils o un objeto estadistico
 vector<double> get_statistics(Simulator *sim, float sampling){
 	vector<double> res;
@@ -22,7 +22,7 @@ vector<double> get_statistics(Simulator *sim, float sampling){
 	return res;
 }
 
-// Metodo solo para comodidad del simultion_thread
+// Metodo solo para comodidad del processing_thread
 // Este metodo podria ser parte de un paquete utils o un objeto estadistico
 vector<double> get_params(Simulator *sim){
 	vector<double> res;
@@ -54,10 +54,10 @@ vector<double> get_params(Simulator *sim){
 }
 
 // Thread de procesamiento principal
-void simultion_thread(unsigned int pid, string output_base, WorkManager *manager){
+void processing_thread(unsigned int pid, string output_base, WorkManager *manager, Analizer *analizer){
 	
 //	global_mutex.lock();
-	cout << "simultion_thread[" << pid << "] - Inicio\n";
+	cout << "processing_thread[" << pid << "] - Inicio\n";
 //	global_mutex.unlock();
 	
 	NanoTimer timer;
@@ -114,13 +114,13 @@ void simultion_thread(unsigned int pid, string output_base, WorkManager *manager
 		unsigned int finished = manager->getFinished(sim_id);
 		unsigned int total = manager->getTotal(sim_id);
 		if( finished >= total ){
-			// analizer->execute(sim_id)
+			 analizer->execute(sim_id);
 		}
 		
 	}// while... trabajo en la cola
 	
 //	global_mutex.lock();
-	cout << "simultion_thread[" << pid << "] - Fin (Total trabajos: " << procesados << ", Total ms: " << timer.getMilisec() << ")\n";
+	cout << "processing_thread[" << pid << "] - Fin (Total trabajos: " << procesados << ", Total ms: " << timer.getMilisec() << ")\n";
 //	global_mutex.unlock();
 	
 }
