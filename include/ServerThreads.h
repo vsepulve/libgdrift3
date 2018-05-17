@@ -31,12 +31,26 @@
 
 using namespace std;
 
-
-
-//void thread_stat(int sock_cliente, Configuration *config);
-void thread_analyzer_init(int sock_cliente, string json_file_base, WorkManager *manager);
-
+// Thread permanente de procesamiento
 void processing_thread(unsigned int pid, string output_base, WorkManager *manager, Analyzer *analyzer);
+
+// INIT: Crear el target y preparar datos
+// Este proceso tambien recibe y guarda el json del proyecto (ademas del target)
+void thread_init_sim(int sock_cliente, string json_file_base, WorkManager *manager);
+
+// START: Agregar trabajo a work_queue e iniciar simulaciones
+void thread_start_sim(int sock_cliente, string json_file_base, WorkManager *manager);
+
+
+
+
+
+
+
+
+
+
+
 
 
 
