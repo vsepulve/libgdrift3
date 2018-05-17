@@ -24,18 +24,19 @@ using namespace std;
 int main(int argc,char** argv){
 
 	// Definiciones inciales
-	if(argc != 7){
-		cout<<"\nUsage: ./server port n_threads json_base output_base target_base results_base\n";
-		cout<<"\nExample: ./bin/server 12345 4 ./data/json_ ./data/data_ ./data/target_ ./data/results_\n";
+	if(argc != 8){
+		cout<<"\nUsage: ./server port n_threads project_json_base sim_json_base output_base target_base results_base\n";
+		cout<<"\nExample: ./bin/server 12345 4 ./data/project_json_ ./data/sim_json_ ./data/data_ ./data/target_ ./data/results_\n";
 		cout<<"\n";
 		return 0;
 	}
 	unsigned int port = atoi(argv[1]);
 	unsigned int n_threads = atoi(argv[2]);
-	string json_base = argv[3];
-	string output_base = argv[4];
-	string target_base = argv[5];
-	string results_base = argv[6];
+	string project_json_base = argv[3];
+	string sim_json_base = argv[4];
+	string output_base = argv[5];
+	string target_base = argv[6];
+	string results_base = argv[7];
 	
 	cout << "Server - Inicio (port: " << port << ", n_threads: " << n_threads << ", output_base: " << output_base << ", target_base: " << target_base << ", results_base: " << results_base << ")\n";
 	
@@ -107,11 +108,18 @@ int main(int argc,char** argv){
 				cout << "Server - Request vacio, ignorando.\n";
 				break;
 			case 1:
-				cout << "Server - Creando thread_init\n";
+				// INIT: Crear el target y preparar datos
+				cout << "Server - Creando thread_init_sim\n";
 				sock_cliente = conexion.getSocket();
 				conexion.setSocket(-1);
-//				thread( thread_analyzer_init, sock_cliente, &config ).detach();
-				thread( thread_analyzer_init, sock_cliente, json_base, manager ).detach();
+				thread( thread_init_sim, sock_cliente, project_json_base, manager ).detach();
+				break;
+			case 2:
+				// START: Agregar trabajo a work_queue e iniciar simulaciones
+				cout << "Server - Creando thread_start_sim\n";
+				sock_cliente = conexion.getSocket();
+				conexion.setSocket(-1);
+				thread( thread_start_sim, sock_cliente, sim_json_base, manager ).detach();
 				break;
 				
 				
