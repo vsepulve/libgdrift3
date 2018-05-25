@@ -109,21 +109,30 @@ int main(int argc,char** argv){
 				break;
 			case 1:
 				// INIT: Crear el target y preparar datos
-				cout << "Server - Creando thread_init_sim\n";
+				cout << "Server - Creando thread_init_project\n";
 				sock_cliente = conexion.getSocket();
 				conexion.setSocket(-1);
-				thread( thread_init_sim, sock_cliente, project_json_base, manager ).detach();
+				thread( thread_init_project, sock_cliente, project_json_base, manager ).detach();
 				break;
 			case 2:
+				cout << "Server - DELETE PROJECT\n";
+				break;
+			case 3:
+				cout << "Server - QUERY PROJECT\n";
+				break;
+			case 4:
 				// START: Agregar trabajo a work_queue e iniciar simulaciones
 				cout << "Server - Creando thread_start_sim\n";
 				sock_cliente = conexion.getSocket();
 				conexion.setSocket(-1);
 				thread( thread_start_sim, sock_cliente, sim_json_base, manager ).detach();
 				break;
-				
-				
-				
+			case 5:
+				cout << "Server - DELETE SIMULATION\n";
+				break;
+			case 6:
+				cout << "Server - QUERY SIMULATION\n";
+				break;
 				
 //			case KILL_SERVER:
 //				cout << "Server - Cerrando Server.\n";
