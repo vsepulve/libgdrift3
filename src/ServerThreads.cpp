@@ -197,19 +197,47 @@ void thread_init_project(int sock_cliente, string json_project_base, WorkManager
 	if(! error ){
 		
 		// Cargar archivo en json
+		cout << "Server::thread_init_project - Parseando json\n";
+		ifstream reader(json_file, ifstream::in);
+		json json_project;
+		reader >> json_project;
 		
 		// Leer N_populations del json
+		n_pops = json_project["N_populations"];
+		cout << "Server::thread_init_project - n_pops: " << n_pops << "\n";
 		
 		// Iterar por Individual -> Markers
+		n_markers = json_project["Individual"]["Markers"].size();
+		cout << "Server::thread_init_project - n_markers: " << n_markers << "\n";
 		
 		// Cada uno tiene N_populations rutas en el arreglo Sample_path
+		// Proceso esto en el orden de estadisticos: por cada poblacion (ordenada por nombre) => los datos de cada marcador
+		// El mapa siguinte es pop_name -> vector por marcador
+		map<string, vector<string> > sample_paths;
+		for( unsigned int i = 0; i < n_pops; ++i ){
+			// NOTE: La estructura del json que sigue esta pesima
+			// TODO: cambiar el json para un arreglo de Populations, con Name y Sample_path(s) cada una
+			// Considerando el nuevo statistics, quiza un solo archivo deberia tener todos los marcadores para la poblacion
+			string pop_name = json_project["Population_names"][i];
+			for( unsigned int j = 0; j < n_markers; ++j ){
+				string sample_path = json_project["Individual"]["Markers"][j]["Sample_path"][i];
+				cout<<"Server::thread_init_project - sample[" << pop_name << "][" << j << "]: " << sample_path << "\n";
+				sample_paths[pop_name].push_back(sample_path);
+			}
+		}
 		
 		// Cada uno de esos archivos debe ser cargado en una poblacion
-		
 		// Tomar los estadisticos de esas poblaciones
 		
 		// Creo que se puede llamar directamente a Statistics->processStatistics que recibe Population
 		// Asi, solo faltaria implementar un nuevo constructor para Population que parsee en genepop
+		
+		Statistics stats;
+		for( auto samples : sample_paths ){
+			stats.processStatistics(samples.second[0], samples.first, n_markers);
+		}
+		
+		// TODO: Falta summary
 		
 	}
 	
