@@ -178,19 +178,26 @@ void Statistics::processStatistics(string filename, string name, unsigned int n_
 	// Notar que lo ideal seria dejarlo esto a un objeto lecto de genepop
 	
 	// En esta version se llena el vector de alelos directamente con strings
-	vector<string> alleles;
+//	vector<string> alleles;
+	cout << "Statistics::processStatistics - Preparando allele_markers\n";
+	vector<vector<string>> alleles_marker;
+	alleles_marker.resize(n_markers);
 	
 	// Primero la lectura directa del archivo que tenemos, despues cambio esto a una lectura generica en un GenepopReader
 	
+	cout << "Statistics::processStatistics - Preparando Lector\n";
 	ifstream lector(filename, ifstream::in);
 	if( ! lector.is_open() ){
 		cerr << "Statistics::processStatistics - Can't open file \"" << filename << "\"\n";
 		return;
 	}
 	
+	cout << "Statistics::processStatistics - Preparando Buffer\n";
 	unsigned int buff_size = 1024*1024*10;
-	char buff[buff_size];
-	memset(buff, 0, buff_size);
+	char *buff = new char[buff_size + 1];
+	memset(buff, 0, buff_size + 1);
+	
+	cout << "Statistics::processStatistics - Iniciando Lectura\n";
 	
 	// Titulo
 	lector.getline(buff, buff_size);
@@ -214,23 +221,30 @@ void Statistics::processStatistics(string filename, string name, unsigned int n_
 		}
 		
 		string line(buff);
+		cout << "Statistics::processStatistics - line: " << line << "\n";
 		if( line.find(',') == string::npos ){
+			cout << "Statistics::processStatistics - Marcador no encontrado\n";
 			break;
 		}
 		
+		cout << "Statistics::processStatistics - Preparando stringstream\n";
 		stringstream toks(line);
 		string id = "";
+		string separator = "";
 		string data = "";
 		
 		toks >> id;
-		toks >> data;
+		cout << "Statistics::processStatistics - id: \"" << id << "\"\n";
+		for( unsigned int i = 0; i < n_markers; ++i ){
+			toks >> separator;
+			toks >> data;
+			cout << "Statistics::processStatistics - data : \"" << data << "\"\n";
+			alleles_marker[i].push_back(data);
+		}
 		
-		cout << "Statistics::processStatistics - id: " << id << ", data : " << (string(data, 10)) << "\n";
-		
-		
-	
 	}
 	
+	delete [] buff;
 	
 	
 	
@@ -238,29 +252,36 @@ void Statistics::processStatistics(string filename, string name, unsigned int n_
 //	cout << "Statistics::processStatistics - Processing " << profile->getNumMarkers() << " markers\n";
 	for(unsigned int pos_marker = 0; pos_marker < n_markers; ++pos_marker){
 		map<string, double> stats;
+		vector<string> alleles = alleles_marker[pos_marker];
 		
 		// Notar que estoy usando los nombres antiguos por estadistico para conservar el orden
 		
 		double num_haplotypes = statNumHaplotypes(alleles);
 		stats["number-of-haplotypes"] = num_haplotypes;
+		cout << "Statistics::processStatistics - num_haplotypes: " << num_haplotypes << "\n";
 		
 		double num_segregating_sites = statNumSegregatingSites(alleles);
 		stats["number-of-segregating-sites"] = num_segregating_sites;
+		cout << "Statistics::processStatistics - num_segregating_sites: " << num_segregating_sites << "\n";
 		
 		vector<unsigned int> pairwise_differences = statPairwiseDifferences(alleles);
 		
 		double mean_pairwise_diff = statMeanPairwiseDifferences(pairwise_differences);
 		stats["mean-of-the-number-of-pairwise-differences"] = mean_pairwise_diff;
+		cout << "Statistics::processStatistics - mean_pairwise_diff: " << mean_pairwise_diff << "\n";
 		
 		double var_pairwise_diff = statVariancePairwiseDifferences(pairwise_differences, mean_pairwise_diff);
 		stats["variance-of-the-number-of-pairwise-differences"] = var_pairwise_diff;
+		cout << "Statistics::processStatistics - var_pairwise_diff: " << var_pairwise_diff << "\n";
 		
 		double tajima_d = statTajimaD(alleles, num_segregating_sites, mean_pairwise_diff);
 		stats["tajima-d-statistics"] = tajima_d;
+		cout << "Statistics::processStatistics - tajima_d: " << tajima_d << "\n";
 		
 		stats_vector.push_back(stats);
 	}
 	statistics[name] = stats_vector;
+	
 	
 }
 
