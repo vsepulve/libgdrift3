@@ -132,7 +132,7 @@ void processing_thread(unsigned int pid, string output_base, WorkManager *manage
 
 // INIT: Crear el target y preparar datos
 // Este proceso tambien recibe y guarda el json del proyecto (ademas del target)
-void thread_init_sim(int sock_cliente, string json_project_base, WorkManager *manager){
+void thread_init_project(int sock_cliente, string json_project_base, WorkManager *manager){
 	// Por ahora, asumo que el archivo de datos de secuencias esta en disco
 	// Despues puedo parchar eso creando ese archivo desde el servicio go que inicia este thread
 	// Tambien asumo que ya hay un project_id, despues veo si es necesario cambiar eso
@@ -140,35 +140,36 @@ void thread_init_sim(int sock_cliente, string json_project_base, WorkManager *ma
 	ClientReception conexion;
 	conexion.setSocket(sock_cliente);
 	
-	cout << "Server::thread_init_sim - Start\n";
+	cout << "Server::thread_init_project - Start\n";
 	bool error = false;
 	unsigned int size = 0;
 	unsigned int project_id = 0;
 	unsigned int n_markers = 0;
 	unsigned int n_pops = 0;
+	string json_file = "";
 	
 	// Empiezo recibiendo project_id
 	if( ! error && ! conexion.readUInt(project_id) ){
-		cerr << "Server::thread_init_sim - Error receiving project_id\n";
+		cerr << "Server::thread_init_project - Error receiving project_id\n";
 		project_id = 0;
 		error = true;
 	}
-	cout << "Server::thread_init_sim - project_id: " << project_id << "\n";
+	cout << "Server::thread_init_project - project_id: " << project_id << "\n";
 	
 	// En lugar de eso, recibo el json del proyecto completo y lo almaceno asociado al id
 	if( ! error && ! conexion.readUInt(size) ){
-		cerr << "Server::thread_init_sim - Error receiving json size\n";
+		cerr << "Server::thread_init_project - Error receiving json size\n";
 		size = 0;
 		error = true;
 	}
 	if(size > MAX_READ){
-		cerr << "Server::thread_init_sim - Warning, size > MAX_READ (size: " << size << ")\n";
+		cerr << "Server::thread_init_project - Warning, size > MAX_READ (size: " << size << ")\n";
 		size = MAX_READ;
 	}
-	cout << "Server::thread_init_sim - size: " << size << "\n";
+	cout << "Server::thread_init_project - size: " << size << "\n";
 	char buff[size + 1];
 	if( ! error && ! conexion.readData(buff, size) ){
-		cerr << "Server::thread_init_sim - Error receiving json\n";
+		cerr << "Server::thread_init_project - Error receiving json\n";
 		size = 0;
 		error = true;
 	}
@@ -176,7 +177,7 @@ void thread_init_sim(int sock_cliente, string json_project_base, WorkManager *ma
 	
 	// Si todo esta ok, guardo el texto del json
 	if(! error ){
-		string json_file = json_project_base;
+		json_file = json_project_base;
 		json_file += to_string(project_id);
 		json_file += ".json";
 		
@@ -207,20 +208,22 @@ void thread_init_sim(int sock_cliente, string json_project_base, WorkManager *ma
 		
 		// Tomar los estadisticos de esas poblaciones
 		
+		// Creo que se puede llamar directamente a Statistics->processStatistics que recibe Population
+		// Asi, solo faltaria implementar un nuevo constructor para Population que parsee en genepop
+		
 	}
-	
 	
 	// Envio codigo de exito al cliente
 	if( error ){
-		cout << "Server::thread_init_sim - Sending error code to client\n";
+		cout << "Server::thread_init_project - Sending error code to client\n";
 		conexion.writeUInt(1);
 	}
 	else{
-		cout << "Server::thread_init_sim - Sending ok code to client\n";
+		cout << "Server::thread_init_project - Sending ok code to client\n";
 		conexion.writeUInt(0);
 	}
 	
-	cout << "Server::thread_init_sim - End\n";
+	cout << "Server::thread_init_project - End\n";
 }
 
 
