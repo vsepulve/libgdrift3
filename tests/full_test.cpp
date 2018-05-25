@@ -246,6 +246,7 @@ int main(int argc,char** argv){
 		feedback_output += "f" + to_string(feedback) + "_";
 	
 		cout << "Test - Agregando " << total << " jobs a la cola, feedback " << feedback << "\n";
+		global_pos = 0;
 		for(unsigned int i = 0; i < total; ++i){
 			work_queue.push_back(factory.getInstanceSerialized());
 		}
