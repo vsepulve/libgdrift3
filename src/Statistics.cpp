@@ -64,7 +64,6 @@ Statistics::~Statistics(){
 	
 }
 
-	
 // Procesa todos los estadisticos y los agrega a statistics[name][stat]
 void Statistics::processStatistics(Population *pop, string name, float sampling){
 	
@@ -163,6 +162,101 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 		double tajima_d = statTajimaD(alleles, num_segregating_sites, mean_pairwise_diff);
 		stats["tajima-d-statistics"] = tajima_d;
 //		cout << "Statistics::processStatistics - tajima_d en " << timer.getMilisec() << " ms\n";
+		
+		stats_vector.push_back(stats);
+	}
+	statistics[name] = stats_vector;
+	
+}
+
+// Procesa todos los estadisticos de un genepop y los agrega a statistics[name][stat]
+void Statistics::processStatistics(string filename, string name, unsigned int n_markers){
+	
+	cout << "Statistics::processStatistics - Start (filename " << filename << ", pop_name: " << name << ")\n";
+	
+	// Leer y parsear el genepop
+	// Notar que lo ideal seria dejarlo esto a un objeto lecto de genepop
+	
+	// En esta version se llena el vector de alelos directamente con strings
+	vector<string> alleles;
+	
+	// Primero la lectura directa del archivo que tenemos, despues cambio esto a una lectura generica en un GenepopReader
+	
+	ifstream lector(filename, ifstream::in);
+	if( ! lector.is_open() ){
+		cerr << "Statistics::processStatistics - Can't open file \"" << filename << "\"\n";
+		return;
+	}
+	
+	unsigned int buff_size = 1024*1024*10;
+	char buff[buff_size];
+	memset(buff, 0, buff_size);
+	
+	// Titulo
+	lector.getline(buff, buff_size);
+	cout << "Statistics::processStatistics - Title: " << buff << "\n";
+	
+	// Identificadores de Loci (separados por , en el formato estandar)
+	lector.getline(buff, buff_size);
+	cout << "Statistics::processStatistics - Loci: " << buff << " (Temporalmente asumo 1)\n";
+	
+	// Pop
+	lector.getline(buff, buff_size);
+	cout << "Statistics::processStatistics - Pop: " << buff << "\n";
+	
+	// Inicio de datos
+	while( lector.good() ){
+		lector.getline(buff, buff_size);
+		unsigned int lectura = lector.gcount();
+		// Cada linea debe tener al menos id + , + data
+		if( !lector.good() || lectura < 3 ){
+			break;
+		}
+		
+		string line(buff);
+		if( line.find(',') == string::npos ){
+			break;
+		}
+		
+		stringstream toks(line);
+		string id = "";
+		string data = "";
+		
+		toks >> id;
+		toks >> data;
+		
+		cout << "Statistics::processStatistics - id: " << id << ", data : " << (string(data, 10)) << "\n";
+		
+		
+	
+	}
+	
+	
+	
+	
+	vector<map<string, double>> stats_vector;
+//	cout << "Statistics::processStatistics - Processing " << profile->getNumMarkers() << " markers\n";
+	for(unsigned int pos_marker = 0; pos_marker < n_markers; ++pos_marker){
+		map<string, double> stats;
+		
+		// Notar que estoy usando los nombres antiguos por estadistico para conservar el orden
+		
+		double num_haplotypes = statNumHaplotypes(alleles);
+		stats["number-of-haplotypes"] = num_haplotypes;
+		
+		double num_segregating_sites = statNumSegregatingSites(alleles);
+		stats["number-of-segregating-sites"] = num_segregating_sites;
+		
+		vector<unsigned int> pairwise_differences = statPairwiseDifferences(alleles);
+		
+		double mean_pairwise_diff = statMeanPairwiseDifferences(pairwise_differences);
+		stats["mean-of-the-number-of-pairwise-differences"] = mean_pairwise_diff;
+		
+		double var_pairwise_diff = statVariancePairwiseDifferences(pairwise_differences, mean_pairwise_diff);
+		stats["variance-of-the-number-of-pairwise-differences"] = var_pairwise_diff;
+		
+		double tajima_d = statTajimaD(alleles, num_segregating_sites, mean_pairwise_diff);
+		stats["tajima-d-statistics"] = tajima_d;
 		
 		stats_vector.push_back(stats);
 	}

@@ -1,6 +1,13 @@
 #ifndef _STATISTICS_H_
 #define _STATISTICS_H_
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <string.h>
+
 #include <set>
 #include <map>
 #include <vector>
@@ -50,6 +57,9 @@ public:
 	// Procesa TODOS los estadisticos y los agrega a statistics[name][stat]
 	void processStatistics(Population *pop, string name, float sampling);
 	
+	// Procesa todos los estadisticos de un genepop y los agrega a statistics[name][stat]
+	void processStatistics(string filename, string name, unsigned int n_markers);
+
 	// Busca el alelo en la tabla, lo genere recursivamente si no lo encuentra
 	string &getAllele(unsigned int marker_pos, unsigned int id, ProfileMarker &marker);
 	
