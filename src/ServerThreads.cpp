@@ -218,9 +218,9 @@ void thread_init_project(int sock_cliente, string json_project_base, WorkManager
 			// NOTE: La estructura del json que sigue esta pesima
 			// TODO: cambiar el json para un arreglo de Populations, con Name y Sample_path(s) cada una
 			// Considerando el nuevo statistics, quiza un solo archivo deberia tener todos los marcadores para la poblacion
-			string pop_name = json_project["Population_names"][i];
+			string pop_name = json_project["Populations"][i]["Name"];
 			for( unsigned int j = 0; j < n_markers; ++j ){
-				string sample_path = json_project["Individual"]["Markers"][j]["Sample_path"][i];
+				string sample_path = json_project["Populations"][i]["Sample_path"][j];
 				cout<<"Server::thread_init_project - sample[" << pop_name << "][" << j << "]: " << sample_path << "\n";
 				sample_paths[pop_name].push_back(sample_path);
 			}
