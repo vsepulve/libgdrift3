@@ -188,7 +188,7 @@ void thread_init_project(int sock_cliente, string json_project_base, string targ
 			writer.close();
 		}
 		else{
-			cerr << "Server::thread_start_sim - Error opening file \"" << json_file << "\"\n";
+			cerr << "Server::thread_init_project - Error opening file \"" << json_file << "\"\n";
 			error = true;
 		}
 	
@@ -258,7 +258,7 @@ void thread_init_project(int sock_cliente, string json_project_base, string targ
 					for( auto it_stat : stats_marker ){
 						string stat_name = it_stat.first;
 						double value = it_stat.second;
-						cout << "Server::thread_start_sim - pop " << pop_name << " - marker " << marker_pos << " - stat " << stat_name <<" => " << value << "\n";
+						cout << "Server::thread_init_project - pop " << pop_name << " - marker " << marker_pos << " - stat " << stat_name <<" -> " << value << "\n";
 						sprintf(stat_buff + strlen(stat_buff), "%f\t", value);
 					}
 					++marker_pos;
@@ -270,7 +270,7 @@ void thread_init_project(int sock_cliente, string json_project_base, string targ
 			writer.close();
 		}
 		else{
-			cerr << "Server::thread_start_sim - Error opening file \"" << target_file << "\"\n";
+			cerr << "Server::thread_init_project - Error opening file \"" << target_file << "\"\n";
 			error = true;
 		}
 		
@@ -300,10 +300,20 @@ void thread_start_sim(int sock_cliente, string json_file_base, WorkManager *mana
 	
 	bool error = false;
 	unsigned int size = 0;
+	unsigned int project_id = 0;
 	unsigned int sim_id = 0;
-	unsigned int n_sims = 0;
+//	unsigned int n_sims = 0;
 	
-	// Empiezo recibiendo sim_id
+	
+	// Empiezo recibiendo project_id
+	if( ! error && ! conexion.readUInt(project_id) ){
+		cerr << "Server::thread_start_sim - Error receiving project_id\n";
+		project_id = 0;
+		error = true;
+	}
+	cout << "Server::thread_start_sim - project_id: " << project_id << "\n";
+	
+	// luego sim_id
 	if( ! error && ! conexion.readUInt(sim_id) ){
 		cerr << "Server::thread_start_sim - Error receiving sim_id\n";
 		sim_id = 0;
@@ -311,15 +321,7 @@ void thread_start_sim(int sock_cliente, string json_file_base, WorkManager *mana
 	}
 	cout << "Server::thread_start_sim - sim_id: " << sim_id << "\n";
 	
-	// Luego recibo n_sims
-	if( ! error && ! conexion.readUInt(n_sims) ){
-		cerr << "Server::thread_start_sim - Error receiving n_sims\n";
-		n_sims = 0;
-		error = true;
-	}
-	cout << "Server::thread_start_sim - n_sims: " << n_sims << "\n";
-	
-	// Luego recibo el string con el json (size + chars)
+	// Recibo el json de la simulacion (size y bytes)
 	if( ! error && ! conexion.readUInt(size) ){
 		cerr << "Server::thread_start_sim - Error receiving json size\n";
 		size = 0;
@@ -332,35 +334,28 @@ void thread_start_sim(int sock_cliente, string json_file_base, WorkManager *mana
 	cout << "Server::thread_start_sim - size: " << size << "\n";
 	char buff[size + 1];
 	if( ! error && ! conexion.readData(buff, size) ){
-		cerr << "Server::thread_start_sim - Error receiving json data\n";
+		cerr << "Server::thread_start_sim - Error receiving json\n";
 		size = 0;
 		error = true;
 	}
 	buff[size] = 0;
 	
-	// Luego guardo el texto en un archivo (esto puede cambiar a envio directo luego)
+	// Si todo esta ok, parsear el json y agrego el factory al manager
 	if(! error ){
-		string json_file = json_file_base;
-//		unsigned long long milisec = (unsigned long long)(std::time(0));
-//		json_file += to_string(milisec);
-		json_file += to_string(sim_id);
-		json_file += ".json";
+		string json_text(buff);
+		stringstream json_stream(json_text);
+		json json_sim;
+		json_stream >> json_sim;
 		
-		fstream writer(json_file, fstream::out | fstream::trunc);
-		if( writer.good() ){
-			writer.write(buff, size);
-			writer.close();
-		}
-		else{
-			cerr << "Server::thread_start_sim - Error opening file \"" << json_file << "\"\n";
-			error = true;
-		}
+		cout << "Server::thread_start_sim - Eventos: " << json_sim["Events"] << "\n";
 		
-		// Agregar el batch de trabajo al manager
-		cout << "Server::thread_start_sim - Todo ok, agregando trabajo.\n";
-		manager->addWork(sim_id, json_file, n_sims);
-	
+		
+		
 	}
+	
+	
+	
+	
 	
 	
 	// Envio codigo de exito al cliente
@@ -374,19 +369,6 @@ void thread_start_sim(int sock_cliente, string json_file_base, WorkManager *mana
 	}
 	
 	
-//	unsigned int len = 0;
-//	conexion.readUInt(len);
-//	cout << "Server::thread_start_sim - len: " << len << "\n";
-//	char buff[len + 1];
-//	conexion.readData(buff, len);
-//	buff[len] = 0;
-//	cout << "Server::thread_start_sim - buff: \"" << buff << "\"\n";
-//	
-//	// Envio de un mensaje de prueba: un entero (4 bytes) con el valor "1"
-//	cout << "Server::thread_start_sim - Enviando respuesta (1)\n";
-//	conexion.writeUInt(1);
-	
-
 }
 
 
