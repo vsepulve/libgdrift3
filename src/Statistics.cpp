@@ -45,20 +45,6 @@ Statistics::Statistics(Simulator *sim, float sampling)
 	
 //	cout << "Statistics - End\n";
 }
-	
-//Statistics::Statistics(const Statistics &original){
-//}
-
-//Statistics& Statistics::operator=(const Statistics& original){
-//	if (this != &original){
-//	
-//	}
-//	return *this;
-//}
-
-//Statistics *Statistics::clone(){
-//	return new Statistics(*this);
-//}
 
 Statistics::~Statistics(){
 	
@@ -107,61 +93,28 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 			alleles_mutations.push_back( alleles_mutations_tables[pos_marker][id_allele] );
 			
 		}
-//		cout << "Statistics::processStatistics - alleles_table: " << alleles_tables[pos_marker].size() 
-//			<< ", " << alleles.size() << " strings generated from " << pool->getNextAllele(pos_marker) <<"\n";
-		
-//		cout << "Statistics::processStatistics - Processing Statistics\n";
 		
 		// Notar que estoy usando los nombres antiguos por estadistico para conservar el orden
 		
-		// "number-of-haplotypes"
 		NanoTimer timer;
 		double num_haplotypes = statNumHaplotypes(alleles);
 		stats["number-of-haplotypes"] = num_haplotypes;
-//		cout << "Statistics::processStatistics - num_haplotypes en " << timer.getMilisec() << " ms\n";
 		
-		// "number-of-segregating-sites"
 		timer.reset();
 		double num_segregating_sites = statNumSegregatingSites(alleles);
 		stats["number-of-segregating-sites"] = num_segregating_sites;
-//		cout << "Statistics::processStatistics - num_segregating_sites en " << timer.getMilisec() << " ms\n";
 		
-		timer.reset();
 //		vector<unsigned int> pairwise_differences = statPairwiseDifferences(alleles);
-//		vector<unsigned int> pairwise_differences_muts = statPairwiseDifferencesMutations(alleles_mutations);
 		vector<unsigned int> pairwise_differences = statPairwiseDifferencesMutations(alleles_mutations);
 		
-//		cout << "----- TEST -----\n";
-//		if( pairwise_differences.size() != pairwise_differences_muts.size() ){
-//			cout << "Statistics::processStatistics - ERROR, Largos diferentes (" << pairwise_differences.size() << " != " << pairwise_differences_muts.size() << ")\n";
-//		}
-//		cout << "Statistics::processStatistics - Comparando " << pairwise_differences.size() << " posiciones\n";
-//		for(unsigned int i = 0; i < pairwise_differences.size(); ++i){
-//			if( pairwise_differences[i] != pairwise_differences_muts[i] ){
-//				cout << "Statistics::processStatistics - ERROR, Valores diferentes (" << pairwise_differences[i] << " != " << pairwise_differences_muts[i] << ")\n";
-//			}
-//		}
-//		cout << "----- TEST -----\n";
-		
-//		cout << "Statistics::processStatistics - pairwise_differences (oculto) en " << timer.getMilisec() << " ms\n";
-	
-		// "mean-of-the-number-of-pairwise-differences"
-		timer.reset();
 		double mean_pairwise_diff = statMeanPairwiseDifferences(pairwise_differences);
 		stats["mean-of-the-number-of-pairwise-differences"] = mean_pairwise_diff;
-//		cout << "Statistics::processStatistics - mean_pairwise_diff en " << timer.getMilisec() << " ms\n";
-		
-		// "variance-of-the-number-of-pairwise-differences"
-		timer.reset();
+
 		double var_pairwise_diff = statVariancePairwiseDifferences(pairwise_differences, mean_pairwise_diff);
 		stats["variance-of-the-number-of-pairwise-differences"] = var_pairwise_diff;
-//		cout << "Statistics::processStatistics - var_pairwise_diff en " << timer.getMilisec() << " ms\n";
-		
-		// "tajima-d-statistics"
-		timer.reset();
+
 		double tajima_d = statTajimaD(alleles, num_segregating_sites, mean_pairwise_diff);
 		stats["tajima-d-statistics"] = tajima_d;
-//		cout << "Statistics::processStatistics - tajima_d en " << timer.getMilisec() << " ms\n";
 		
 		stats_vector.push_back(stats);
 	}
@@ -170,7 +123,8 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 }
 
 // Procesa todos los estadisticos de un genepop y los agrega a statistics[name][stat]
-void Statistics::processStatistics(string filename, string name, unsigned int n_markers){
+// Si summary_alleles es diferente de NULL, se agregan los de esta poblacion para generar los stats de Summary
+void Statistics::processStatistics(string filename, string name, unsigned int n_markers, vector<vector<string>> *summary_alleles){
 	
 	cout << "Statistics::processStatistics - Start (filename " << filename << ", pop_name: " << name << ")\n";
 	
@@ -179,37 +133,37 @@ void Statistics::processStatistics(string filename, string name, unsigned int n_
 	
 	// En esta version se llena el vector de alelos directamente con strings
 //	vector<string> alleles;
-	cout << "Statistics::processStatistics - Preparando allele_markers\n";
+//	cout << "Statistics::processStatistics - Preparando allele_markers\n";
 	vector<vector<string>> alleles_marker;
 	alleles_marker.resize(n_markers);
 	
 	// Primero la lectura directa del archivo que tenemos, despues cambio esto a una lectura generica en un GenepopReader
 	
-	cout << "Statistics::processStatistics - Preparando Lector\n";
+//	cout << "Statistics::processStatistics - Preparando Lector\n";
 	ifstream lector(filename, ifstream::in);
 	if( ! lector.is_open() ){
 		cerr << "Statistics::processStatistics - Can't open file \"" << filename << "\"\n";
 		return;
 	}
 	
-	cout << "Statistics::processStatistics - Preparando Buffer\n";
+//	cout << "Statistics::processStatistics - Preparando Buffer\n";
 	unsigned int buff_size = 1024*1024*10;
 	char *buff = new char[buff_size + 1];
 	memset(buff, 0, buff_size + 1);
 	
-	cout << "Statistics::processStatistics - Iniciando Lectura\n";
+//	cout << "Statistics::processStatistics - Iniciando Lectura\n";
 	
 	// Titulo
 	lector.getline(buff, buff_size);
-	cout << "Statistics::processStatistics - Title: " << buff << "\n";
+//	cout << "Statistics::processStatistics - Title: " << buff << "\n";
 	
 	// Identificadores de Loci (separados por , en el formato estandar)
 	lector.getline(buff, buff_size);
-	cout << "Statistics::processStatistics - Loci: " << buff << " (Temporalmente asumo 1)\n";
+//	cout << "Statistics::processStatistics - Loci: " << buff << " (Temporalmente asumo 1)\n";
 	
 	// Pop
 	lector.getline(buff, buff_size);
-	cout << "Statistics::processStatistics - Pop: " << buff << "\n";
+//	cout << "Statistics::processStatistics - Pop: " << buff << "\n";
 	
 	// Inicio de datos
 	while( lector.good() ){
@@ -221,24 +175,24 @@ void Statistics::processStatistics(string filename, string name, unsigned int n_
 		}
 		
 		string line(buff);
-		cout << "Statistics::processStatistics - line: " << line << "\n";
+//		cout << "Statistics::processStatistics - line: " << line << "\n";
 		if( line.find(',') == string::npos ){
 			cout << "Statistics::processStatistics - Marcador no encontrado\n";
 			break;
 		}
 		
-		cout << "Statistics::processStatistics - Preparando stringstream\n";
+//		cout << "Statistics::processStatistics - Preparando stringstream\n";
 		stringstream toks(line);
 		string id = "";
 		string separator = "";
 		string data = "";
 		
 		toks >> id;
-		cout << "Statistics::processStatistics - id: \"" << id << "\"\n";
+//		cout << "Statistics::processStatistics - id: \"" << id << "\"\n";
 		for( unsigned int i = 0; i < n_markers; ++i ){
 			toks >> separator;
 			toks >> data;
-			cout << "Statistics::processStatistics - data : \"" << data << "\"\n";
+//			cout << "Statistics::processStatistics - data : \"" << data << "\"\n";
 			alleles_marker[i].push_back(data);
 		}
 		
@@ -246,13 +200,35 @@ void Statistics::processStatistics(string filename, string name, unsigned int n_
 	
 	delete [] buff;
 	
+	if(summary_alleles != NULL){
+		cout << "Statistics::processStatistics - Adding alleles to summary\n";
+		if( summary_alleles->size() != n_markers ){
+			summary_alleles->resize(n_markers);
+		}
+		for( unsigned int i = 0; i < n_markers; ++i ){
+			summary_alleles->at(i).insert( 
+				summary_alleles->at(i).begin(), 
+				alleles_marker[i].begin(), 
+				alleles_marker[i].end() 
+			);
+		}
+	}
 	
+	processStatistics(name, n_markers, &alleles_marker);
+	
+}
+
+// Procesa los stats directamente de una muestra de alelos como string y los asocia a la poblacion "name"
+void Statistics::processStatistics(string name, unsigned int n_markers, vector<vector<string>> *alleles_marker){
+	assert(n_markers == alleles_marker->size());
+	
+	cout << "Statistics::processStatistics - Start Internal for pop_name: \"" << name << "\"\n";
 	
 	vector<map<string, double>> stats_vector;
 //	cout << "Statistics::processStatistics - Processing " << profile->getNumMarkers() << " markers\n";
 	for(unsigned int pos_marker = 0; pos_marker < n_markers; ++pos_marker){
 		map<string, double> stats;
-		vector<string> alleles = alleles_marker[pos_marker];
+		vector<string> alleles = alleles_marker->at(pos_marker);
 		
 		// Notar que estoy usando los nombres antiguos por estadistico para conservar el orden
 		
@@ -282,8 +258,11 @@ void Statistics::processStatistics(string filename, string name, unsigned int n_
 	}
 	statistics[name] = stats_vector;
 	
-	
 }
+
+
+
+
 
 // Busca el alelo en la tabla, lo genere recursivamente si no lo encuentra
 string &Statistics::getAllele(unsigned int marker_pos, unsigned int id, ProfileMarker &marker){
