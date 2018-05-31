@@ -215,8 +215,6 @@ void thread_init_project(int sock_cliente, string json_project_base, WorkManager
 		// El mapa siguinte es pop_name -> vector por marcador
 		map<string, vector<string> > sample_paths;
 		for( unsigned int i = 0; i < n_pops; ++i ){
-			// NOTE: La estructura del json que sigue esta pesima
-			// TODO: cambiar el json para un arreglo de Populations, con Name y Sample_path(s) cada una
 			// Considerando el nuevo statistics, quiza un solo archivo deberia tener todos los marcadores para la poblacion
 			string pop_name = json_project["Populations"][i]["Name"];
 			for( unsigned int j = 0; j < n_markers; ++j ){
@@ -229,15 +227,15 @@ void thread_init_project(int sock_cliente, string json_project_base, WorkManager
 		// Cada uno de esos archivos debe ser cargado en una poblacion
 		// Tomar los estadisticos de esas poblaciones
 		
-		// Creo que se puede llamar directamente a Statistics->processStatistics que recibe Population
-		// Asi, solo faltaria implementar un nuevo constructor para Population que parsee en genepop
-		
+		// Estructura temporal para almacenar summary populations
+		vector<vector<string>> summary_alleles;
 		Statistics stats;
 		for( auto samples : sample_paths ){
-			stats.processStatistics(samples.second[0], samples.first, n_markers);
+			stats.processStatistics(samples.second[0], samples.first, n_markers, &summary_alleles);
 		}
+		stats.processStatistics("summary", n_markers, &summary_alleles);
 		
-		// TODO: Falta summary
+		// Crear el target con los estadisticos generados
 		
 	}
 	
