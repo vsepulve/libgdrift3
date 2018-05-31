@@ -38,7 +38,7 @@ void WorkManager::addBatch(unsigned int sim_id){
 //		unsigned int pos = 0;
 		cout << "WorkManager::addBatch - Llenado disperso (old_size: " << old_size << ", n_sims: " << n_sims << ", s: " << s << ")\n";
 		for( unsigned int i = 0; i < n_sims; ++i ){
-//			cout << "addWork - Insert en pos " << pos << "\n";
+//			cout << "addBatch - Insert en pos " << pos << "\n";
 			it = work_queue.insert(it, factory->getInstanceSerialized());
 			for( unsigned int j = 0; j < s+1; ++j ){
 				it++;
@@ -56,7 +56,7 @@ void WorkManager::addBatch(unsigned int sim_id){
 		for( unsigned int i = 0; i < old_size; ++i ){
 			unsigned int limit = (i<e)?(s+1):(s);
 			for( unsigned int j = 0; j < limit; ++j ){
-//				cout << "addWork - Insert en pos " << pos << "\n";
+//				cout << "addBatch - Insert en pos " << pos << "\n";
 				it = work_queue.insert(it, factory->getInstanceSerialized());
 				it++;
 //				++pos;
