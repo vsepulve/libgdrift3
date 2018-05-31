@@ -234,25 +234,25 @@ void Statistics::processStatistics(string name, unsigned int n_markers, vector<v
 		
 		double num_haplotypes = statNumHaplotypes(alleles);
 		stats["number-of-haplotypes"] = num_haplotypes;
-		cout << "Statistics::processStatistics - num_haplotypes: " << num_haplotypes << "\n";
+//		cout << "Statistics::processStatistics - num_haplotypes: " << num_haplotypes << "\n";
 		
 		double num_segregating_sites = statNumSegregatingSites(alleles);
 		stats["number-of-segregating-sites"] = num_segregating_sites;
-		cout << "Statistics::processStatistics - num_segregating_sites: " << num_segregating_sites << "\n";
+//		cout << "Statistics::processStatistics - num_segregating_sites: " << num_segregating_sites << "\n";
 		
 		vector<unsigned int> pairwise_differences = statPairwiseDifferences(alleles);
 		
 		double mean_pairwise_diff = statMeanPairwiseDifferences(pairwise_differences);
 		stats["mean-of-the-number-of-pairwise-differences"] = mean_pairwise_diff;
-		cout << "Statistics::processStatistics - mean_pairwise_diff: " << mean_pairwise_diff << "\n";
+//		cout << "Statistics::processStatistics - mean_pairwise_diff: " << mean_pairwise_diff << "\n";
 		
 		double var_pairwise_diff = statVariancePairwiseDifferences(pairwise_differences, mean_pairwise_diff);
 		stats["variance-of-the-number-of-pairwise-differences"] = var_pairwise_diff;
-		cout << "Statistics::processStatistics - var_pairwise_diff: " << var_pairwise_diff << "\n";
+//		cout << "Statistics::processStatistics - var_pairwise_diff: " << var_pairwise_diff << "\n";
 		
 		double tajima_d = statTajimaD(alleles, num_segregating_sites, mean_pairwise_diff);
 		stats["tajima-d-statistics"] = tajima_d;
-		cout << "Statistics::processStatistics - tajima_d: " << tajima_d << "\n";
+//		cout << "Statistics::processStatistics - tajima_d: " << tajima_d << "\n";
 		
 		stats_vector.push_back(stats);
 	}
