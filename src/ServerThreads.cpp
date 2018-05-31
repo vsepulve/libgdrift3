@@ -132,7 +132,7 @@ void processing_thread(unsigned int pid, string output_base, WorkManager *manage
 
 // INIT: Crear el target y preparar datos
 // Este proceso tambien recibe y guarda el json del proyecto (ademas del target)
-void thread_init_project(int sock_cliente, string json_project_base, WorkManager *manager){
+void thread_init_project(int sock_cliente, string json_project_base, string target_base, WorkManager *manager){
 	// Por ahora, asumo que el archivo de datos de secuencias esta en disco
 	// Despues puedo parchar eso creando ese archivo desde el servicio go que inicia este thread
 	// Tambien asumo que ya hay un project_id, despues veo si es necesario cambiar eso
@@ -147,6 +147,7 @@ void thread_init_project(int sock_cliente, string json_project_base, WorkManager
 	unsigned int n_markers = 0;
 	unsigned int n_pops = 0;
 	string json_file = "";
+	string target_file = "";
 	
 	// Empiezo recibiendo project_id
 	if( ! error && ! conexion.readUInt(project_id) ){
@@ -236,6 +237,42 @@ void thread_init_project(int sock_cliente, string json_project_base, WorkManager
 		stats.processStatistics("summary", n_markers, &summary_alleles);
 		
 		// Crear el target con los estadisticos generados
+		target_file = target_base;
+		target_file += to_string(project_id);
+		target_file += ".txt";
+		
+		// Preparar escritor y crear el archivo 
+		fstream writer(target_file, fstream::out | fstream::trunc);
+		if( writer.good() ){
+//			writer.write(buff, size);
+			
+			char stat_buff[1024];
+			memset(stat_buff, 0, 1024);
+//			stat_buff[0] = 0; 
+			
+//			map<string, vector< map<string, double> > > statistics = stats.getStatistics();
+			for( auto it_stats_pop : stats.getStatistics() ){
+				string pop_name = it_stats_pop.first;
+				unsigned int marker_pos = 0;
+				for( map<string, double> stats_marker : it_stats_pop.second ){
+					for( auto it_stat : stats_marker ){
+						string stat_name = it_stat.first;
+						double value = it_stat.second;
+						cout << "Server::thread_start_sim - pop " << pop_name << " - marker " << marker_pos << " - stat " << stat_name <<" => " << value << "\n";
+						sprintf(stat_buff + strlen(stat_buff), "%f\t", value);
+					}
+					++marker_pos;
+				}
+			
+			}
+			sprintf(stat_buff + strlen(stat_buff), "\n");
+			writer.write(stat_buff, size);
+			writer.close();
+		}
+		else{
+			cerr << "Server::thread_start_sim - Error opening file \"" << target_file << "\"\n";
+			error = true;
+		}
 		
 	}
 	

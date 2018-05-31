@@ -112,7 +112,7 @@ int main(int argc,char** argv){
 				cout << "Server - Creando thread_init_project\n";
 				sock_cliente = conexion.getSocket();
 				conexion.setSocket(-1);
-				thread( thread_init_project, sock_cliente, project_json_base, manager ).detach();
+				thread( thread_init_project, sock_cliente, project_json_base, target_base, manager ).detach();
 				break;
 			case 2:
 				cout << "Server - DELETE PROJECT\n";

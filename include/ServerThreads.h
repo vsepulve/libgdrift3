@@ -36,7 +36,7 @@ void processing_thread(unsigned int pid, string output_base, WorkManager *manage
 
 // INIT: Crear el target y preparar datos
 // Este proceso tambien recibe y guarda el json del proyecto (ademas del target)
-void thread_init_project(int sock_cliente, string json_file_base, WorkManager *manager);
+void thread_init_project(int sock_cliente, string json_file_base, string target_base, WorkManager *manager);
 
 // START: Agregar trabajo a work_queue e iniciar simulaciones
 void thread_start_sim(int sock_cliente, string json_file_base, WorkManager *manager);
