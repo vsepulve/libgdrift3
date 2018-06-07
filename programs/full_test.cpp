@@ -100,6 +100,8 @@ void SimultionThread(unsigned int pid, unsigned int n_threads, string output_bas
 		sim.loadSerialized(serialized);
 		++procesados;
 		
+		sim.print();
+		
 		sim.run();
 		
 		// Parte local del analyzer
@@ -189,21 +191,22 @@ vector<pair<double, double>> getDistributions(string &feedback_output, unsigned 
 
 int main(int argc,char** argv){
 
-	if(argc != 10){
-		cout << "\nUsage: ./test json_file total_jobs max_feedback n_threads output_base n_stats n_params f_training target_file\n";
+	if(argc != 11){
+		cout << "\nUsage: ./test project_file simulation_file total_jobs max_feedback n_threads output_base n_stats n_params f_training target_file\n";
 		cout << "\n";
 		return 0;
 	}
 	
-	string settings_file = argv[1];
-	unsigned int total = atoi(argv[2]);
-	unsigned int max_feedback = atoi(argv[3]);
-	unsigned int n_threads = atoi(argv[4]);
-	string output_base = argv[5];
-	unsigned int n_stats = atoi(argv[6]);
-	unsigned int n_params = atoi(argv[7]);
-	float f_training = atof(argv[8]);
-	string target_file = argv[9];
+	string project_file = argv[1];
+	string simulation_file = argv[2];
+	unsigned int total = atoi(argv[3]);
+	unsigned int max_feedback = atoi(argv[4]);
+	unsigned int n_threads = atoi(argv[5]);
+	string output_base = argv[6];
+	unsigned int n_stats = atoi(argv[7]);
+	unsigned int n_params = atoi(argv[8]);
+	float f_training = atof(argv[9]);
+	string target_file = argv[10];
 	
 	cout << "Test - Inicio (total: "<<total<<", n_threads: "<<n_threads<<", output_base: "<<output_base<<")\n";
 	
@@ -235,8 +238,20 @@ int main(int argc,char** argv){
 //	}
 //	cout << "Test - Terminados: "<<terminados<<", Total efectivo: "<<total<<"\n";
 	
+	cout<<"Test - Cargando jsons\n";
+	json project_json;
+	json simulation_json;
+	
+	ifstream reader(project_file, ifstream::in);
+	reader >> project_json;
+	reader.close();
+	
+	reader.open(simulation_file, ifstream::in);
+	reader >> simulation_json;
+	reader.close();
+	
 	cout << "Test - Preparando Cola de Trabajo\n";
-	SimulatorFactory factory(settings_file);
+	SimulatorFactory factory(project_json, simulation_json);
 	
 	// Iterar por max_feedback
 	for( unsigned int feedback = 0; feedback < max_feedback; ++feedback ){
