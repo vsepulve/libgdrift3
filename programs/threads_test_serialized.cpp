@@ -207,16 +207,17 @@ void DummyThread(unsigned int pid, unsigned int local_jobs){
 
 int main(int argc,char** argv){
 
-	if(argc != 5){
-		cout<<"\nUsage: ./test json_file total_jobs n_threads output_base\n";
+	if(argc != 6){
+		cout<<"\nUsage: ./test project_file simulation_file total_jobs n_threads output_base\n";
 		cout<<"\n";
 		return 0;
 	}
 	
-	const char *settings_file = argv[1];
-	unsigned int total = atoi(argv[2]);
-	unsigned int n_threads = atoi(argv[3]);
-	const char *output_base = argv[4];
+	const char *project_file = argv[1];
+	const char *simulation_file = argv[2];
+	unsigned int total = atoi(argv[3]);
+	unsigned int n_threads = atoi(argv[4]);
+	const char *output_base = argv[5];
 	
 	cout<<"Test - Inicio (total: "<<total<<", n_threads: "<<n_threads<<", output_base: "<<output_base<<")\n";
 	NanoTimer timer;
@@ -249,8 +250,20 @@ int main(int argc,char** argv){
 	}
 	cout<<"Test - Terminados: "<<terminados<<", Total efectivo: "<<total<<"\n";
 	
+	cout<<"Test - Cargando jsons\n";
+	json project_json;
+	json simulation_json;
+	
+	ifstream reader(project_file, ifstream::in);
+	reader >> project_json;
+	reader.close();
+	
+	reader.open(simulation_file, ifstream::in);
+	reader >> simulation_json;
+	reader.close();
+	
 	cout<<"Test - Preparando Cola de Trabajo\n";
-	SimulatorFactory factory(settings_file);
+	SimulatorFactory factory(project_json, simulation_json);
 	
 	for(unsigned int i = 0; i < total; ++i){
 		cout<<"Test - Agregando " << work_queue.size() << "\n";
