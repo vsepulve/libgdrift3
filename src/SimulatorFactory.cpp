@@ -1,5 +1,6 @@
 #include "SimulatorFactory.h"
 
+/*
 SimulatorFactory::SimulatorFactory(string json_file, mt19937 *_generator){
 
 	if(_generator != NULL){
@@ -11,19 +12,25 @@ SimulatorFactory::SimulatorFactory(string json_file, mt19937 *_generator){
 	}
 	
 	ifstream reader (json_file, ifstream::in);
-//	json settings;
 	reader >> settings;
 	
-//	cout << "SimulatorFactory - Settings: " << settings << "\n";
+	// Aqui se podrian determinar los parametros globales que seran usados inter training
+	loadScenario();
 	
-	// Parsear el settings y guardarlo como objeto interno?
-	// La otra opcion es guardar directamente el json settings y leerlo cada vez que se cree una nueva instancia
-	// En ese caso igual se necesitaria un metodo que conozca el detalle de la estructura del json
-	
-//	cout << "SimulatorFactory - Individual: " << settings["individual"] << "\n";
-//	cout << "SimulatorFactory - N of Scenarios: " << settings["scenarios"].size() << " ("<< settings["scenarios"] <<")\n";
-//	parseEventsOld(settings["scenarios"]);
-	
+}
+*/
+
+SimulatorFactory::SimulatorFactory(json &_project_json, json &_simulation_json, mt19937 *_generator){
+
+	if(_generator != NULL){
+		generator = _generator;
+	}
+	else{
+		random_device seed;
+		generator = new mt19937(seed());
+	}
+	project_json = _project_json;
+	simulation_json = _simulation_json;
 	
 	// Aqui se podrian determinar los parametros globales que seran usados inter training
 	loadScenario();
@@ -114,14 +121,10 @@ double SimulatorFactory::parseValue(json &json_val, bool force_limits, double fo
 // Este es uno de los metodos que DEBE conocer la estructura del json
 // Los metodos old* usan la estructura heredada de settings, previo a optimizaciones
 EventList *SimulatorFactory::parseEventsOld(json &scen){
-//	cout << "SimulatorFactory::parseEventsOld - Inicio\n";
-//	cout << "SimulatorFactory::parseEventsOld - N of Scenarios: " << scenarios.size() << " ("<< scenarios <<")\n";
+	cout << "SimulatorFactory::parseEventsOld - Inicio\n";
 	EventList *events = new EventList();
-//	unsigned int pos = (*generator)() % scenarios.size();
-//	json scen = scenarios[pos];
-//	cout << "SimulatorFactory::parseEventsOld - scen: "<< pos <<" (" << scen << ")\n";
-//	events->setId( scen["id"].get<unsigned int>() );
-	events->setId( stoi(scen["id"].get<string>()) );
+//	events->setId( stoi(scen["id"].get<string>()) );
+	events->setId( scen["Id"] );
 	
 	// Tomar lista de eventos del json
 //	json scen_events = scen[]
@@ -129,13 +132,13 @@ EventList *SimulatorFactory::parseEventsOld(json &scen){
 	unsigned int last_gen = 0;
 	// TODO: Este limite de seguridad al tamaño de la poblacion es arbitrario
 	unsigned int max_value = 100000000;
-//	events->resize( scen["events"].size() );
+//	events->resize( scen["Events"].size() );
 //	cout << "-----\n";
-//	cout << "SimulatorFactory::parseEventsOld - Iniciando Parsing\n";
+	cout << "SimulatorFactory::parseEventsOld - Iniciando Parsing\n";
 //	cout << "-----\n";
-	for( json json_ev : scen["events"] ){
+	for( json json_ev : scen["Events"] ){
 //		cout << "SimulatorFactory::parseEventsOld - json_ev[" << count << "]: "<< json_ev <<"\n";
-//		cout << "SimulatorFactory::parseEventsOld - Parsing event " << count << "\n";
+		cout << "SimulatorFactory::parseEventsOld - Parsing event " << count << "\n";
 //		Event event = events->getEvent(count);
 		Event *event = new Event();
 		events->addEvent(event);
@@ -240,7 +243,7 @@ EventList *SimulatorFactory::parseEventsOld(json &scen){
 		++count;
 	}
 	
-//	cout << "SimulatorFactory::parseEventsOld - Fin\n";
+	cout << "SimulatorFactory::parseEventsOld - Fin\n";
 	return events;
 }
 
@@ -249,41 +252,35 @@ Profile *SimulatorFactory::parseProfileOld(json &individual){
 	
 	Profile *profile = new Profile();
 	
-	profile->setPloidy( stoi(individual["ploidy"].get<string>()) );
+	profile->setPloidy( individual["Plody"] );
 	
-	json chromosomes = individual["chromosomes"];
-	for(unsigned int chr = 0; chr < chromosomes.size(); ++chr){
-		json genes = chromosomes[chr]["genes"];
-		for(unsigned int gen = 0; gen < genes.size(); ++gen){
-			json this_gene = genes[gen];
-			unsigned int type = stoi(this_gene["type"].get<string>());
-			if( type == 0 ){
-				// MARKER_SEQUENCE
-				unsigned int length = stoi(this_gene["nucleotides"].get<string>());
-				unsigned int initial_alleles = stoi(this_gene["number-of-alleles"].get<string>());
-				unsigned int mutation_type = stoi(this_gene["mutation"]["model"].get<string>());
-				if( mutation_type == 0 ){
-					// MUTATION_BASIC
-					double rate = parseValue(this_gene["mutation"]["rate"], true, 0, 1.0);
-//					cout << "SimulatorFactory::parseProfileOld - Agregando marcador (length: " << length 
-//						<< ", initial_alleles: " << initial_alleles 
-//						<< ", rate: " << rate << ")\n";
-					vector<double> params;
-					params.push_back(rate);
-					ProfileMarker marker(MARKER_SEQUENCE, length, initial_alleles, MUTATION_BASIC, params);
-					profile->addMarker(marker);
-				}
-				else{
-//					cerr << "SimulatorFactory::parseProfileOld - Unknown Mutation Type (" << mutation_type << ")\n";
-				}
+	cout <<  "SimulatorFactory::parseProfileOld - Cargando Marcadores\n";
+	for( json &marker : project_json["Markers"] ){
+		unsigned int marker_type =  marker["Type"];
+		unsigned int mutation_model = marker["Mutation_model"];
+		if( marker_type == 1 ){
+			// MARKER_SEQUENCE
+			if( mutation_model == 1 ){
+				// MUTATION_BASIC
+				unsigned int length = marker["Size"];
+				unsigned int pool_size = marker["Pool_size"];
+				double rate = parseValue(marker["rate"], true, 0, 1.0);
+				vector<double> params;
+				params.push_back(rate);
+				cout << "SimulatorFactory::parseProfileOld - Agregando Marcador (length: " << length<< ", pool_size: " << pool_size<< ", rate: " << rate << ")\n";
+				ProfileMarker marker(MARKER_SEQUENCE, length, pool_size, MUTATION_BASIC, params);
+				profile->addMarker(marker);
 			}
 			else{
-//				cerr << "SimulatorFactory::parseProfileOld - Unknown Marker Type (" << type << ")\n";
+				cerr << "SimulatorFactory::parseProfileOld - Unknown Mutation Model (" << mutation_model << ")\n";
 			}
+		}
+		else{
+			cerr << "SimulatorFactory::parseProfileOld - Unknown Marker Type (" << marker_type << ")\n";
 		}
 	}
 	
-//	cout << "SimulatorFactory::parseProfileOld - Fin\n";
+	cout << "SimulatorFactory::parseProfileOld - Fin\n";
 	return profile;
 }
 
@@ -303,27 +300,13 @@ bool SimulatorFactory::replaceDistribution(json &param, pair<double, double> &va
 		this_distribution["params"]["stddev"] = std::to_string(values.second);
 		param["distribution"] = this_distribution;
 	}
-
-//	string type = param["type"];
-//	if( type.compare("random") == 0 && values.second != 0 ){
-//		// Elimino distribucion antigua (tecnicamente innecesario)
-//		param.erase("distribution");
-//		// Preparo nueva distribucion
-//		json this_distribution;
-//		this_distribution["type"] = "normal";
-//		this_distribution["params"]["mean"] = std::to_string(values.first);
-//		this_distribution["params"]["stddev"] = std::to_string(values.second);
-//		// Reintegro la nueva distribucion
-//		param["distribution"] = this_distribution;
-//		return true;
-//	}
 	
-//	cout << "SimulatorFactory::replaceDistribution - Fin (Omitido)\n";
+//	cout << "SimulatorFactory::replaceDistribution - Fin\n";
 	return true;
 }
 // Recibe un vector de pares <mean, stddev> en el orden de los parametros
 void SimulatorFactory::loadScenario(){
-//	cout <<  "SimulatorFactory::loadScenario - Inicio\n";
+	cout <<  "SimulatorFactory::loadScenario - Inicio\n";
 	
 	// Parametros a preparar
 	n_populations = 0;
@@ -331,41 +314,37 @@ void SimulatorFactory::loadScenario(){
 	n_params = 0;
 //	vector<string> param_names;
 	string param_name;
-	sim_id = stoi( settings["id"].get<string>() );
+	proj_id = project_json["Id"];
+	sim_id = simulation_json["Id"];
 	
-	// Primero el profile
-	json &individual = settings["individual"];
-	json &chromosomes = individual["chromosomes"];
-	for(unsigned int chr = 0; chr < chromosomes.size(); ++chr){
-		json &genes = chromosomes[chr]["genes"];
-		for(unsigned int gen = 0; gen < genes.size(); ++gen){
-			json &this_gene = genes[gen];
-			unsigned int type = stoi(this_gene["type"].get<string>());
-			if( type == 0 ){
-				// MARKER_SEQUENCE
-				unsigned int mutation_type = stoi(this_gene["mutation"]["model"].get<string>());
-				if( mutation_type == 0 ){
-					// MUTATION_BASIC
-					param_name = "mutation.rate." + param_names.size();
-					param_names.push_back(param_name);
-				}
-				else{
-//					cerr << "SimulatorFactory::parseProfileOld - Unknown Mutation Type (" << mutation_type << ")\n";
-				}
+	cout <<  "SimulatorFactory::loadScenario - proj_id: " << proj_id << ", sim_id: " << sim_id << "\n";
+	
+	// Primero Individual (de project)
+	for( json &marker : project_json["Individual"]["Markers"] ){
+		unsigned int marker_type =  marker["Type"];
+		unsigned int mutation_model = marker["Mutation_model"];
+		if( marker_type == 1 ){
+			// MARKER_SEQUENCE
+			if( mutation_model == 1 ){
+				// MUTATION_BASIC
+				param_name = "mutation.rate." + to_string(param_names.size());
+				cout <<  "SimulatorFactory::loadScenario - Agregando param \"" << param_name << "\"\n";
+				param_names.push_back(param_name);
 			}
 			else{
-//				cerr << "SimulatorFactory::parseProfileOld - Unknown Marker Type (" << type << ")\n";
+				cerr << "SimulatorFactory::loadScenario - Unknown Mutation Model (" << mutation_model << ")\n";
 			}
+		}
+		else{
+			cerr << "SimulatorFactory::loadScenario - Unknown Marker Type (" << marker_type << ")\n";
 		}
 	}
 	
-	// De aqui en adelante asumo que solo hay un escenario por simulacion (nuevo modelo)
-//	cout <<  "SimulatorFactory::loadScenario - Tomando Escenario 0\n";
-	json &scen = settings["scenarios"][0];
+	// Ahora el escenario de Simulation
 	map<string, unsigned int> counted_events;
 	
-//	cout <<  "SimulatorFactory::loadScenario - Ajustando Eventos\n";
-	for( json &json_ev : scen["events"] ){
+	cout <<  "SimulatorFactory::loadScenario - Ajustando Eventos\n";
+	for( json &json_ev : simulation_json["Events"] ){
 		
 		// Notar que SIEMPRE se carga prmero la generacion, luego los parametros en orden de lectura
 		
@@ -378,6 +357,7 @@ void SimulatorFactory::loadScenario(){
 			param_name += to_string(counted_events[type]) + ".";
 		}
 		param_name += "generation";
+		cout <<  "SimulatorFactory::loadScenario - Agregando param \"" << param_name << "\"\n";
 		param_names.push_back(param_name);
 		
 		// Parametros especificos
@@ -388,6 +368,7 @@ void SimulatorFactory::loadScenario(){
 				param_name += to_string(counted_events[type]) + ".";
 			}
 			param_name += "size";
+			cout <<  "SimulatorFactory::loadScenario - Agregando param \"" << param_name << "\"\n";
 			param_names.push_back(param_name);
 			// Se crea una poblacion
 			++n_populations;
@@ -404,6 +385,7 @@ void SimulatorFactory::loadScenario(){
 				param_name += to_string(counted_events[type]) + ".";
 			}
 			param_name += "percentage";
+			cout <<  "SimulatorFactory::loadScenario - Agregando param \"" << param_name << "\"\n";
 			param_names.push_back(param_name);
 			// Crea una nueva poblacion
 			++n_populations;
@@ -420,6 +402,7 @@ void SimulatorFactory::loadScenario(){
 				param_name += to_string(counted_events[type]) + ".";
 			}
 			param_name += "percentage";
+			cout <<  "SimulatorFactory::loadScenario - Agregando param \"" << param_name << "\"\n";
 			param_names.push_back(param_name);
 		}
 		else if( type.compare("decrement") == 0 ){
@@ -429,6 +412,7 @@ void SimulatorFactory::loadScenario(){
 				param_name += to_string(counted_events[type]) + ".";
 			}
 			param_name += "percentage";
+			cout <<  "SimulatorFactory::loadScenario - Agregando param \"" << param_name << "\"\n";
 			param_names.push_back(param_name);
 		}
 		else if( type.compare("extinction") == 0 ){
@@ -458,35 +442,26 @@ void SimulatorFactory::reloadParameters(vector<pair<double, double>> &values){
 //	cout <<  "SimulatorFactory::reloadParameters - Inicio\n";
 	unsigned int next_param = 0;
 	
-//	cout <<  "SimulatorFactory::reloadParameters - Ajustando Perfil\n";
-	// Primero el profile
-	json &individual = settings["individual"];
-	json &chromosomes = individual["chromosomes"];
-	for(unsigned int chr = 0; chr < chromosomes.size(); ++chr){
-		json &genes = chromosomes[chr]["genes"];
-		for(unsigned int gen = 0; gen < genes.size(); ++gen){
-			json &this_gene = genes[gen];
-			unsigned int type = stoi(this_gene["type"].get<string>());
-			if( type == 0 ){
-				// MARKER_SEQUENCE
-//				cout <<  "SimulatorFactory::reloadParameters - Tomando mutation_type\n";
-				unsigned int mutation_type = stoi(this_gene["mutation"]["model"].get<string>());
-//				cout <<  "SimulatorFactory::reloadParameters - mutation_type: " << mutation_type << "\n";
-				if( mutation_type == 0 ){
-					// MUTATION_BASIC
-//					cout <<  "SimulatorFactory::reloadParameters - [mutation][rate]\n";
-					json &this_param = this_gene["mutation"]["rate"];
-					if( replaceDistribution(this_param, values[next_param]) ){
-						++next_param;
-					}
-				}
-				else{
-//					cerr << "SimulatorFactory::parseProfileOld - Unknown Mutation Type (" << mutation_type << ")\n";
+	// Primero Individual (de project)
+	cout <<  "SimulatorFactory::reloadParameters - Ajustando Individual\n";
+	for( json &marker : project_json["Markers"] ){
+		unsigned int marker_type =  marker["Type"];
+		unsigned int mutation_model = marker["Mutation_model"];
+		if( marker_type == 1 ){
+			// MARKER_SEQUENCE
+			if( mutation_model == 1 ){
+				// MUTATION_BASIC
+				json &this_param = marker["rate"];
+				if( replaceDistribution(this_param, values[next_param]) ){
+					++next_param;
 				}
 			}
 			else{
-//				cerr << "SimulatorFactory::parseProfileOld - Unknown Marker Type (" << type << ")\n";
+				cerr << "SimulatorFactory::reloadParameters - Unknown Mutation Model (" << mutation_model << ")\n";
 			}
+		}
+		else{
+			cerr << "SimulatorFactory::reloadParameters - Unknown Marker Type (" << marker_type << ")\n";
 		}
 	}
 	
@@ -495,11 +470,8 @@ void SimulatorFactory::reloadParameters(vector<pair<double, double>> &values){
 	// Una opcion es recibir el escenario como parametro
 	// Si se recibe el id, hay que iterar por los escenario hasta elegir el correcto
 	
-//	cout <<  "SimulatorFactory::reloadParameters - Tomando Escenario 0\n";
-	json &scen = settings["scenarios"][0];
-	
-//	cout <<  "SimulatorFactory::reloadParameters - Ajustando Eventos\n";
-	for( json &json_ev : scen["events"] ){
+	cout <<  "SimulatorFactory::reloadParameters - Ajustando Eventos\n";
+	for( json &json_ev : simulation_json["Events"] ){
 		
 		// Notar que SIEMPRE se carga prmero la generacion, luego los parametros en orden de lectura
 		
@@ -522,6 +494,9 @@ void SimulatorFactory::reloadParameters(vector<pair<double, double>> &values){
 		}
 		else if( type.compare("split") == 0 ){
 			// split -> SIN parametros (el porcentaje lo fijamos en 0.5 en old)
+			// FIX: eñ porcentaje igual esta pasando en la fase de training, asi que lo omito explícitamente por ahora
+			cout << "SimulatorFactory::reloadParameters - Omitiendo percentage de split (dist " << values[next_param].first << ", " << values[next_param].second << ")\n";
+			++next_param;
 		}
 		else if( type.compare("migration") == 0 ){
 			// migration -> percentage
@@ -555,41 +530,27 @@ void SimulatorFactory::reloadParameters(vector<pair<double, double>> &values){
 		}
 	}
 	
-//	cout <<  "SimulatorFactory::reloadParameters - Fin\n";
+	cout <<  "SimulatorFactory::reloadParameters - Fin\n";
 	
 }
 
 Simulator *SimulatorFactory::getInstance(){
-//	cout << "SimulatorFactory::getInstance - Inicio\n";
+	cout << "SimulatorFactory::getInstance - Inicio\n";
 	
-//	cout << "SimulatorFactory::getInstance - new Simulator...\n";
+	cout << "SimulatorFactory::getInstance - new Simulator...\n";
 	Simulator *res = new Simulator();
 	res->setId(sim_id);
-	// Detectar el model de settings
-//	cout << "SimulatorFactory::getInstance - new ModelWF...\n";
+	// Detectar el model de Simulation (por ahora asumo WF)
+	cout << "SimulatorFactory::getInstance - new ModelWF...\n";
 	res->setModel( new ModelWF() );
-//	cout << "SimulatorFactory::getInstance - parseEventsOld...\n";
 	
-	// Verificar si settings tiene solo 1 scenario, o varios.
-	if( settings.find("scenarios") != settings.end() 
-		&& settings["scenarios"].size() > 0 ){
-//		cout << "SimulatorFactory::getInstance - Multiple Scenarios\n";
-		unsigned int pos = (*generator)() % settings["scenarios"].size();
-//		cout << "SimulatorFactory::getInstance - Parsing scenario " << pos << " / " << settings["scenarios"].size() << "\n";
-		res->setEvents( parseEventsOld( settings["scenarios"][pos] ) );
-	}
-	else if( settings.find("scenario") != settings.end() ){
-//		cout << "SimulatorFactory::getInstance - Single Scenario\n";
-		res->setEvents( parseEventsOld( settings["scenario"] ) );
-	}
-	else{
-		cerr << "SimulatorFactory::getInstance - No Scenario found\n";
-	}
+	cout << "SimulatorFactory::getInstance - parseEventsOld...\n";
+	res->setEvents( parseEventsOld( simulation_json ) );
 	
-//	cout << "SimulatorFactory::getInstance - parseProfileOld...\n";
-	res->setProfile( parseProfileOld( settings["individual"] ) );
+	cout << "SimulatorFactory::getInstance - parseProfileOld...\n";
+	res->setProfile( parseProfileOld( project_json["Individual"] ) );
 	
-//	cout << "SimulatorFactory::getInstance - Fin\n";
+	cout << "SimulatorFactory::getInstance - Fin\n";
 	return res;
 }
 

@@ -54,7 +54,7 @@ public:
 	
 	// Prepara un nuevo SimulatorFactory con json_file, y lo asocia a sim_id en la tabla
 	// Agrega n_sims Simulators del factory de sim_id a la cola
-	void addWork(unsigned int sim_id, string &json_file, unsigned int n_sims);
+	void addWork(unsigned int sim_id, json &project_json, json &simulation_json, unsigned int n_sims);
 	
 	// Recarga los parametros del simulador, e inicia un nuevo bacth de trabajo
 	void addTraining(unsigned int sim_id, vector< pair<double, double> > &dist_post);

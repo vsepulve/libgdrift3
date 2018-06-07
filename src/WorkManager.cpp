@@ -70,10 +70,10 @@ void WorkManager::addBatch(unsigned int sim_id){
 	
 // Prepara un nuevo SimulatorFactory con json_file, y lo asocia a sim_id en la tabla
 // Agrega n_sims Simulators del factory de sim_id a la cola
-void WorkManager::addWork(unsigned int sim_id, string &json_file, unsigned int n_sims){
-	cout << "WorkManager::addWork - Inicio (" << n_sims << " sims desde \"" << json_file << "\")\n";
+void WorkManager::addWork(unsigned int sim_id, json &project_json, json &simulation_json, unsigned int n_sims){
+	cout << "WorkManager::addWork - Inicio (" << n_sims << " sims)\n";
 	
-	SimulatorFactory *factory = new SimulatorFactory(json_file);
+	SimulatorFactory *factory = new SimulatorFactory(project_json, simulation_json);
 	
 	lock_guard<mutex> lock(inner_mutex);
 	status_table.addSimulation(sim_id, factory, n_sims);

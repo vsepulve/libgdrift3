@@ -26,7 +26,9 @@ private:
 
 	mt19937 *generator;
 	// Opcion directa, guardar el json parseado
-	json settings;
+//	json settings;
+	json project_json;
+	json simulation_json;
 	
 	EventList *parseEventsOld(json &scenarios);
 	Profile *parseProfileOld(json &individual);
@@ -42,6 +44,7 @@ private:
 	unsigned int n_stats;
 	unsigned int n_params;
 	vector<string> param_names;
+	unsigned int proj_id;
 	unsigned int sim_id;
 	
 	void loadScenario();
@@ -49,7 +52,8 @@ private:
 public:
 	
 	// Constructor principal, recive el json de settings (con las distribuciones)
-	SimulatorFactory(string json_file, mt19937 *_generator = NULL);
+//	SimulatorFactory(string json_file, mt19937 *_generator = NULL);
+	SimulatorFactory(json &_project_json, json &_simulation_json, mt19937 *_generator = NULL);
 	SimulatorFactory(const SimulatorFactory &original);
 	SimulatorFactory& operator=(const SimulatorFactory& original);
 	virtual SimulatorFactory *clone();

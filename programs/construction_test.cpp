@@ -13,18 +13,31 @@ using namespace std;
 
 int main(int argc,char** argv) {
 
-	if(argc != 3){
-		cout<<"\nUsage: ./test json_file total_tests\n";
+	if(argc != 4){
+		cout<<"\nUsage: ./test project_file simulation_file total_tests\n";
 		cout<<"\n";
 		return 0;
 	}
-	const char *json_file = argv[1];
-	unsigned int total_tests = atoi(argv[2]);
+	const char *project_file = argv[1];
+	const char *simulation_file = argv[2];
+	unsigned int total_tests = atoi(argv[3]);
 	
 	cout<<"Test - Inicio\n";
 	
+	cout<<"Test - Cargando jsons\n";
+	json project_json;
+	json simulation_json;
+	
+	ifstream reader(project_file, ifstream::in);
+	reader >> project_json;
+	reader.close();
+	
+	reader.open(simulation_file, ifstream::in);
+	reader >> simulation_json;
+	reader.close();
+	
 	cout<<"Test - Creando SimulatorFactory\n";
-	SimulatorFactory factory(json_file);
+	SimulatorFactory factory(project_json, simulation_json);
 	
 	NanoTimer timer;
 	
@@ -38,7 +51,7 @@ int main(int argc,char** argv) {
 //	delete [] arr;
 
 	cout << "Test - Prueba de Reload\n";
-	SimulatorFactory test_factory(json_file);
+	SimulatorFactory test_factory(project_json, simulation_json);
 	Simulator *s1 = test_factory.getInstance();
 	s1->print();
 	
