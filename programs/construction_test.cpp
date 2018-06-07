@@ -60,12 +60,14 @@ int main(int argc,char** argv) {
 	// Notar que esto implica no incluirlos si tienen stddev 0
 	// Quizas seria mejor un metodo mas seguro que ese
 	vector<pair<double, double>> new_params;
-	new_params.push_back(pair<double, double>(0.005, 0.001));
+//	new_params.push_back(pair<double, double>(0.005, 0.001));
+	new_params.push_back(pair<double, double>(0.000000045333, 0.0000000274668));
 	new_params.push_back(pair<double, double>(100, 0));
 	new_params.push_back(pair<double, double>(5000, 1000));
 	new_params.push_back(pair<double, double>(1000, 100));
 	new_params.push_back(pair<double, double>(0.2, 0.1));
 	new_params.push_back(pair<double, double>(2000, 100));
+	new_params.push_back(pair<double, double>(0.5, 0));
 	new_params.push_back(pair<double, double>(4000, 1000));
 	new_params.push_back(pair<double, double>(0.5, 0.1));
 	new_params.push_back(pair<double, double>(8000, 1000));
