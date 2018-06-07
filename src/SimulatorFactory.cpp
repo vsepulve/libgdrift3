@@ -248,14 +248,14 @@ EventList *SimulatorFactory::parseEventsOld(json &scen){
 }
 
 Profile *SimulatorFactory::parseProfileOld(json &individual){
-//	cout << "SimulatorFactory::parseProfileOld - Inicio\n";
+	cout << "SimulatorFactory::parseProfileOld - Inicio\n";
 	
 	Profile *profile = new Profile();
 	
 	profile->setPloidy( individual["Plody"] );
 	
 	cout <<  "SimulatorFactory::parseProfileOld - Cargando Marcadores\n";
-	for( json &marker : project_json["Markers"] ){
+	for( json &marker : individual["Markers"] ){
 		unsigned int marker_type =  marker["Type"];
 		unsigned int mutation_model = marker["Mutation_model"];
 		if( marker_type == 1 ){
@@ -439,12 +439,12 @@ void SimulatorFactory::loadScenario(){
 
 // Recibe un vector de pares <mean, stddev> en el orden de los parametros
 void SimulatorFactory::reloadParameters(vector<pair<double, double>> &values){
-//	cout <<  "SimulatorFactory::reloadParameters - Inicio\n";
+	cout <<  "SimulatorFactory::reloadParameters - Inicio\n";
 	unsigned int next_param = 0;
 	
 	// Primero Individual (de project)
 	cout <<  "SimulatorFactory::reloadParameters - Ajustando Individual\n";
-	for( json &marker : project_json["Markers"] ){
+	for( json &marker : project_json["Individual"]["Markers"] ){
 		unsigned int marker_type =  marker["Type"];
 		unsigned int mutation_model = marker["Mutation_model"];
 		if( marker_type == 1 ){
@@ -452,6 +452,7 @@ void SimulatorFactory::reloadParameters(vector<pair<double, double>> &values){
 			if( mutation_model == 1 ){
 				// MUTATION_BASIC
 				json &this_param = marker["rate"];
+				cout <<  "SimulatorFactory::reloadParameters - Reemplazando " << param_names[next_param] << "\n";
 				if( replaceDistribution(this_param, values[next_param]) ){
 					++next_param;
 				}
@@ -476,6 +477,7 @@ void SimulatorFactory::reloadParameters(vector<pair<double, double>> &values){
 		// Notar que SIEMPRE se carga prmero la generacion, luego los parametros en orden de lectura
 		
 		json &this_param = json_ev["timestamp"];
+		cout <<  "SimulatorFactory::reloadParameters - Reemplazando " << param_names[next_param] << "\n";
 		if( replaceDistribution(this_param, values[next_param]) ){
 			++next_param;
 		}
@@ -488,6 +490,7 @@ void SimulatorFactory::reloadParameters(vector<pair<double, double>> &values){
 		if( type.compare("create") == 0 ){
 			// create -> size
 			json &this_param = json_params["population"]["size"];
+			cout <<  "SimulatorFactory::reloadParameters - Reemplazando " << param_names[next_param] << "\n";
 			if( replaceDistribution(this_param, values[next_param]) ){
 				++next_param;
 			}
@@ -495,12 +498,15 @@ void SimulatorFactory::reloadParameters(vector<pair<double, double>> &values){
 		else if( type.compare("split") == 0 ){
 			// split -> SIN parametros (el porcentaje lo fijamos en 0.5 en old)
 			// FIX: eñ porcentaje igual esta pasando en la fase de training, asi que lo omito explícitamente por ahora
-			cout << "SimulatorFactory::reloadParameters - Omitiendo percentage de split (dist " << values[next_param].first << ", " << values[next_param].second << ")\n";
-			++next_param;
+			if( values[next_param].first == 0.5 && values[next_param].second == 0.0 ){
+				cout << "SimulatorFactory::reloadParameters - Omitiendo split (dist " << values[next_param].first << ", " << values[next_param].second << ")\n";
+				++next_param;
+			}
 		}
 		else if( type.compare("migration") == 0 ){
 			// migration -> percentage
 			json &this_param = json_params["source"]["population"]["percentage"];
+			cout <<  "SimulatorFactory::reloadParameters - Reemplazando " << param_names[next_param] << "\n";
 			if( replaceDistribution(this_param, values[next_param]) ){
 				++next_param;
 			}
@@ -511,6 +517,7 @@ void SimulatorFactory::reloadParameters(vector<pair<double, double>> &values){
 		else if( type.compare("increment") == 0 ){
 			// increment -> percentage
 			json &this_param = json_params["source"]["population"]["percentage"];
+			cout <<  "SimulatorFactory::reloadParameters - Reemplazando " << param_names[next_param] << "\n";
 			if( replaceDistribution(this_param, values[next_param]) ){
 				++next_param;
 			}
@@ -518,6 +525,7 @@ void SimulatorFactory::reloadParameters(vector<pair<double, double>> &values){
 		else if( type.compare("decrement") == 0 ){
 			// decrement -> percentage
 			json &this_param = json_params["source"]["population"]["percentage"];
+			cout <<  "SimulatorFactory::reloadParameters - Reemplazando " << param_names[next_param] << "\n";
 			if( replaceDistribution(this_param, values[next_param]) ){
 				++next_param;
 			}
