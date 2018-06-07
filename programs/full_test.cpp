@@ -100,7 +100,7 @@ void SimultionThread(unsigned int pid, unsigned int n_threads, string output_bas
 		sim.loadSerialized(serialized);
 		++procesados;
 		
-		sim.print();
+//		sim.print();
 		
 		sim.run();
 		
@@ -191,8 +191,8 @@ vector<pair<double, double>> getDistributions(string &feedback_output, unsigned 
 
 int main(int argc,char** argv){
 
-	if(argc != 11){
-		cout << "\nUsage: ./test project_file simulation_file total_jobs max_feedback n_threads output_base n_stats n_params f_training target_file\n";
+	if(argc != 9){
+		cout << "\nUsage: ./test project_file simulation_file total_jobs max_feedback n_threads output_base f_training target_file\n";
 		cout << "\n";
 		return 0;
 	}
@@ -203,10 +203,8 @@ int main(int argc,char** argv){
 	unsigned int max_feedback = atoi(argv[4]);
 	unsigned int n_threads = atoi(argv[5]);
 	string output_base = argv[6];
-	unsigned int n_stats = atoi(argv[7]);
-	unsigned int n_params = atoi(argv[8]);
-	float f_training = atof(argv[9]);
-	string target_file = argv[10];
+	float f_training = atof(argv[7]);
+	string target_file = argv[8];
 	
 	cout << "Test - Inicio (total: "<<total<<", n_threads: "<<n_threads<<", output_base: "<<output_base<<")\n";
 	
@@ -252,6 +250,11 @@ int main(int argc,char** argv){
 	
 	cout << "Test - Preparando Cola de Trabajo\n";
 	SimulatorFactory factory(project_json, simulation_json);
+	
+	unsigned int n_stats = factory.getNumStatistics();
+	unsigned int n_params = factory.getNumParams();
+	cout << "Test - n_stats: " << n_stats << "\n";
+	cout << "Test - n_params: " << n_params << "\n";
 	
 	// Iterar por max_feedback
 	for( unsigned int feedback = 0; feedback < max_feedback; ++feedback ){
