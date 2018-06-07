@@ -134,11 +134,11 @@ EventList *SimulatorFactory::parseEventsOld(json &scen){
 	unsigned int max_value = 100000000;
 //	events->resize( scen["Events"].size() );
 //	cout << "-----\n";
-	cout << "SimulatorFactory::parseEventsOld - Iniciando Parsing\n";
+//	cout << "SimulatorFactory::parseEventsOld - Iniciando Parsing\n";
 //	cout << "-----\n";
 	for( json json_ev : scen["Events"] ){
 //		cout << "SimulatorFactory::parseEventsOld - json_ev[" << count << "]: "<< json_ev <<"\n";
-		cout << "SimulatorFactory::parseEventsOld - Parsing event " << count << "\n";
+//		cout << "SimulatorFactory::parseEventsOld - Parsing event " << count << "\n";
 //		Event event = events->getEvent(count);
 		Event *event = new Event();
 		events->addEvent(event);
@@ -173,7 +173,7 @@ EventList *SimulatorFactory::parseEventsOld(json &scen){
 			string dst2;
 			unsigned int partitions = stoi(json_params["partitions"].get<string>());
 			if( partitions != 2 ){
-				cerr<<"SimulatorFactory::parseEventsOld - SPLIT Warning, partitions != 2 (" << partitions << ").\n";
+				cerr << "SimulatorFactory::parseEventsOld - SPLIT Warning, partitions != 2 (" << partitions << ").\n";
 				dst1 = "dst_1_" + to_string(gen);
 				dst2 = "dst_2_" + to_string(gen);
 			}
@@ -185,7 +185,9 @@ EventList *SimulatorFactory::parseEventsOld(json &scen){
 			event->addTextParam( dst1 );
 			event->addTextParam( dst2 );
 			// LO que sigue deberia ser desde el json
-			event->addNumParam( 0.5 );
+//			event->addNumParam( 0.5 );
+			double percentage = parseValue(json_params["source"]["population"]["percentage"], true, 0, 1.0);
+			event->addNumParam( percentage );
 		}
 		else if( type.compare("migration") == 0 ){
 			event->setType(MIGRATE);
@@ -203,7 +205,7 @@ EventList *SimulatorFactory::parseEventsOld(json &scen){
 			event->setType(MERGE);
 			unsigned int n_sources = json_params["source"].size();
 			if( n_sources != 2 ){
-				cerr<<"SimulatorFactory::parseEventsOld - MERGE Warning, sources != 2 (" << n_sources << ").\n";
+				cerr << "SimulatorFactory::parseEventsOld - MERGE Warning, sources != 2 (" << n_sources << ").\n";
 			}
 			string src1 = json_params["source"][0]["population"]["name"];
 			string src2 = json_params["source"][1]["population"]["name"];
@@ -285,8 +287,8 @@ Profile *SimulatorFactory::parseProfileOld(json &individual){
 }
 
 bool SimulatorFactory::replaceDistribution(json &param, pair<double, double> &values){
-//	cout << "SimulatorFactory::replaceDistribution - Inicio\n";
-//	cout << "SimulatorFactory::replaceDistribution - param: " << param << "\n";
+//	cout << "SimulatorFactory::replaceDistribution - Inicio (" << values.first << ", " << values.second << ")\n";
+//	cout << "SimulatorFactory::replaceDistribution - param entrada: " << param << "\n";
 
 	if(values.second == 0 ){
 		param["type"] = "fixed";
@@ -296,11 +298,22 @@ bool SimulatorFactory::replaceDistribution(json &param, pair<double, double> &va
 		param["type"] = "random";
 		json this_distribution;
 		this_distribution["type"] = "normal";
-		this_distribution["params"]["mean"] = std::to_string(values.first);
-		this_distribution["params"]["stddev"] = std::to_string(values.second);
+//		this_distribution["params"]["mean"] = std::to_string(values.first);
+//		this_distribution["params"]["stddev"] = std::to_string(values.second);
+		// NOTE: La conversion directa de double a string FALLA con numeros pequeños
+		// Por ahora, dejo esta implementacion propia, pero no es para nada limpia
+		std::ostringstream stream1;
+        stream1 << std::setprecision(std::numeric_limits<double>::digits10) << values.first ;
+		this_distribution["params"]["mean"] = stream1.str();
+		std::ostringstream stream2;
+        stream2 << std::setprecision(std::numeric_limits<double>::digits10) << values.second ;
+		this_distribution["params"]["stddev"] = stream2.str();
+		
+//		cout << "SimulatorFactory::replaceDistribution - this_distribution: " << this_distribution << "\n";
 		param["distribution"] = this_distribution;
 	}
 	
+//	cout << "SimulatorFactory::replaceDistribution - param salida: " << param << "\n";
 //	cout << "SimulatorFactory::replaceDistribution - Fin\n";
 	return true;
 }
@@ -374,7 +387,14 @@ void SimulatorFactory::loadScenario(){
 			++n_populations;
 		}
 		else if( type.compare("split") == 0 ){
-			// split -> SIN parametros (el porcentaje lo fijamos en 0.5 en old)
+			// split -> percentage
+			param_name = "split.";
+			if( counted_events[type] > 1 ){
+				param_name += to_string(counted_events[type]) + ".";
+			}
+			param_name += "percentage";
+			cout <<  "SimulatorFactory::loadScenario - Agregando param \"" << param_name << "\"\n";
+			param_names.push_back(param_name);
 			// Se elimina una poblacion, y se agregan 2 (por ahora fijo en old)
 			++n_populations;
 		}
@@ -452,7 +472,7 @@ void SimulatorFactory::reloadParameters(vector<pair<double, double>> &values){
 			if( mutation_model == 1 ){
 				// MUTATION_BASIC
 				json &this_param = marker["rate"];
-				cout <<  "SimulatorFactory::reloadParameters - Reemplazando " << param_names[next_param] << "\n";
+				cout <<  "SimulatorFactory::reloadParameters - Reemplazando " << param_names[next_param] << " -> (" << values[next_param].first << ", " << values[next_param].second << ")\n";
 				if( replaceDistribution(this_param, values[next_param]) ){
 					++next_param;
 				}
@@ -466,6 +486,7 @@ void SimulatorFactory::reloadParameters(vector<pair<double, double>> &values){
 		}
 	}
 	
+	
 	// Luego proceso los eventos en el mismo orden de generacion
 	// Por ahora asumo escenario 0
 	// Una opcion es recibir el escenario como parametro
@@ -477,7 +498,7 @@ void SimulatorFactory::reloadParameters(vector<pair<double, double>> &values){
 		// Notar que SIEMPRE se carga prmero la generacion, luego los parametros en orden de lectura
 		
 		json &this_param = json_ev["timestamp"];
-		cout <<  "SimulatorFactory::reloadParameters - Reemplazando " << param_names[next_param] << "\n";
+		cout <<  "SimulatorFactory::reloadParameters - Reemplazando " << param_names[next_param] << " -> (" << values[next_param].first << ", " << values[next_param].second << ")\n";
 		if( replaceDistribution(this_param, values[next_param]) ){
 			++next_param;
 		}
@@ -490,7 +511,7 @@ void SimulatorFactory::reloadParameters(vector<pair<double, double>> &values){
 		if( type.compare("create") == 0 ){
 			// create -> size
 			json &this_param = json_params["population"]["size"];
-			cout <<  "SimulatorFactory::reloadParameters - Reemplazando " << param_names[next_param] << "\n";
+			cout <<  "SimulatorFactory::reloadParameters - Reemplazando " << param_names[next_param] << " -> (" << values[next_param].first << ", " << values[next_param].second << ")\n";
 			if( replaceDistribution(this_param, values[next_param]) ){
 				++next_param;
 			}
@@ -498,15 +519,20 @@ void SimulatorFactory::reloadParameters(vector<pair<double, double>> &values){
 		else if( type.compare("split") == 0 ){
 			// split -> SIN parametros (el porcentaje lo fijamos en 0.5 en old)
 			// FIX: eñ porcentaje igual esta pasando en la fase de training, asi que lo omito explícitamente por ahora
-			if( values[next_param].first == 0.5 && values[next_param].second == 0.0 ){
-				cout << "SimulatorFactory::reloadParameters - Omitiendo split (dist " << values[next_param].first << ", " << values[next_param].second << ")\n";
+//			if( values[next_param].first == 0.5 && values[next_param].second == 0.0 ){
+//				cout << "SimulatorFactory::reloadParameters - Omitiendo split (dist " << values[next_param].first << ", " << values[next_param].second << ")\n";
+//				++next_param;
+//			}
+			json &this_param = json_params["source"]["population"]["percentage"];
+			cout <<  "SimulatorFactory::reloadParameters - Reemplazando " << param_names[next_param] << " -> (" << values[next_param].first << ", " << values[next_param].second << ")\n";
+			if( replaceDistribution(this_param, values[next_param]) ){
 				++next_param;
 			}
 		}
 		else if( type.compare("migration") == 0 ){
 			// migration -> percentage
 			json &this_param = json_params["source"]["population"]["percentage"];
-			cout <<  "SimulatorFactory::reloadParameters - Reemplazando " << param_names[next_param] << "\n";
+			cout <<  "SimulatorFactory::reloadParameters - Reemplazando " << param_names[next_param] << " -> (" << values[next_param].first << ", " << values[next_param].second << ")\n";
 			if( replaceDistribution(this_param, values[next_param]) ){
 				++next_param;
 			}
@@ -517,7 +543,7 @@ void SimulatorFactory::reloadParameters(vector<pair<double, double>> &values){
 		else if( type.compare("increment") == 0 ){
 			// increment -> percentage
 			json &this_param = json_params["source"]["population"]["percentage"];
-			cout <<  "SimulatorFactory::reloadParameters - Reemplazando " << param_names[next_param] << "\n";
+			cout <<  "SimulatorFactory::reloadParameters - Reemplazando " << param_names[next_param] << " -> (" << values[next_param].first << ", " << values[next_param].second << ")\n";
 			if( replaceDistribution(this_param, values[next_param]) ){
 				++next_param;
 			}
@@ -525,7 +551,7 @@ void SimulatorFactory::reloadParameters(vector<pair<double, double>> &values){
 		else if( type.compare("decrement") == 0 ){
 			// decrement -> percentage
 			json &this_param = json_params["source"]["population"]["percentage"];
-			cout <<  "SimulatorFactory::reloadParameters - Reemplazando " << param_names[next_param] << "\n";
+			cout <<  "SimulatorFactory::reloadParameters - Reemplazando " << param_names[next_param] << " -> (" << values[next_param].first << ", " << values[next_param].second << ")\n";
 			if( replaceDistribution(this_param, values[next_param]) ){
 				++next_param;
 			}
@@ -545,17 +571,17 @@ void SimulatorFactory::reloadParameters(vector<pair<double, double>> &values){
 Simulator *SimulatorFactory::getInstance(){
 	cout << "SimulatorFactory::getInstance - Inicio\n";
 	
-	cout << "SimulatorFactory::getInstance - new Simulator...\n";
+//	cout << "SimulatorFactory::getInstance - new Simulator...\n";
 	Simulator *res = new Simulator();
 	res->setId(sim_id);
 	// Detectar el model de Simulation (por ahora asumo WF)
-	cout << "SimulatorFactory::getInstance - new ModelWF...\n";
+//	cout << "SimulatorFactory::getInstance - new ModelWF...\n";
 	res->setModel( new ModelWF() );
 	
-	cout << "SimulatorFactory::getInstance - parseEventsOld...\n";
+//	cout << "SimulatorFactory::getInstance - parseEventsOld...\n";
 	res->setEvents( parseEventsOld( simulation_json ) );
 	
-	cout << "SimulatorFactory::getInstance - parseProfileOld...\n";
+//	cout << "SimulatorFactory::getInstance - parseProfileOld...\n";
 	res->setProfile( parseProfileOld( project_json["Individual"] ) );
 	
 	cout << "SimulatorFactory::getInstance - Fin\n";
