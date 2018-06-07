@@ -20,7 +20,7 @@ private:
 	// Aqui el id del alelo es directamente la posicion
 	vector< vector<unsigned int> > mutations_map;
 	
-	vector<unsigned int> next_allele;
+//	vector<unsigned int> next_allele;
 
 public:
 
@@ -38,17 +38,19 @@ public:
 	
 //	unsigned int getAllele(unsigned int marker, unsigned int pos);
 	
-	unsigned int getNextAllele(unsigned int marker){
-		return next_allele[marker];
-	}
+//	unsigned int getNextAllele(unsigned int marker){
+//		return next_allele[marker];
+//	}
 	
 	// Metodo de debug
 	void print(){
-		cout << "Pool::print - n_markers: " << mutations_map.size() << " (" << next_allele.size() << ")\n";
+//		cout << "Pool::print - n_markers: " << mutations_map.size() << " (next_allele.size(): " << next_allele.size() << ")\n";
+		cout << "Pool::print - n_markers: " << mutations_map.size() << "\n";
 		for( unsigned int i = 0; i < mutations_map.size(); ++i ){
 			cout << "Pool::print - mutations[" << i << "]: " << mutations_map[i].size() << "\n";
-			cout << "Pool::print - next_allele[" << i << "]: " << next_allele[i] << "\n";
+//			cout << "Pool::print - next_allele[" << i << "]: " << next_allele[i] << "\n";
 		}
+		cout << "Pool::print - End\n";
 	}
 	
 };
