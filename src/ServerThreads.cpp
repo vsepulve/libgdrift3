@@ -391,7 +391,7 @@ void thread_start_sim(int sock_cliente, string json_sim_base, string json_projec
 	
 }
 
-void thread_query_sim(int sock_cliente, string json_sim_base, string json_project_base, WorkManager *manager){
+void thread_query_sim(int sock_cliente, string json_sim_base, string json_project_base, WorkManager *manager, Analyzer *analyzer){
 	
 	ClientReception conexion;
 	conexion.setSocket(sock_cliente);
@@ -410,6 +410,12 @@ void thread_query_sim(int sock_cliente, string json_sim_base, string json_projec
 		error = true;
 	}
 	cout << "Server::thread_query_sim - sim_id: " << sim_id << "\n";
+	
+	analyzer->partialResults(sim_id);
+	
+	
+	
+	
 	
 	// Por ahora envio una respuesta de prueba directamente
 	
