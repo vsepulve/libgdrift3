@@ -121,7 +121,7 @@ double SimulatorFactory::parseValue(json &json_val, bool force_limits, double fo
 // Este es uno de los metodos que DEBE conocer la estructura del json
 // Los metodos old* usan la estructura heredada de settings, previo a optimizaciones
 EventList *SimulatorFactory::parseEventsOld(json &scen){
-	cout << "SimulatorFactory::parseEventsOld - Inicio\n";
+//	cout << "SimulatorFactory::parseEventsOld - Inicio\n";
 	EventList *events = new EventList();
 //	events->setId( stoi(scen["id"].get<string>()) );
 	events->setId( scen["Id"] );
@@ -249,12 +249,12 @@ EventList *SimulatorFactory::parseEventsOld(json &scen){
 		++count;
 	}
 	
-	cout << "SimulatorFactory::parseEventsOld - Fin\n";
+//	cout << "SimulatorFactory::parseEventsOld - Fin\n";
 	return events;
 }
 
 Profile *SimulatorFactory::parseProfileOld(json &individual){
-	cout << "SimulatorFactory::parseProfileOld - Inicio\n";
+//	cout << "SimulatorFactory::parseProfileOld - Inicio\n";
 	
 	Profile *profile = new Profile();
 	
@@ -291,7 +291,7 @@ Profile *SimulatorFactory::parseProfileOld(json &individual){
 		}
 	}
 	
-	cout << "SimulatorFactory::parseProfileOld - Fin\n";
+//	cout << "SimulatorFactory::parseProfileOld - Fin\n";
 	return profile;
 }
 
@@ -578,7 +578,7 @@ void SimulatorFactory::reloadParameters(vector<pair<double, double>> &values){
 }
 
 Simulator *SimulatorFactory::getInstance(){
-	cout << "SimulatorFactory::getInstance - Inicio\n";
+//	cout << "SimulatorFactory::getInstance - Inicio\n";
 	
 //	cout << "SimulatorFactory::getInstance - new Simulator...\n";
 	Simulator *res = new Simulator();
@@ -593,7 +593,7 @@ Simulator *SimulatorFactory::getInstance(){
 //	cout << "SimulatorFactory::getInstance - parseProfileOld...\n";
 	res->setProfile( parseProfileOld( project_json["Individual"] ) );
 	
-	cout << "SimulatorFactory::getInstance - Fin\n";
+//	cout << "SimulatorFactory::getInstance - Fin\n";
 	return res;
 }
 
