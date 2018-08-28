@@ -93,7 +93,8 @@ public:
 	// Incrementa el feedback de la simulacion en uno
 	void addFeedback(unsigned int sim_id);
 	
-	
+	// Retorna el id del proyecto de una simulacion
+	unsigned int getProjectId(unsigned int sim_id);
 	
 };
 

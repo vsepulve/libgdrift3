@@ -165,7 +165,12 @@ void WorkManager::addFeedback(unsigned int sim_id){
 	status_table.addFeedback(sim_id);
 }
 	
-	
+
+unsigned int WorkManager::getProjectId(unsigned int sim_id){
+	lock_guard<mutex> lock(inner_mutex);
+	unsigned int id = status_table.getFactory(sim_id)->getProjectId();
+	return id;
+}
 	
 	
 	
