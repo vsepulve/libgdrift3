@@ -41,6 +41,7 @@ void thread_init_project(int sock_cliente, string json_file_base, string target_
 // START: Agregar trabajo a work_queue e iniciar simulaciones
 void thread_start_sim(int sock_cliente, string json_sim_base, string json_project_base, WorkManager *manager);
 
+void thread_query_sim(int sock_cliente, string json_sim_base, string json_project_base, WorkManager *manager);
 
 
 

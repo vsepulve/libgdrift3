@@ -301,7 +301,7 @@ void thread_start_sim(int sock_cliente, string json_sim_base, string json_projec
 	unsigned int size = 0;
 	unsigned int project_id = 0;
 	unsigned int sim_id = 0;
-	unsigned int n_sims = 100;
+	unsigned int n_sims = 10;
 	
 	// Empiezo recibiendo project_id
 	if( ! error && ! conexion.readUInt(project_id) ){
@@ -388,6 +388,44 @@ void thread_start_sim(int sock_cliente, string json_sim_base, string json_projec
 		cout << "Server::thread_start_sim - Sending ok code to client\n";
 		conexion.writeUInt(0);
 	}
+	
+}
+
+void thread_query_sim(int sock_cliente, string json_sim_base, string json_project_base, WorkManager *manager){
+	
+	ClientReception conexion;
+	conexion.setSocket(sock_cliente);
+	
+	cout << "Server::thread_query_sim - Start\n";
+	
+	bool error = false;
+//	unsigned int size = 0;
+	unsigned int sim_id = 0;
+//	unsigned int n_sims = 10;
+	
+	// luego sim_id
+	if( ! error && ! conexion.readUInt(sim_id) ){
+		cerr << "Server::thread_query_sim - Error receiving sim_id\n";
+		sim_id = 0;
+		error = true;
+	}
+	cout << "Server::thread_query_sim - sim_id: " << sim_id << "\n";
+	
+	// Por ahora envio una respuesta de prueba directamente
+	
+	// Primero un codigo de que hay datos (en int)
+	conexion.writeUInt(1);
+	
+	string resp = "Test Response";
+	// Notar que envio solo los bytes de la respuesta en forma cruda
+	// Eso es porque go usara TODOS los bytes como string
+	conexion.writeData(resp.c_str(), resp.length());
+//	conexion.writeByte(0);
+	
+	
+	
+	
+	
 	
 	
 }
