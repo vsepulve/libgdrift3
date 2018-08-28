@@ -132,6 +132,9 @@ int main(int argc,char** argv){
 				break;
 			case 6:
 				cout << "Server - QUERY SIMULATION\n";
+				sock_cliente = conexion.getSocket();
+				conexion.setSocket(-1);
+				thread( thread_query_sim, sock_cliente, sim_json_base, project_json_base, manager ).detach();
 				break;
 				
 //			case KILL_SERVER:
