@@ -125,7 +125,7 @@ int main(int argc,char** argv){
 				cout << "Server - Creando thread_start_sim\n";
 				sock_cliente = conexion.getSocket();
 				conexion.setSocket(-1);
-				thread( thread_start_sim, sock_cliente, sim_json_base, manager ).detach();
+				thread( thread_start_sim, sock_cliente, sim_json_base, project_json_base, manager ).detach();
 				break;
 			case 5:
 				cout << "Server - DELETE SIMULATION\n";
