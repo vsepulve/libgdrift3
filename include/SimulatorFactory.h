@@ -93,6 +93,10 @@ public:
 		return param_names;
 	}
 	
+	unsigned int getProjectId(){
+		return proj_id;
+	}
+	
 };
 
 
