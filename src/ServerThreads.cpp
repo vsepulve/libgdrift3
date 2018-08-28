@@ -191,17 +191,16 @@ void thread_init_project(int sock_cliente, string json_project_base, string targ
 			cerr << "Server::thread_init_project - Error opening file \"" << json_file << "\"\n";
 			error = true;
 		}
-	
 	}
 	
 	// Si todo esta ok, parsear el json y generar el target
 	if(! error ){
 		
-		// Cargar archivo en json
 		cout << "Server::thread_init_project - Parseando json\n";
-		ifstream reader(json_file, ifstream::in);
+		string json_text(buff);
+		stringstream json_stream(json_text);
 		json json_project;
-		reader >> json_project;
+		json_stream >> json_project;
 		
 		// Leer N_populations del json
 		n_pops = json_project["N_populations"];
@@ -291,7 +290,7 @@ void thread_init_project(int sock_cliente, string json_project_base, string targ
 
 
 // START: Agregar trabajo a work_queue e iniciar simulaciones
-void thread_start_sim(int sock_cliente, string json_file_base, WorkManager *manager){
+void thread_start_sim(int sock_cliente, string json_sim_base, string json_project_base, WorkManager *manager){
 	
 	ClientReception conexion;
 	conexion.setSocket(sock_cliente);
@@ -302,8 +301,7 @@ void thread_start_sim(int sock_cliente, string json_file_base, WorkManager *mana
 	unsigned int size = 0;
 	unsigned int project_id = 0;
 	unsigned int sim_id = 0;
-//	unsigned int n_sims = 0;
-	
+	unsigned int n_sims = 100;
 	
 	// Empiezo recibiendo project_id
 	if( ! error && ! conexion.readUInt(project_id) ){
@@ -340,6 +338,23 @@ void thread_start_sim(int sock_cliente, string json_file_base, WorkManager *mana
 	}
 	buff[size] = 0;
 	
+	// Si todo esta ok, guardo el texto del json
+	if(! error ){
+		string json_sim_file = json_sim_base;
+		json_sim_file += to_string(sim_id);
+		json_sim_file += ".json";
+		
+		fstream writer(json_sim_file, fstream::out | fstream::trunc);
+		if( writer.good() ){
+			writer.write(buff, size);
+			writer.close();
+		}
+		else{
+			cerr << "Server::thread_start_sim - Error opening file \"" << json_sim_file << "\"\n";
+			error = true;
+		}
+	}
+	
 	// Si todo esta ok, parsear el json y agrego el factory al manager
 	if(! error ){
 		string json_text(buff);
@@ -349,14 +364,20 @@ void thread_start_sim(int sock_cliente, string json_file_base, WorkManager *mana
 		
 		cout << "Server::thread_start_sim - Eventos: " << json_sim["Events"] << "\n";
 		
+		string json_file = json_project_base;
+		json_file += to_string(project_id);
+		json_file += ".json";
 		
+		cout << "Server::thread_start_sim - Parseando json del Proyecto\n";
+		ifstream reader(json_file, ifstream::in);
+		json json_project;
+		reader >> json_project;
+		
+		cout << "Server::thread_start_sim - Iniciando manager->addWork...\n";
+		manager->addWork(sim_id, json_project, json_sim, n_sims);
+		cout << "Server::thread_start_sim - addWork terminado\n";
 		
 	}
-	
-	
-	
-	
-	
 	
 	// Envio codigo de exito al cliente
 	if( error ){
