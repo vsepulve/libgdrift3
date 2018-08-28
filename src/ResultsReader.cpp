@@ -41,6 +41,8 @@ void ResultsReader::readThreadsData(string &output_base, unsigned int _n_threads
 			continue;
 		}
 		
+		cout << "ResultsReader::readThreadsData - Cargando datos de \"" << file_name << "\"\n";
+	
 		while(true){
 			lector.getline(buff, buff_size);
 			if( !lector.good() || strlen(buff) < 1 ){
@@ -85,10 +87,10 @@ void ResultsReader::setTarget(string &target_file){
 	fstream lector;
 	double value = 0;
 	
-	cout << "ResultsReader::setTarget - Cargando target\n";
+	cout << "ResultsReader::setTarget - Cargando target de \"" << target_file << "\"\n";
 	lector.open(target_file, ifstream::in);
 	if( ! lector.is_open() ){
-		cerr << "ResultsReader::setTarget - Problemas al abrir archivo \"" << target_file << "\"\n";
+		cerr << "ResultsReader::setTarget - Problemas al abrir archivo\n";
 		return;
 	}
 	else{
@@ -170,23 +172,23 @@ void ResultsReader::normalize(){
 	}
 	
 	// Verificacion
-	cout << "Target: ";
-	for(unsigned int i = 0; i < n_stats; ++i){
-		cout << target[i] << " | ";
-	}
-	cout << "\n";
-	for(unsigned int k = 0; k < 10 && k < stats.size(); ++k){
-		cout << "Res[" << k << "]: ";
-		for(unsigned int i = 0; i < n_stats; ++i){
-			cout << stats[k][i] << " | ";
-		}
-		cout << "\n";
-		cout << "Res_norm[" << k << "]: ";
-		for(unsigned int i = 0; i < n_stats; ++i){
-			cout << stats_norm[k][i] << " | ";
-		}
-		cout << "\n";
-	}
+//	cout << "Target: ";
+//	for(unsigned int i = 0; i < n_stats; ++i){
+//		cout << target[i] << " | ";
+//	}
+//	cout << "\n";
+//	for(unsigned int k = 0; k < 10 && k < stats.size(); ++k){
+//		cout << "Res[" << k << "]: ";
+//		for(unsigned int i = 0; i < n_stats; ++i){
+//			cout << stats[k][i] << " | ";
+//		}
+//		cout << "\n";
+//		cout << "Res_norm[" << k << "]: ";
+//		for(unsigned int i = 0; i < n_stats; ++i){
+//			cout << stats_norm[k][i] << " | ";
+//		}
+//		cout << "\n";
+//	}
 	
 }
 
@@ -231,6 +233,10 @@ void ResultsReader::selectBestResults(double f_training){
 	
 	// Seleccion efectiva de resultados
 	unsigned int topk = (unsigned int)(f_training * distancias.size());
+	if( topk < 10 ){
+		topk = ((10<distancias.size())?10:distancias.size());
+	}
+	
 	cout << "ResultsReader::selectBestResults - Topk: " << topk << " / " << distancias.size() << "\n";
 	for(unsigned int i = 0; i < n_params; ++i){
 		vector<double> sample;
