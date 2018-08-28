@@ -49,7 +49,7 @@ void Analyzer::execute(unsigned int sim_id){
 	
 	// Cargar el target (o pedirlo al manager, aun no esta decidido)
 	string target_file = target_base;
-	target_file += to_string(sim_id);
+	target_file += to_string(manager->getProjectId(sim_id));
 	target_file += ".txt";
 	reader.setTarget(target_file);
 	
