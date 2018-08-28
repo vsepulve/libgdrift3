@@ -34,9 +34,9 @@ public:
 	Analyzer(WorkManager *_manager, unsigned int _n_threads, float _percentage, string _file_base, string _target_base, string _results_base);
 	virtual ~Analyzer();
 	
-	
-	
 	void execute(unsigned int sim_id);
+	
+	void partialResults(unsigned int sim_id);
 	
 	
 	

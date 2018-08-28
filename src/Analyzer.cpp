@@ -108,7 +108,22 @@ void Analyzer::execute(unsigned int sim_id){
 }
 
 
+void Analyzer::partialResults(unsigned int sim_id){
 
+	assert( manager != NULL);
+	assert( n_threads > 0);
+	
+	unsigned int feedback = manager->getFeedback(sim_id);
+	unsigned int finished = manager->getFinished(sim_id);
+	unsigned int total = manager->getTotal(sim_id);
+	
+	cout << "Analyzer::partialResults - Inicio (sim_id: " << sim_id << ", feedback: " << feedback << ", finished: " << finished << " / " << total << ")\n";
+	
+	
+	
+	
+	
+}
 
 
 
