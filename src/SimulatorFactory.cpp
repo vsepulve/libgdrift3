@@ -138,7 +138,6 @@ EventList *SimulatorFactory::parseEventsOld(json &scen){
 //	cout << "-----\n";
 	for( json json_ev : scen["Events"] ){
 //		cout << "SimulatorFactory::parseEventsOld - json_ev[" << count << "]: "<< json_ev <<"\n";
-//		cout << "SimulatorFactory::parseEventsOld - Parsing event " << count << "\n";
 //		Event event = events->getEvent(count);
 		Event *event = new Event();
 		events->addEvent(event);
@@ -169,9 +168,11 @@ EventList *SimulatorFactory::parseEventsOld(json &scen){
 			event->setType(SPLIT);
 			// TODO: NO esta el percentage del split!
 			string src = json_params["source"]["population"]["name"];
+//			cout << "SimulatorFactory::parseEventsOld - src: " << src << "\n";
 			string dst1;
 			string dst2;
 			unsigned int partitions = stoi(json_params["partitions"].get<string>());
+//			cout << "SimulatorFactory::parseEventsOld - partitions: " << partitions << "\n";
 			if( partitions != 2 ){
 				cerr << "SimulatorFactory::parseEventsOld - SPLIT Warning, partitions != 2 (" << partitions << ").\n";
 				dst1 = "dst_1_" + to_string(gen);
@@ -179,14 +180,17 @@ EventList *SimulatorFactory::parseEventsOld(json &scen){
 			}
 			else{
 				dst1 = json_params["destination"][0]["population"]["name"];
+//				cout << "SimulatorFactory::parseEventsOld - dst1: " << dst1 << "\n";
 				dst2 = json_params["destination"][1]["population"]["name"];
+//				cout << "SimulatorFactory::parseEventsOld - dst2: " << dst2 << "\n";
 			}
 			event->addTextParam( src );
 			event->addTextParam( dst1 );
 			event->addTextParam( dst2 );
-			// LO que sigue deberia ser desde el json
-//			event->addNumParam( 0.5 );
-			double percentage = parseValue(json_params["source"]["population"]["percentage"], true, 0, 1.0);
+			// LO que sigue deberia ser desde el json (pero no es claro si de source o por destination)
+			double percentage = 0.5;
+//			double percentage = parseValue(json_params["source"]["population"]["percentage"], true, 0, 1.0);
+//			cout << "SimulatorFactory::parseEventsOld - percentage: " << percentage << "\n";
 			event->addNumParam( percentage );
 		}
 		else if( type.compare("migration") == 0 ){
@@ -256,20 +260,25 @@ Profile *SimulatorFactory::parseProfileOld(json &individual){
 	
 	profile->setPloidy( individual["Plody"] );
 	
-	cout <<  "SimulatorFactory::parseProfileOld - Cargando Marcadores\n";
+//	cout <<  "SimulatorFactory::parseProfileOld - Cargando Marcadores\n";
 	for( json &marker : individual["Markers"] ){
+//		cout <<  "SimulatorFactory::parseProfileOld - marker: " << marker << "\n";
 		unsigned int marker_type =  marker["Type"];
 		unsigned int mutation_model = marker["Mutation_model"];
+//		cout <<  "SimulatorFactory::parseProfileOld - marker_type: " << marker_type << ", mutation_model: " << mutation_model<< "\n";
 		if( marker_type == 1 ){
 			// MARKER_SEQUENCE
 			if( mutation_model == 1 ){
 				// MUTATION_BASIC
 				unsigned int length = marker["Size"];
+//				cout <<  "SimulatorFactory::parseProfileOld - length: " << length<< "\n";
 				unsigned int pool_size = marker["Pool_size"];
-				double rate = parseValue(marker["rate"], true, 0, 1.0);
+//				cout <<  "SimulatorFactory::parseProfileOld - pool_size: " << pool_size<< "\n";
+				double rate = parseValue(marker["Rate"], true, 0, 1.0);
+//				cout <<  "SimulatorFactory::parseProfileOld - rate: " << rate<< "\n";
 				vector<double> params;
 				params.push_back(rate);
-				cout << "SimulatorFactory::parseProfileOld - Agregando Marcador (length: " << length<< ", pool_size: " << pool_size<< ", rate: " << rate << ")\n";
+//				cout << "SimulatorFactory::parseProfileOld - Agregando Marcador (length: " << length<< ", pool_size: " << pool_size<< ", rate: " << rate << ")\n";
 				ProfileMarker marker(MARKER_SEQUENCE, length, pool_size, MUTATION_BASIC, params);
 				profile->addMarker(marker);
 			}
