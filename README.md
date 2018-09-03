@@ -1,5 +1,16 @@
 # libgdrift3.0
-Repository for the simulation library libgdrift v3.0
+Repository for the simulation library libgdrift v3.0, using nlohmann JSON for Modern C++ library (https://github.com/nlohmann/json)
+
+Dependencies
+-----
+```
+git clone https://github.com/nlohmann/json
+mkdir json/build
+cd json/build
+cmake ..
+make
+sudo make install
+```
 
 Build
 -----
