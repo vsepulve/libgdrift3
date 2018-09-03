@@ -1,27 +1,6 @@
 #include "SimulatorFactory.h"
 
-/*
-SimulatorFactory::SimulatorFactory(string json_file, mt19937 *_generator){
-
-	if(_generator != NULL){
-		generator = _generator;
-	}
-	else{
-		random_device seed;
-		generator = new mt19937(seed());
-	}
-	
-	ifstream reader (json_file, ifstream::in);
-	reader >> settings;
-	
-	// Aqui se podrian determinar los parametros globales que seran usados inter training
-	loadScenario();
-	
-}
-*/
-
 SimulatorFactory::SimulatorFactory(json &_project_json, json &_simulation_json, mt19937 *_generator){
-
 	if(_generator != NULL){
 		generator = _generator;
 	}
@@ -31,10 +10,8 @@ SimulatorFactory::SimulatorFactory(json &_project_json, json &_simulation_json, 
 	}
 	project_json = _project_json;
 	simulation_json = _simulation_json;
-	
 	// Aqui se podrian determinar los parametros globales que seran usados inter training
 	loadScenario();
-	
 }
 
 SimulatorFactory::SimulatorFactory(const SimulatorFactory &original){
@@ -52,7 +29,6 @@ SimulatorFactory *SimulatorFactory::clone(){
 }
 
 SimulatorFactory::~SimulatorFactory(){
-	
 }
 
 double SimulatorFactory::generate(json &json_dist){
@@ -91,19 +67,15 @@ double SimulatorFactory::parseValue(json &json_val, bool force_limits, double fo
 //	cout<<"parseValue - Inicio ("<< json_val <<")\n";
 	// Si es directamente un string, solo hay que convertirlo
 	if( json_val.type() == json::value_t::string ){
-//		cout<<"parseValue - Valor directo, parseando\n";
 		string text = json_val.get<string>();
 		return stod(text);
 	}
 	string type = json_val["type"];
-//	cout<<"parseValue - " << type << "\n";
 	double value = 0.0;
 	if( type.compare("random") == 0 ){
-//		cout<<"parseValue - Dist " << json_val["distribution"] << "\n";
 		value = generate(json_val["distribution"]);
 	}
 	else{
-//		cout<<"parseValue - Value " << json_val["value"] << "\n";
 		value = stod(json_val["value"].get<string>());
 	}
 	if(force_limits){
@@ -123,22 +95,17 @@ double SimulatorFactory::parseValue(json &json_val, bool force_limits, double fo
 EventList *SimulatorFactory::parseEventsOld(json &scen){
 //	cout << "SimulatorFactory::parseEventsOld - Inicio\n";
 	EventList *events = new EventList();
-//	events->setId( stoi(scen["id"].get<string>()) );
 	events->setId( scen["Id"] );
 	
 	// Tomar lista de eventos del json
-//	json scen_events = scen[]
 	unsigned int count = 0;
 	unsigned int last_gen = 0;
 	// TODO: Este limite de seguridad al tamaño de la poblacion es arbitrario
 	unsigned int max_value = 100000000;
-//	events->resize( scen["Events"].size() );
-//	cout << "-----\n";
 //	cout << "SimulatorFactory::parseEventsOld - Iniciando Parsing\n";
 //	cout << "-----\n";
 	for( json json_ev : scen["Events"] ){
 //		cout << "SimulatorFactory::parseEventsOld - json_ev[" << count << "]: "<< json_ev <<"\n";
-//		Event event = events->getEvent(count);
 		Event *event = new Event();
 		events->addEvent(event);
 		
@@ -153,7 +120,6 @@ EventList *SimulatorFactory::parseEventsOld(json &scen){
 		// Tipo del evento
 		string type = json_ev["type"];
 //		cout<<"Type: " << type << "\n";
-		// Seteo el tipo en el bloque siguiente
 		
 		// Parametros especificos
 		json json_params = json_ev["params"];
@@ -168,11 +134,9 @@ EventList *SimulatorFactory::parseEventsOld(json &scen){
 			event->setType(SPLIT);
 			// TODO: NO esta el percentage del split!
 			string src = json_params["source"]["population"]["name"];
-//			cout << "SimulatorFactory::parseEventsOld - src: " << src << "\n";
 			string dst1;
 			string dst2;
 			unsigned int partitions = stoi(json_params["partitions"].get<string>());
-//			cout << "SimulatorFactory::parseEventsOld - partitions: " << partitions << "\n";
 			if( partitions != 2 ){
 				cerr << "SimulatorFactory::parseEventsOld - SPLIT Warning, partitions != 2 (" << partitions << ").\n";
 				dst1 = "dst_1_" + to_string(gen);
@@ -180,24 +144,18 @@ EventList *SimulatorFactory::parseEventsOld(json &scen){
 			}
 			else{
 				dst1 = json_params["destination"][0]["population"]["name"];
-//				cout << "SimulatorFactory::parseEventsOld - dst1: " << dst1 << "\n";
 				dst2 = json_params["destination"][1]["population"]["name"];
-//				cout << "SimulatorFactory::parseEventsOld - dst2: " << dst2 << "\n";
 			}
 			event->addTextParam( src );
 			event->addTextParam( dst1 );
 			event->addTextParam( dst2 );
-			// LO que sigue deberia ser desde el json (pero no es claro si de source o por destination)
+			// Lo que sigue deberia ser desde el json (pero no es claro si de source o por destination)
 			double percentage = 0.5;
 //			double percentage = parseValue(json_params["source"]["population"]["percentage"], true, 0, 1.0);
-//			cout << "SimulatorFactory::parseEventsOld - percentage: " << percentage << "\n";
 			event->addNumParam( percentage );
 		}
 		else if( type.compare("migration") == 0 ){
 			event->setType(MIGRATE);
-			// source.population.name
-			// source.population.percentage
-			// destination.population.name
 			string src = json_params["source"]["population"]["name"];
 			string dst = json_params["destination"]["population"]["name"];
 			double percentage = parseValue(json_params["source"]["population"]["percentage"], true, 0, 1.0);
@@ -241,23 +199,18 @@ EventList *SimulatorFactory::parseEventsOld(json &scen){
 			event->setType(ENDSIM);
 			// Este evento NO tiene parametros, solo la generacion y el tipo
 		}
-		
 //		cout << "SimulatorFactory::parseEventsOld - Event:\n";
 //		event->print();
 //		cout << "-----\n";
-		
 		++count;
 	}
-	
 //	cout << "SimulatorFactory::parseEventsOld - Fin\n";
 	return events;
 }
 
 Profile *SimulatorFactory::parseProfileOld(json &individual){
 //	cout << "SimulatorFactory::parseProfileOld - Inicio\n";
-	
 	Profile *profile = new Profile();
-	
 	profile->setPloidy( individual["Plody"] );
 	
 //	cout <<  "SimulatorFactory::parseProfileOld - Cargando Marcadores\n";
@@ -265,20 +218,15 @@ Profile *SimulatorFactory::parseProfileOld(json &individual){
 //		cout <<  "SimulatorFactory::parseProfileOld - marker: " << marker << "\n";
 		unsigned int marker_type =  marker["Type"];
 		unsigned int mutation_model = marker["Mutation_model"];
-//		cout <<  "SimulatorFactory::parseProfileOld - marker_type: " << marker_type << ", mutation_model: " << mutation_model<< "\n";
 		if( marker_type == 1 ){
 			// MARKER_SEQUENCE
 			if( mutation_model == 1 ){
 				// MUTATION_BASIC
 				unsigned int length = marker["Size"];
-//				cout <<  "SimulatorFactory::parseProfileOld - length: " << length<< "\n";
 				unsigned int pool_size = marker["Pool_size"];
-//				cout <<  "SimulatorFactory::parseProfileOld - pool_size: " << pool_size<< "\n";
 				double rate = parseValue(marker["Rate"], true, 0, 1.0);
-//				cout <<  "SimulatorFactory::parseProfileOld - rate: " << rate<< "\n";
 				vector<double> params;
 				params.push_back(rate);
-//				cout << "SimulatorFactory::parseProfileOld - Agregando Marcador (length: " << length<< ", pool_size: " << pool_size<< ", rate: " << rate << ")\n";
 				ProfileMarker marker(MARKER_SEQUENCE, length, pool_size, MUTATION_BASIC, params);
 				profile->addMarker(marker);
 			}
@@ -290,15 +238,12 @@ Profile *SimulatorFactory::parseProfileOld(json &individual){
 			cerr << "SimulatorFactory::parseProfileOld - Unknown Marker Type (" << marker_type << ")\n";
 		}
 	}
-	
 //	cout << "SimulatorFactory::parseProfileOld - Fin\n";
 	return profile;
 }
 
 bool SimulatorFactory::replaceDistribution(json &param, pair<double, double> &values){
 //	cout << "SimulatorFactory::replaceDistribution - Inicio (" << values.first << ", " << values.second << ")\n";
-//	cout << "SimulatorFactory::replaceDistribution - param entrada: " << param << "\n";
-
 	if(values.second == 0 ){
 		param["type"] = "fixed";
 		param["value"] = std::to_string(values.first);
@@ -317,16 +262,14 @@ bool SimulatorFactory::replaceDistribution(json &param, pair<double, double> &va
 		std::ostringstream stream2;
         stream2 << std::setprecision(std::numeric_limits<double>::digits10) << values.second ;
 		this_distribution["params"]["stddev"] = stream2.str();
-		
 //		cout << "SimulatorFactory::replaceDistribution - this_distribution: " << this_distribution << "\n";
 		param["distribution"] = this_distribution;
 	}
-	
 //	cout << "SimulatorFactory::replaceDistribution - param salida: " << param << "\n";
 //	cout << "SimulatorFactory::replaceDistribution - Fin\n";
 	return true;
 }
-// Recibe un vector de pares <mean, stddev> en el orden de los parametros
+
 void SimulatorFactory::loadScenario(){
 	cout <<  "SimulatorFactory::loadScenario - Inicio\n";
 	
@@ -334,13 +277,11 @@ void SimulatorFactory::loadScenario(){
 	n_populations = 0;
 	n_stats = 0;
 	n_params = 0;
-//	vector<string> param_names;
 	string param_name;
 	proj_id = project_json["Id"];
 	sim_id = simulation_json["Id"];
 	
 	cout <<  "SimulatorFactory::loadScenario - proj_id: " << proj_id << ", sim_id: " << sim_id << "\n";
-	
 	// Primero Individual (de project)
 	for( json &marker : project_json["Individual"]["Markers"] ){
 		unsigned int marker_type =  marker["Type"];
@@ -461,9 +402,8 @@ void SimulatorFactory::loadScenario(){
 	n_params = param_names.size();
 	
 	cout <<  "SimulatorFactory::loadScenario - n_populations: " << n_populations << ", n_stats: " << n_stats << ", n_params: " << n_params << "\n";
-
-//	cout <<  "SimulatorFactory::loadScenario - Fin\n";
 	
+//	cout <<  "SimulatorFactory::loadScenario - Fin\n";
 }
 
 // Recibe un vector de pares <mean, stddev> en el orden de los parametros
