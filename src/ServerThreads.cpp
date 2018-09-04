@@ -243,12 +243,8 @@ void thread_init_project(int sock_cliente, string json_project_base, string targ
 		// Preparar escritor y crear el archivo 
 		fstream writer(target_file, fstream::out | fstream::trunc);
 		if( writer.good() ){
-//			writer.write(buff, size);
-			
 			char stat_buff[1024];
 			memset(stat_buff, 0, 1024);
-//			stat_buff[0] = 0; 
-			
 //			map<string, vector< map<string, double> > > statistics = stats.getStatistics();
 			for( auto it_stats_pop : stats.getStatistics() ){
 				string pop_name = it_stats_pop.first;
@@ -262,10 +258,9 @@ void thread_init_project(int sock_cliente, string json_project_base, string targ
 					}
 					++marker_pos;
 				}
-			
 			}
 			sprintf(stat_buff + strlen(stat_buff), "\n");
-			writer.write(stat_buff, size);
+			writer.write(stat_buff, strlen(stat_buff));
 			writer.close();
 		}
 		else{
