@@ -8,242 +8,135 @@
 #include "NanoTimer.h"
 #include "SimulatorFactory.h"
 #include "Simulator.h"
+#include "ServerThreads.h"
 
 using namespace std;
 
-// Mutex global para controlar acceso a cout u otros objetos compartidos
-mutex global_mutex;
-// Cola de trabajo consumida por los threads procesadores
-vector<Simulator*> work_queue;
-unsigned int global_pos = 0;
-
-void SimultionThread(unsigned int pid, unsigned int n_threads, string output_base){
-	
-	global_mutex.lock();
-	cout<<"SimultionThread["<<pid<<"] - Inicio\n";
-	global_mutex.unlock();
-	
-	NanoTimer timer;
-	unsigned int procesados = 0;
-	unsigned int cur_pos = 0;
-	
-	string file_name = output_base;
-	file_name += std::to_string(pid);
-	file_name += ".txt";
-	
-//	unsigned int max_storage = 10;
-//	vector< vector<double> > statistics_storage;
-//	vector< vector<double> > params_storage;
-	
-	while(true){
-		global_mutex.lock();
-		cur_pos = global_pos++;
-		global_mutex.unlock();
-		
-		if( cur_pos >= work_queue.size() ){
-			global_mutex.lock();
-			cout<<"SimultionThread["<<pid<<"] - Cola de trabajo vacia, saliendo\n";
-			global_mutex.unlock();
-			break;
-		}
-		
-		Simulator *sim = work_queue[cur_pos];
-		++procesados;
-		
-		sim->run();
-		
-		// Parte local del analyzer
-		// Esto requiere el target 
-		// Falta definir e implementar la normalizacion
-		
-//		if( sim->detectedErrors() == 0 ){
-//			vector<double> statistics = get_statistics(sim.samples());
-//			vector<double> params = get_params(fjob);
-//			
-//			statistics_storage.push_back(statistics);
-//			params_storage.push_back(params);
-//			
-//			if( statistics_storage.size() >= max_storage ){
-//				
-////				global_mutex.lock();
-////				cout<<"SimultionThread["<<pid<<"] - statistics_storage.size: "<<statistics_storage.size()<<", guardando...\n";
-////				global_mutex.unlock();
-//				
-//				fstream writer(file_name, fstream::out | fstream::app);
-//				for(unsigned int i = 0; i < statistics_storage.size(); ++i){
-//					for( double value : statistics_storage[i] ){
-//						writer << value << "\t";
-//					}
-//					for( double value : params_storage[i] ){
-//						writer << value << "\t";
-//					}
-//					writer << "\n";
-//				}
-//				writer.close();
-//				statistics_storage.clear();
-//				params_storage.clear();
-//			}
-//			
-//			
-//		}
-		
-	}
-	
-	// Si quedaron resultados pendientes, los guardo aqui
-//	if( statistics_storage.size() > 0 ){
-//		
-////		global_mutex.lock();
-////		cout<<"SimultionThread["<<pid<<"] - statistics_storage.size: "<<statistics_storage.size()<<", guardando...\n";
-////		global_mutex.unlock();
-//		
-//		fstream writer(file_name, fstream::out | fstream::app);
-//		for(unsigned int i = 0; i < statistics_storage.size(); ++i){
-//			for( double value : statistics_storage[i] ){
-//				writer << value << "\t";
-//			}
-//			for( double value : params_storage[i] ){
-//				writer << value << "\t";
-//			}
-//			writer << "\n";
-//		}
-//		writer.close();
-//		statistics_storage.clear();
-//		params_storage.clear();
-//	}
-	
-	
-	global_mutex.lock();
-	cout<<"SimultionThread["<<pid<<"] - Fin (Total trabajos: "<<procesados<<", Total ms: "<<timer.getMilisec()<<")\n";
-	global_mutex.unlock();
-	
-}
-
-void DummyThread(unsigned int pid, unsigned int local_jobs){
-	
-	global_mutex.lock();
-	cout<<"DummyThread["<<pid<<"] - Inicio\n";
-	global_mutex.unlock();
-	
-	NanoTimer timer;
-	unsigned int procesados = 0;
-	
-	unsigned int n_gens = 100;
-	unsigned int pop_size = 100000;
-	unsigned int *src = new unsigned int[pop_size];
-	unsigned int *dst = new unsigned int[pop_size];
-	
-	random_device rd;
-	mt19937 gen(rd());
-	uniform_int_distribution<> dist(1, pop_size);
-	
-	for(unsigned int i = 0; i < local_jobs; ++i){
-		++procesados;
-		for(unsigned int g = 0; g < n_gens; ++g){
-			for(unsigned int k = 0; k < pop_size; ++k){
-				dst[k] = dist(gen);
-				src[k] = dist(gen);
-			}
-		}
-	}
-	
-	delete [] src;
-	delete [] dst;
-	
-	global_mutex.lock();
-	cout<<"DummyThread["<<pid<<"] - Fin (Total trabajos: "<<procesados<<", Total ms: "<<timer.getMilisec()<<")\n";
-	global_mutex.unlock();
-	
-}
-
 int main(int argc,char** argv){
 
-	if(argc != 5){
-		cout<<"\nUsage: ./test json_file total_jobs n_threads output_base\n";
+	if(argc != 8){
+		cout<<"\nUsage: ./bin/threads_test total_jobs n_threads project_json simulation_json output_base target_base results_base\n";
+		cout<<"\nExample: ./bin/threads_test 100 4 ./data/project_1.json ./data/simulation_10.json ./data/data_ ./data/target_ ./data/results_\n";
 		cout<<"\n";
 		return 0;
 	}
 	
-	const char *settings_file = argv[1];
-	unsigned int total = atoi(argv[2]);
-	unsigned int n_threads = atoi(argv[3]);
-	const char *output_base = argv[4];
+	unsigned int total = atoi(argv[1]);
+	unsigned int n_threads = atoi(argv[2]);
+	string project_json_file = argv[3];
+	string simulation_json_file = argv[4];
+	string output_base = argv[5];
+	string target_base = argv[6];
+	string results_base = argv[7];
 	
-	cout<<"Test - Inicio (total: "<<total<<", n_threads: "<<n_threads<<", output_base: "<<output_base<<")\n";
+	cout<<" ----- Inicio (total: " << total << ", n_threads: " << n_threads << ", project: " << project_json_file << ", simulation: " << simulation_json_file << ") ----- \n";
 	NanoTimer timer;
 	
-//	cout<<"Test - Revisando trabajos terminados\n";
-//	unsigned int terminados = 0;
-//	unsigned int buff_size = 1020*1024;
-//	char buff[buff_size];
-//	for(unsigned int pid = 0; pid < n_threads; ++pid){
-//		string file_name = output_base;
-//		file_name += std::to_string(pid);
-//		file_name += ".txt";
-//		fstream reader(file_name, fstream::in);
-//		
-//		while(true){
-//			reader.getline(buff, buff_size);
-//			if( !reader.good() || strlen(buff) < 1 ){
-//				break;
-//			}
-//			++terminados;
-//		}
-//		
-//		reader.close();
-//	}
-//	if(terminados < total){
-//		total -= terminados;
-//	}
-//	else{
-//		total = 0;
-//	}
-//	cout<<"Test - Terminados: "<<terminados<<", Total efectivo: "<<total<<"\n";
+	// Preparacion de elementos compartidos
+	cout << "Iniciando WorkManager\n";
+	WorkManager manager;
+	cout << "Iniciando Analyzer\n";
+	Analyzer analyzer(&manager, n_threads, 0.05, output_base, target_base, results_base);
 	
-	cout<<"Test - Preparando Cola de Trabajo\n";
-//	fill_queue(fsettings, total, generator);
-	SimulatorFactory factory(settings_file);
-	for(unsigned int i = 0; i < total; ++i){
-		cout<<"Test - Agregando " << work_queue.size() << "\n";
-		work_queue.push_back(factory.getInstance());
-		cout<<"Test - Ok\n";
+	// Preparacion del proyecto (y con eso, el target)
+	cout << " ----- Cargando json del proyecto ----- \n";
+	ifstream reader(project_json_file, ifstream::in);
+	json project_json;
+	reader >> project_json;
+	reader.close();
+	unsigned int project_id = project_json["Id"];
+	
+	// Leer N_populations del json
+	unsigned int n_pops = project_json["N_populations"];
+	cout << "Project " << project_id << " - n_pops: " << n_pops << "\n";
+	
+	// Iterar por Individual -> Markers
+	unsigned int n_markers = project_json["Individual"]["Markers"].size();
+	cout << "Project " << project_id << " - n_markers: " << n_markers << "\n";
+	
+	// Cada uno tiene N_populations rutas en el arreglo Sample_path
+	// Proceso esto en el orden de estadisticos: por cada poblacion (ordenada por nombre) => los datos de cada marcador
+	// El mapa siguiente es pop_name -> vector por marcador
+	map<string, vector<string> > sample_paths;
+	for( unsigned int i = 0; i < n_pops; ++i ){
+		// Considerando el nuevo statistics, quiza un solo archivo deberia tener todos los marcadores para la poblacion
+		string pop_name = project_json["Populations"][i]["Name"];
+		for( unsigned int j = 0; j < n_markers; ++j ){
+			string sample_path = project_json["Populations"][i]["Sample_path"][j];
+			cout << "Project " << project_id << " - sample[" << pop_name << "][" << j << "]: " << sample_path << "\n";
+			sample_paths[pop_name].push_back(sample_path);
+		}
 	}
 	
-	double ms_preparation = timer.getMilisec();
-	cout<<"Test - Preparacion terminada en "<<ms_preparation<<" ms\n";
+	// Estructura temporal para almacenar summary populations
+	vector<vector<string>> summary_alleles;
+	Statistics stats;
+	for( auto samples : sample_paths ){
+		stats.processStatistics(samples.second[0], samples.first, n_markers, &summary_alleles);
+	}
+	stats.processStatistics("summary", n_markers, &summary_alleles);
 	
-	cout<<"Test - Iniciando "<<n_threads<<" threads\n";
+	// Crear el target con los estadisticos generados
+	string target_file = target_base;
+	target_file += to_string(project_id);
+	target_file += ".txt";
+	
+	// Preparar escritor y crear el archivo 
+	fstream writer(target_file, fstream::out | fstream::trunc);
+	if( writer.good() ){
+		char stat_buff[1024];
+		memset(stat_buff, 0, 1024);
+//		map<string, vector< map<string, double> > > statistics = stats.getStatistics();
+		for( auto it_stats_pop : stats.getStatistics() ){
+			string pop_name = it_stats_pop.first;
+			unsigned int marker_pos = 0;
+			for( map<string, double> stats_marker : it_stats_pop.second ){
+				for( auto it_stat : stats_marker ){
+					string stat_name = it_stat.first;
+					double value = it_stat.second;
+					cout << "Project " << project_id << " - pop " << pop_name << " - marker " << marker_pos << " - stat " << stat_name <<" -> " << value << "\n";
+					sprintf(stat_buff + strlen(stat_buff), "%f\t", value);
+				}
+				++marker_pos;
+			}
+		
+		}
+		sprintf(stat_buff + strlen(stat_buff), "\n");
+		writer.write(stat_buff, strlen(stat_buff));
+		writer.close();
+	}
+	else{
+		cerr << "Error opening file \"" << target_file << "\"\n";
+	}
+	// Preparacion terminada y target almacenado
+	
+	// Cargando Simulation
+	cout << " ----- Cargando json de simulacion ----- \n";
+	reader.open(simulation_json_file, ifstream::in);
+	json simulation_json;
+	reader >> simulation_json;
+	unsigned int sim_id = simulation_json["Id"];
+	
+	cout << "Iniciando manager->addWork de Simulation " << sim_id << "\n";
+	manager.addWork(sim_id, project_json, simulation_json, total);
+	
+	cout << " ----- Preparacion terminada en " << timer.getMilisec() << " ms ----- \n";
+	timer.reset();
+	
+	cout << " ----- Iniciando Threads de procesamiento ----- \n";
 	vector<thread> threads_list;
+	unsigned int pids[n_threads];
 	for(unsigned int i = 0; i < n_threads; ++i){
-		threads_list.push_back( thread(SimultionThread, i, n_threads, output_base) );
-//		threads_list.push_back( thread(DummyThread, i, total/n_threads) );
-		
-//		// Tomar pthread de este thread
-//		pthread_t current_thread = threads_list.back().native_handle();
-//		// Preparar datos para setear afinidad
-//		cpu_set_t cpuset;
-//		CPU_ZERO(&cpuset);
-//		CPU_SET(i, &cpuset);
-//		// Setear afinidad
-//		pthread_setaffinity_np(current_thread, sizeof(cpu_set_t), &cpuset);
-		
+		pids[i] = i;
+		// TODO: Esta version de processing_thread SIEMPRE se queda esperando mas trabajo, no retorna
+		// Esta pensada para lanzarse con thread(...).detach()
+		threads_list.push_back( thread(processing_thread, pids[i], output_base, &manager, &analyzer) );
 	}
 	for(unsigned int i = 0; i < n_threads; ++i){
 		threads_list[i].join();
 	}
-	double ms_processing = timer.getMilisec();
-	cout<<"Test - Procesamiento terminado en "<<(ms_processing - ms_preparation)<<" ms\n";
 	
-//	// Analyzer
-//	
-//	double ms_analysis = timer.getMilisec();
-//	cout<<"Test - Analisis terminado en "<<(ms_analysis - ms_processing)<<" ms\n";
-	
-//	cout<<"Test - Tiempo total: "<<ms_analysis<<" ms\n";
-	
-	for(unsigned int i = 0; i < work_queue.size(); ++i){
-		delete work_queue[i];
-	}
-	work_queue.clear();
+	cout << " ----- Procesamiento terminado en " << timer.getMilisec() << " ms ----- \n";
 	
 	return 0;
 }
