@@ -12,6 +12,7 @@ private:
 	vector<Individual> dst;
 	
 	unsigned int processDNAGenes(unsigned int marker_pos, ProfileMarker &marker, Pool *pool, mt19937 &generator);
+	unsigned int processMSGenes(unsigned int marker_pos, ProfileMarker &marker, unsigned int ploidy, Pool *pool, mt19937 &generator);
 
 public:
 
