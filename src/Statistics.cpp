@@ -82,39 +82,46 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 		map<string, double> stats;
 		ProfileMarker marker = profile->getMarker(pos_marker);
 		
-//		cout << "Statistics::processStatistics - Preparing String Vector\n";
-		vector<string> alleles;
-		vector< map<unsigned int, char> > alleles_mutations;
-		set<unsigned int> added_alleles;
-		for(unsigned int ind = 0; ind < n_inds; ++ind){
-			unsigned int pos_ind = inds_usados[ind];
-			unsigned int id_allele = pop->get(pos_ind).getAllele(pos_marker);
-			alleles.push_back( getAllele(pos_marker, id_allele, marker) );
-			alleles_mutations.push_back( alleles_mutations_tables[pos_marker][id_allele] );
-			
+		// Lo que sigue depende del tipo de marcador
+		
+		if( marker.getType() == MARKER_SEQUENCE ){
+		
+			// cout << "Statistics::processStatistics - Preparing String Vector\n";
+			vector<string> alleles;
+			vector< map<unsigned int, char> > alleles_mutations;
+			set<unsigned int> added_alleles;
+			for(unsigned int ind = 0; ind < n_inds; ++ind){
+				unsigned int pos_ind = inds_usados[ind];
+				unsigned int id_allele = pop->get(pos_ind).getAllele(pos_marker);
+				alleles.push_back( getAllele(pos_marker, id_allele, marker) );
+				alleles_mutations.push_back( alleles_mutations_tables[pos_marker][id_allele] );
+			}
+		
+			// Notar que estoy usando los nombres antiguos por estadistico para conservar el orden
+			NanoTimer timer;
+			double num_haplotypes = statNumHaplotypes(alleles);
+			stats["number-of-haplotypes"] = num_haplotypes;
+		
+			timer.reset();
+			double num_segregating_sites = statNumSegregatingSites(alleles);
+			stats["number-of-segregating-sites"] = num_segregating_sites;
+		
+			// vector<unsigned int> pairwise_differences = statPairwiseDifferences(alleles);
+			vector<unsigned int> pairwise_differences = statPairwiseDifferencesMutations(alleles_mutations);
+		
+			double mean_pairwise_diff = statMeanPairwiseDifferences(pairwise_differences);
+			stats["mean-of-the-number-of-pairwise-differences"] = mean_pairwise_diff;
+
+			double var_pairwise_diff = statVariancePairwiseDifferences(pairwise_differences, mean_pairwise_diff);
+			stats["variance-of-the-number-of-pairwise-differences"] = var_pairwise_diff;
+
+			double tajima_d = statTajimaD(alleles, num_segregating_sites, mean_pairwise_diff);
+			stats["tajima-d-statistics"] = tajima_d;
+		}
+		else{
+			cerr << "Statistics::processStatistics - Genetic Marker not supperted " << marker.getType() << "\n";
 		}
 		
-		// Notar que estoy usando los nombres antiguos por estadistico para conservar el orden
-		
-		NanoTimer timer;
-		double num_haplotypes = statNumHaplotypes(alleles);
-		stats["number-of-haplotypes"] = num_haplotypes;
-		
-		timer.reset();
-		double num_segregating_sites = statNumSegregatingSites(alleles);
-		stats["number-of-segregating-sites"] = num_segregating_sites;
-		
-//		vector<unsigned int> pairwise_differences = statPairwiseDifferences(alleles);
-		vector<unsigned int> pairwise_differences = statPairwiseDifferencesMutations(alleles_mutations);
-		
-		double mean_pairwise_diff = statMeanPairwiseDifferences(pairwise_differences);
-		stats["mean-of-the-number-of-pairwise-differences"] = mean_pairwise_diff;
-
-		double var_pairwise_diff = statVariancePairwiseDifferences(pairwise_differences, mean_pairwise_diff);
-		stats["variance-of-the-number-of-pairwise-differences"] = var_pairwise_diff;
-
-		double tajima_d = statTajimaD(alleles, num_segregating_sites, mean_pairwise_diff);
-		stats["tajima-d-statistics"] = tajima_d;
 		
 		stats_vector.push_back(stats);
 	}
