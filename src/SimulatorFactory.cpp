@@ -234,6 +234,23 @@ Profile *SimulatorFactory::parseProfileOld(json &individual){
 				cerr << "SimulatorFactory::parseProfileOld - Unknown Mutation Model (" << mutation_model << ")\n";
 			}
 		}
+		else if( marker_type == 2 ){
+			// MICROSATELLITES
+			if( mutation_model == 1 ){
+				// MUTATION_BASIC
+				unsigned int pool_size = marker["Pool_size"];
+				double rate = parseValue(marker["Rate"], true, 0, 1.0);
+				// Quizas despues habria que agregar parámetros de la geometrica
+				// Por otra parte, quizas sea mejor eso para mutation_model = 2
+				vector<double> params;
+				params.push_back(rate);
+				ProfileMarker marker(MARKER_MS, 0, pool_size, MUTATION_BASIC, params);
+				profile->addMarker(marker);
+			}
+			else{
+				cerr << "SimulatorFactory::parseProfileOld - Unknown Mutation Model (" << mutation_model << ")\n";
+			}
+		}
 		else{
 			cerr << "SimulatorFactory::parseProfileOld - Unknown Marker Type (" << marker_type << ")\n";
 		}
@@ -291,6 +308,19 @@ void SimulatorFactory::loadScenario(){
 			if( mutation_model == 1 ){
 				// MUTATION_BASIC
 				param_name = "mutation.rate." + to_string(param_names.size());
+				cout <<  "SimulatorFactory::loadScenario - Agregando param \"" << param_name << "\"\n";
+				param_names.push_back(param_name);
+			}
+			else{
+				cerr << "SimulatorFactory::loadScenario - Unknown Mutation Model (" << mutation_model << ")\n";
+			}
+		}
+		else if( marker_type == 2 ){
+			// MICROSATELLITES
+			if( mutation_model == 1 ){
+				// MUTATION_BASIC
+				param_name = "mutation.rate." + to_string(param_names.size());
+				// Notar que podría haber parametros adicionales aca, como la geometrica
 				cout <<  "SimulatorFactory::loadScenario - Agregando param \"" << param_name << "\"\n";
 				param_names.push_back(param_name);
 			}
@@ -425,6 +455,21 @@ void SimulatorFactory::reloadParameters(vector<pair<double, double>> &values){
 				if( replaceDistribution(this_param, values[next_param]) ){
 					++next_param;
 				}
+			}
+			else{
+				cerr << "SimulatorFactory::reloadParameters - Unknown Mutation Model (" << mutation_model << ")\n";
+			}
+		}
+		else if( marker_type == 2 ){
+			// MICROSATELLITES
+			if( mutation_model == 1 ){
+				// MUTATION_BASIC
+				json &this_param = marker["rate"];
+				cout <<  "SimulatorFactory::reloadParameters - Reemplazando " << param_names[next_param] << " -> (" << values[next_param].first << ", " << values[next_param].second << ")\n";
+				if( replaceDistribution(this_param, values[next_param]) ){
+					++next_param;
+				}
+				// Notar que podría haber parametros adicionales aca, como la geometrica
 			}
 			else{
 				cerr << "SimulatorFactory::reloadParameters - Unknown Mutation Model (" << mutation_model << ")\n";
