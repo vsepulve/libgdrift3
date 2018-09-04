@@ -26,20 +26,55 @@ void Individual::setParent(Individual &parent){
 	// Model se encarga de la mutacion cuando sea necesario
 	alleles.resize(parent.getNumMarkers());
 	for(unsigned int i = 0; i < alleles.size(); ++i){
-		alleles[i] = parent.getAllele(i);
+		alleles[i].first = parent.getAllele(i);
+	}
+}
+
+void Individual::setParent(Individual &parent_1, Individual &parent_2){
+	// Copiar alelos
+	// Model se encarga de la mutacion cuando sea necesario
+	alleles.resize(parent_1.getNumMarkers());
+	for(unsigned int i = 0; i < alleles.size(); ++i){
+		alleles[i].first = parent_1.getAllele(i);
+		alleles[i].second = parent_2.getAllele(i);
 	}
 }
 	
 unsigned int Individual::getNumMarkers(){
 	return alleles.size();
 }
-	
+
 unsigned int Individual::getAllele(unsigned int pos){
-	return alleles[pos];
+	return alleles[pos].first;
+}
+	
+unsigned int Individual::getAllele(unsigned int pos, unsigned int ploidy_pos){
+	if(ploidy_pos == 0){
+		return alleles[pos].first;
+	}
+	else if(ploidy_pos == 1){
+		return alleles[pos].second;
+	}
+	else{
+		cerr << "Individual::getAllele - Ploidy not supported (" << ploidy_pos << ")\n";
+		return 0;
+	}
 }
 
 void Individual::setAllele(unsigned int pos, unsigned int allele){
-	alleles[pos] = allele;
+	alleles[pos].first = allele;
+}
+
+void Individual::setAllele(unsigned int pos, unsigned int ploidy_pos, unsigned int allele){
+	if(ploidy_pos == 0){
+		alleles[pos].first = allele;
+	}
+	else if(ploidy_pos == 1){
+		alleles[pos].second = allele;
+	}
+	else{
+		cerr << "Individual::setAllele - Ploidy not supported (" << ploidy_pos << ")\n";
+	}
 }
 
 void Individual::prepare(Profile *profile){
