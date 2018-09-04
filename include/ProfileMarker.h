@@ -5,12 +5,13 @@
 #include <iostream>
 #include <fstream>
 #include <string.h>
+#include <assert.h>
 
 #include <vector>
 
 using namespace std;
 
-enum MarkerType { MARKER_ERROR=0, MARKER_SEQUENCE=1 };
+enum MarkerType { MARKER_ERROR=0, MARKER_SEQUENCE=1 , MARKER_MS=2 };
 enum MutationType { MUTATION_ERROR=0, MUTATION_BASIC=1 };
 
 class ProfileMarker{

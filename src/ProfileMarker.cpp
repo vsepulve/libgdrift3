@@ -46,8 +46,8 @@ unsigned int ProfileMarker::getNumParam() const{
 }
 
 double ProfileMarker::getParam(unsigned int pos) const{
-	if(pos < params.size()){
-		return params[pos];
-	}
-	return 0.0;
+	assert(pos < params.size());
+	return params[pos];
 }
+
+
