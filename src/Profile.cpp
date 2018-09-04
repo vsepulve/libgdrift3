@@ -36,10 +36,7 @@ unsigned int Profile::getNumMarkers() const{
 }
 
 const ProfileMarker &Profile::getMarker(unsigned int pos) const{
-	if(pos >= markers.size()){
-		cerr<<"Profile::getMarker - Error, invalid position ("<<pos<<" >= "<<markers.size()<<")\n";
-		exit(EXIT_FAILURE);
-	}
+	assert(pos < markers.size());
 	return markers[pos];
 }
 	
