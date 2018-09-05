@@ -58,11 +58,11 @@ public:
 	void processStatistics(Population *pop, string name, float sampling);
 	
 	// Procesa todos los estadisticos de un genepop y los agrega a statistics[name][stat]
-	void processStatistics(string filename, string name, unsigned int n_markers, vector<vector<string>> *summary_alleles = NULL);
+	void processStatistics(string filename, string name, Profile *external_profile, vector<vector<string>> *summary_alleles = NULL);
 	
 	// Version mas directa e interna del proceso, que solo calcula los estadisticos de una poblacion como strings
 	// Este metodo es usado por los demas y determina los estadisticos que se usaran
-	void processStatistics(string name, unsigned int n_markers, vector<vector<string>> *alleles_marker);
+	void processStatistics(string name, Profile *external_profile, vector<vector<string>> *alleles_marker);
 
 	// Busca el alelo en la tabla, lo genere recursivamente si no lo encuentra
 	string &getAllele(unsigned int marker_pos, unsigned int id, ProfileMarker &marker);

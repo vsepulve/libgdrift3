@@ -130,9 +130,10 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 
 // Procesa todos los estadisticos de un genepop y los agrega a statistics[name][stat]
 // Si summary_alleles es diferente de NULL, se agregan los de esta poblacion para generar los stats de Summary
-void Statistics::processStatistics(string filename, string name, unsigned int n_markers, vector<vector<string>> *summary_alleles){
+void Statistics::processStatistics(string filename, string name, Profile *external_profile, vector<vector<string>> *summary_alleles){
 	
 	cout << "Statistics::processStatistics - Start (filename " << filename << ", pop_name: " << name << ")\n";
+	unsigned int n_markers = external_profile->getNumMarkers();
 	
 	// Leer y parsear el genepop
 	// Notar que lo ideal seria dejarlo esto a un objeto lecto de genepop
@@ -194,9 +195,9 @@ void Statistics::processStatistics(string filename, string name, unsigned int n_
 		string data = "";
 		
 		toks >> id;
+		toks >> separator;
 //		cout << "Statistics::processStatistics - id: \"" << id << "\"\n";
 		for( unsigned int i = 0; i < n_markers; ++i ){
-			toks >> separator;
 			toks >> data;
 //			cout << "Statistics::processStatistics - data : \"" << data << "\"\n";
 			alleles_marker[i].push_back(data);
@@ -220,12 +221,13 @@ void Statistics::processStatistics(string filename, string name, unsigned int n_
 		}
 	}
 	
-	processStatistics(name, n_markers, &alleles_marker);
+	processStatistics(name, external_profile, &alleles_marker);
 	
 }
 
 // Procesa los stats directamente de una muestra de alelos como string y los asocia a la poblacion "name"
-void Statistics::processStatistics(string name, unsigned int n_markers, vector<vector<string>> *alleles_marker){
+void Statistics::processStatistics(string name, Profile *external_profile, vector<vector<string>> *alleles_marker){
+	unsigned int n_markers = external_profile->getNumMarkers();
 	assert(n_markers == alleles_marker->size());
 	
 	cout << "Statistics::processStatistics - Start Internal for pop_name: \"" << name << "\"\n";
