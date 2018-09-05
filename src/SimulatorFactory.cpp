@@ -1,13 +1,6 @@
 #include "SimulatorFactory.h"
 
-SimulatorFactory::SimulatorFactory(json &_project_json, json &_simulation_json, mt19937 *_generator){
-	if(_generator != NULL){
-		generator = _generator;
-	}
-	else{
-		random_device seed;
-		generator = new mt19937(seed());
-	}
+SimulatorFactory::SimulatorFactory(json &_project_json, json &_simulation_json){
 	project_json = _project_json;
 	simulation_json = _simulation_json;
 	// Aqui se podrian determinar los parametros globales que seran usados inter training
@@ -31,65 +24,6 @@ SimulatorFactory *SimulatorFactory::clone(){
 SimulatorFactory::~SimulatorFactory(){
 }
 
-double SimulatorFactory::generate(json &json_dist){
-//	cout<<"generate - Inicio\n";
-	string type = json_dist["type"];
-	double value = 0.0;
-	if( type.compare("uniform") == 0 ){
-//		cout<<"generate - UNIFORM\n";
-		double a = stod(json_dist["params"]["a"].get<string>());
-		double b = stod(json_dist["params"]["b"].get<string>());
-		uniform_real_distribution<> uniform(a, b);
-		value = uniform(*generator);
-	}
-	else if( type.compare("normal") == 0 ){
-//		cout<<"generate - NORMAL\n";
-		double mean = stod(json_dist["params"]["mean"].get<string>());
-		double stddev = stod(json_dist["params"]["stddev"].get<string>());
-		normal_distribution<> normal(mean, stddev);
-		value = normal(*generator);
-	}
-	else if( type.compare("gamma") == 0 ){
-//		cout<<"generate - GAMMA\n";
-		double alpha = stod(json_dist["params"]["alpha"].get<string>());
-		double beta = stod(json_dist["params"]["beta"].get<string>());
-		gamma_distribution<double> gamma(alpha, beta);
-		value = gamma(*generator);
-	}
-	else{
-		cerr<<"generate - Error, unknown distribution "<<type<<"\n";
-	}
-//	cout<<"generate - Fin (" << value << ")\n";
-	return value;
-}
-
-double SimulatorFactory::parseValue(json &json_val, bool force_limits, double forced_min, double forced_max){
-//	cout<<"parseValue - Inicio ("<< json_val <<")\n";
-	// Si es directamente un string, solo hay que convertirlo
-	if( json_val.type() == json::value_t::string ){
-		string text = json_val.get<string>();
-		return stod(text);
-	}
-	string type = json_val["type"];
-	double value = 0.0;
-	if( type.compare("random") == 0 ){
-		value = generate(json_val["distribution"]);
-	}
-	else{
-		value = stod(json_val["value"].get<string>());
-	}
-	if(force_limits){
-		if(value < forced_min){
-			value = forced_min;
-		}
-		else if(value > forced_max){
-			value = forced_max;
-		}
-	}
-//	cout<<"parseValue - Fin (value: "<<value<<")\n";
-	return value;
-}
-
 // Este es uno de los metodos que DEBE conocer la estructura del json
 // Los metodos old* usan la estructura heredada de settings, previo a optimizaciones
 EventList *SimulatorFactory::parseEventsOld(json &scen){
@@ -110,7 +44,7 @@ EventList *SimulatorFactory::parseEventsOld(json &scen){
 		events->addEvent(event);
 		
 		// Tiempo del evento (generacion)
-		unsigned int gen = parseValue(json_ev["timestamp"], true, 0, max_value);
+		unsigned int gen = utils.parseValue(json_ev["timestamp"], true, 0, max_value);
 		if( gen < last_gen ){
 			gen = last_gen + 1;
 		}
@@ -126,7 +60,7 @@ EventList *SimulatorFactory::parseEventsOld(json &scen){
 		if( type.compare("create") == 0 ){
 			event->setType(CREATE);
 			string pop_name = json_params["population"]["name"];
-			unsigned int size = parseValue(json_params["population"]["size"], true, 0, max_value);
+			unsigned int size = utils.parseValue(json_params["population"]["size"], true, 0, max_value);
 			event->addTextParam( pop_name );
 			event->addNumParam( size );
 		}
@@ -151,14 +85,14 @@ EventList *SimulatorFactory::parseEventsOld(json &scen){
 			event->addTextParam( dst2 );
 			// Lo que sigue deberia ser desde el json (pero no es claro si de source o por destination)
 			double percentage = 0.5;
-//			double percentage = parseValue(json_params["source"]["population"]["percentage"], true, 0, 1.0);
+//			double percentage = utils.parseValue(json_params["source"]["population"]["percentage"], true, 0, 1.0);
 			event->addNumParam( percentage );
 		}
 		else if( type.compare("migration") == 0 ){
 			event->setType(MIGRATE);
 			string src = json_params["source"]["population"]["name"];
 			string dst = json_params["destination"]["population"]["name"];
-			double percentage = parseValue(json_params["source"]["population"]["percentage"], true, 0, 1.0);
+			double percentage = utils.parseValue(json_params["source"]["population"]["percentage"], true, 0, 1.0);
 			event->addTextParam( src );
 			event->addTextParam( dst );
 			event->addNumParam( percentage );
@@ -179,14 +113,14 @@ EventList *SimulatorFactory::parseEventsOld(json &scen){
 		else if( type.compare("increment") == 0 ){
 			event->setType(INCREASE);
 			string src = json_params["source"]["population"]["name"];
-			double percentage = parseValue(json_params["source"]["population"]["percentage"], true, 0, max_value);
+			double percentage = utils.parseValue(json_params["source"]["population"]["percentage"], true, 0, max_value);
 			event->addTextParam( src );
 			event->addNumParam( percentage );
 		}
 		else if( type.compare("decrement") == 0 ){
 			event->setType(DECREASE);
 			string src = json_params["source"]["population"]["name"];
-			double percentage = parseValue(json_params["source"]["population"]["percentage"], true, 0, 1.0);
+			double percentage = utils.parseValue(json_params["source"]["population"]["percentage"], true, 0, 1.0);
 			event->addTextParam( src );
 			event->addNumParam( percentage );
 		}
@@ -206,57 +140,6 @@ EventList *SimulatorFactory::parseEventsOld(json &scen){
 	}
 //	cout << "SimulatorFactory::parseEventsOld - Fin\n";
 	return events;
-}
-
-Profile *SimulatorFactory::parseProfileOld(json &individual){
-//	cout << "SimulatorFactory::parseProfileOld - Inicio\n";
-	Profile *profile = new Profile();
-	profile->setPloidy( individual["Plody"] );
-	
-//	cout <<  "SimulatorFactory::parseProfileOld - Cargando Marcadores\n";
-	for( json &marker : individual["Markers"] ){
-//		cout <<  "SimulatorFactory::parseProfileOld - marker: " << marker << "\n";
-		unsigned int marker_type =  marker["Type"];
-		unsigned int mutation_model = marker["Mutation_model"];
-		if( marker_type == 1 ){
-			// MARKER_SEQUENCE
-			if( mutation_model == 1 ){
-				// MUTATION_BASIC
-				unsigned int length = marker["Size"];
-				unsigned int pool_size = marker["Pool_size"];
-				double rate = parseValue(marker["Rate"], true, 0, 1.0);
-				vector<double> params;
-				params.push_back(rate);
-				ProfileMarker marker(MARKER_SEQUENCE, length, pool_size, MUTATION_BASIC, params);
-				profile->addMarker(marker);
-			}
-			else{
-				cerr << "SimulatorFactory::parseProfileOld - Unknown Mutation Model (" << mutation_model << ")\n";
-			}
-		}
-		else if( marker_type == 2 ){
-			// MICROSATELLITES
-			if( mutation_model == 1 ){
-				// MUTATION_BASIC
-				unsigned int pool_size = marker["Pool_size"];
-				double rate = parseValue(marker["Rate"], true, 0, 1.0);
-				// Quizas despues habria que agregar parámetros de la geometrica
-				// Por otra parte, quizas sea mejor eso para mutation_model = 2
-				vector<double> params;
-				params.push_back(rate);
-				ProfileMarker marker(MARKER_MS, 0, pool_size, MUTATION_BASIC, params);
-				profile->addMarker(marker);
-			}
-			else{
-				cerr << "SimulatorFactory::parseProfileOld - Unknown Mutation Model (" << mutation_model << ")\n";
-			}
-		}
-		else{
-			cerr << "SimulatorFactory::parseProfileOld - Unknown Marker Type (" << marker_type << ")\n";
-		}
-	}
-//	cout << "SimulatorFactory::parseProfileOld - Fin\n";
-	return profile;
 }
 
 bool SimulatorFactory::replaceDistribution(json &param, pair<double, double> &values){
@@ -575,8 +458,8 @@ Simulator *SimulatorFactory::getInstance(){
 //	cout << "SimulatorFactory::getInstance - parseEventsOld...\n";
 	res->setEvents( parseEventsOld( simulation_json ) );
 	
-//	cout << "SimulatorFactory::getInstance - parseProfileOld...\n";
-	res->setProfile( parseProfileOld( project_json["Individual"] ) );
+//	cout << "SimulatorFactory::getInstance - new Profile...\n";
+	res->setProfile( new Profile(project_json["Individual"]) );
 	
 //	cout << "SimulatorFactory::getInstance - Fin\n";
 	return res;

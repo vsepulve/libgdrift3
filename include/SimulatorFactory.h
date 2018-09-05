@@ -18,23 +18,20 @@
 #include "Profile.h"
 #include "Model.h"
 #include "ModelWF.h"
+#include "ParsingUtils.h"
 
 using json = nlohmann::json;
-
 using namespace std;
 
 class SimulatorFactory{
 
 private:
-
-	mt19937 *generator;
-	// Opcion directa, guardar el json parseado
-//	json settings;
+	
+	ParsingUtils utils;
 	json project_json;
 	json simulation_json;
 	
 	EventList *parseEventsOld(json &scenarios);
-	Profile *parseProfileOld(json &individual);
 	
 	// Retorna verdadero en caso de reemplazo
 	// Originalmente retornaba true si hacia el cambio
@@ -54,9 +51,7 @@ private:
 
 public:
 	
-	// Constructor principal, recive el json de settings (con las distribuciones)
-//	SimulatorFactory(string json_file, mt19937 *_generator = NULL);
-	SimulatorFactory(json &_project_json, json &_simulation_json, mt19937 *_generator = NULL);
+	SimulatorFactory(json &_project_json, json &_simulation_json);
 	SimulatorFactory(const SimulatorFactory &original);
 	SimulatorFactory& operator=(const SimulatorFactory& original);
 	virtual SimulatorFactory *clone();
@@ -71,9 +66,6 @@ public:
 	// Esto es para evitar la construccion de una instancia cuando solo se quieren los parametros
 	// Tambien serivira para evitar instancias entre comunicacion de threads
 	char *getInstanceSerialized();
-	
-	double generate(json &json_dist);
-	double parseValue(json &json_val, bool force_limits, double forced_min, double forced_max);
 	
 	void reloadParameters(vector<pair<double, double>> &values);
 	
