@@ -5,12 +5,12 @@ Profile::Profile(){
 }
 
 Profile::Profile(json &individual){
-//	cout << "Profile - Inicio\n";
+	cout << "Profile - Inicio\n";
 	ParsingUtils utils;
 	setPloidy( individual["Plody"] );
-//	cout << "Profile - Cargando Marcadores\n";
+	cout << "Profile - Cargando Marcadores\n";
 	for( json &marker : individual["Markers"] ){
-//		cout << "Profile - marker: " << marker << "\n";
+		cout << "Profile - marker: " << marker << "\n";
 		unsigned int marker_type =  marker["Type"];
 		unsigned int mutation_model = marker["Mutation_model"];
 		if( marker_type == 1 ){
@@ -50,7 +50,7 @@ Profile::Profile(json &individual){
 			cerr << "Profile - Unknown Marker Type (" << marker_type << ")\n";
 		}
 	}
-//	cout << "Profile - Fin\n";
+	cout << "Profile - Fin\n";
 }
 
 Profile::Profile(const Profile &original){
