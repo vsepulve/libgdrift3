@@ -85,16 +85,12 @@ public:
 	
 	static double statNumHaplotypes(vector<string> &alleles);
 		
-	// "number-of-segregating-sites"
 	static double statNumSegregatingSites(vector<string> &alleles);
 	
-	// "mean-of-the-number-of-pairwise-differences"
 	static double statMeanPairwiseDifferences(vector<unsigned int> &differences);
 	
-	// "variance-of-the-number-of-pairwise-differences"
 	static double statVariancePairwiseDifferences(vector<unsigned int> &differences, double mean_pairwise_diff);
 	
-	// "tajima-d-statistics"
 	static double statTajimaD(vector<string> &alleles, double num_segregating_sites, double mean_pairwise_diff);
 	
 };

@@ -96,27 +96,26 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 				alleles.push_back( getAllele(pos_marker, id_allele, marker) );
 				alleles_mutations.push_back( alleles_mutations_tables[pos_marker][id_allele] );
 			}
-		
-			// Notar que estoy usando los nombres antiguos por estadistico para conservar el orden
+			
 			NanoTimer timer;
 			double num_haplotypes = statNumHaplotypes(alleles);
-			stats["number-of-haplotypes"] = num_haplotypes;
+			stats["num-haplotypes"] = num_haplotypes;
 		
 			timer.reset();
 			double num_segregating_sites = statNumSegregatingSites(alleles);
-			stats["number-of-segregating-sites"] = num_segregating_sites;
+			stats["num-segregating-sites"] = num_segregating_sites;
 		
 			// vector<unsigned int> pairwise_differences = statPairwiseDifferences(alleles);
 			vector<unsigned int> pairwise_differences = statPairwiseDifferencesMutations(alleles_mutations);
 		
 			double mean_pairwise_diff = statMeanPairwiseDifferences(pairwise_differences);
-			stats["mean-of-the-number-of-pairwise-differences"] = mean_pairwise_diff;
+			stats["mean-pairwise-diff"] = mean_pairwise_diff;
 
 			double var_pairwise_diff = statVariancePairwiseDifferences(pairwise_differences, mean_pairwise_diff);
-			stats["variance-of-the-number-of-pairwise-differences"] = var_pairwise_diff;
+			stats["var-pairwise-diff"] = var_pairwise_diff;
 
 			double tajima_d = statTajimaD(alleles, num_segregating_sites, mean_pairwise_diff);
-			stats["tajima-d-statistics"] = tajima_d;
+			stats["tajima-d"] = tajima_d;
 		}
 		else{
 			cerr << "Statistics::processStatistics - Genetic Marker not supperted " << marker.getType() << "\n";
@@ -240,25 +239,25 @@ void Statistics::processStatistics(string name, unsigned int n_markers, vector<v
 		// Notar que estoy usando los nombres antiguos por estadistico para conservar el orden
 		
 		double num_haplotypes = statNumHaplotypes(alleles);
-		stats["number-of-haplotypes"] = num_haplotypes;
+		stats["num-haplotypes"] = num_haplotypes;
 //		cout << "Statistics::processStatistics - num_haplotypes: " << num_haplotypes << "\n";
 		
 		double num_segregating_sites = statNumSegregatingSites(alleles);
-		stats["number-of-segregating-sites"] = num_segregating_sites;
+		stats["num-segregating-sites"] = num_segregating_sites;
 //		cout << "Statistics::processStatistics - num_segregating_sites: " << num_segregating_sites << "\n";
 		
 		vector<unsigned int> pairwise_differences = statPairwiseDifferences(alleles);
 		
 		double mean_pairwise_diff = statMeanPairwiseDifferences(pairwise_differences);
-		stats["mean-of-the-number-of-pairwise-differences"] = mean_pairwise_diff;
+		stats["mean-pairwise-diff"] = mean_pairwise_diff;
 //		cout << "Statistics::processStatistics - mean_pairwise_diff: " << mean_pairwise_diff << "\n";
 		
 		double var_pairwise_diff = statVariancePairwiseDifferences(pairwise_differences, mean_pairwise_diff);
-		stats["variance-of-the-number-of-pairwise-differences"] = var_pairwise_diff;
+		stats["var-pairwise-diff"] = var_pairwise_diff;
 //		cout << "Statistics::processStatistics - var_pairwise_diff: " << var_pairwise_diff << "\n";
 		
 		double tajima_d = statTajimaD(alleles, num_segregating_sites, mean_pairwise_diff);
-		stats["tajima-d-statistics"] = tajima_d;
+		stats["tajima-d"] = tajima_d;
 //		cout << "Statistics::processStatistics - tajima_d: " << tajima_d << "\n";
 		
 		stats_vector.push_back(stats);
