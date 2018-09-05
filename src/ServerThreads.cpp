@@ -207,7 +207,8 @@ void thread_init_project(int sock_cliente, string json_project_base, string targ
 		cout << "Server::thread_init_project - n_pops: " << n_pops << "\n";
 		
 		// Iterar por Individual -> Markers
-		n_markers = json_project["Individual"]["Markers"].size();
+		Profile profile(json_project["Individual"]);
+		n_markers = profile.getNumMarkers();
 		cout << "Server::thread_init_project - n_markers: " << n_markers << "\n";
 		
 		// Cada uno tiene N_populations rutas en el arreglo Sample_path
@@ -231,9 +232,10 @@ void thread_init_project(int sock_cliente, string json_project_base, string targ
 		vector<vector<string>> summary_alleles;
 		Statistics stats;
 		for( auto samples : sample_paths ){
-			stats.processStatistics(samples.second[0], samples.first, n_markers, &summary_alleles);
+			// Los metodos siguientes necesitan, al menos, el profile para saber que datos leer y estadisticos generar
+			stats.processStatistics(samples.second[0], samples.first, &profile, &summary_alleles);
 		}
-		stats.processStatistics("summary", n_markers, &summary_alleles);
+		stats.processStatistics("summary", &profile, &summary_alleles);
 		
 		// Crear el target con los estadisticos generados
 		target_file = target_base;

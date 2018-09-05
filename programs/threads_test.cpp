@@ -51,7 +51,8 @@ int main(int argc,char** argv){
 	cout << "Project " << project_id << " - n_pops: " << n_pops << "\n";
 	
 	// Iterar por Individual -> Markers
-	unsigned int n_markers = project_json["Individual"]["Markers"].size();
+	Profile perfil(project_json["Individual"]);
+	unsigned int n_markers = perfil.getNumMarkers();
 	cout << "Project " << project_id << " - n_markers: " << n_markers << "\n";
 	
 	// Cada uno tiene N_populations rutas en el arreglo Sample_path
@@ -72,9 +73,9 @@ int main(int argc,char** argv){
 	vector<vector<string>> summary_alleles;
 	Statistics stats;
 	for( auto samples : sample_paths ){
-		stats.processStatistics(samples.second[0], samples.first, n_markers, &summary_alleles);
+		stats.processStatistics(samples.second[0], samples.first, &perfil, &summary_alleles);
 	}
-	stats.processStatistics("summary", n_markers, &summary_alleles);
+	stats.processStatistics("summary", &perfil, &summary_alleles);
 	
 	// Crear el target con los estadisticos generados
 	string target_file = target_base;

@@ -25,6 +25,7 @@
 #include "NanoTimer.h"
 #include "SimulatorFactory.h"
 #include "Simulator.h"
+#include "Profile.h"
 #include "Statistics.h"
 
 #define MAX_READ 1000000
