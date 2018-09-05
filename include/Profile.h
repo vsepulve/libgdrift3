@@ -5,10 +5,14 @@
 #include <fstream>
 #include <assert.h>
 
+#include <nlohmann/json.hpp>
+
 #include <vector>
 
 #include "ProfileMarker.h"
+#include "ParsingUtils.h"
 
+using json = nlohmann::json;
 using namespace std;
 
 class Profile{
@@ -20,6 +24,7 @@ private:
 public:
 
 	Profile();
+	Profile(json &individual);
 	Profile(const Profile &original);
 	Profile& operator=(const Profile& original);
 	virtual Profile *clone();
