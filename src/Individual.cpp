@@ -66,6 +66,7 @@ void Individual::setAllele(unsigned int pos, unsigned int allele){
 }
 
 void Individual::setAllele(unsigned int pos, unsigned int ploidy_pos, unsigned int allele){
+//	cout << "Individual::setAllele - alleles[" << pos << "][" << ploidy_pos << "] = " << allele << "\n";
 	if(ploidy_pos == 0){
 		alleles[pos].first = allele;
 	}
