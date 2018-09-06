@@ -36,6 +36,10 @@ private:
 	// TODO: este mapa solo es valido para datos de tipo secuencia
 	vector<map<unsigned int, map<unsigned int, char> >> alleles_mutations_tables;
 	
+	static const unsigned int repeat_ini = 1000;
+	vector<map<string, unsigned int>> alleles_ms_tables;
+	vector<map<unsigned int, string>> alleles_repeats_tables;
+	
 	// Notar que el profile y el pool son de la simulacion, guardo punteros por comodidad
 	Profile *profile;
 	Pool *pool;
@@ -92,6 +96,18 @@ public:
 	static double statVariancePairwiseDifferences(vector<unsigned int> &differences, double mean_pairwise_diff);
 	
 	static double statTajimaD(vector<string> &alleles, double num_segregating_sites, double mean_pairwise_diff);
+	
+	// Esta version retorna la distribucion de alelos en un mapa id -> cantidad
+	static map<unsigned int, unsigned int> statAllelesData(vector<string> &alleles);
+	
+	static double statEffectiveNumAlleles(vector<string> &alleles);
+	
+	static double statHeterozygosity(vector<string> &alleles);
+	
+	
+	
+	
+	
 	
 };
 

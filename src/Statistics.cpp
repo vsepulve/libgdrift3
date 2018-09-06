@@ -1,5 +1,7 @@
 #include "Statistics.h"
 
+const unsigned int Statistics::repeat_ini;
+
 Statistics::Statistics(){
 }
 
@@ -23,6 +25,8 @@ Statistics::Statistics(Simulator *sim, float sampling)
 	// Preparo tablas y cualquier otro dato necesario
 	alleles_tables.resize(profile->getNumMarkers());
 	alleles_mutations_tables.resize(profile->getNumMarkers());
+	alleles_ms_tables.resize(profile->getNumMarkers());
+	alleles_repeats_tables.resize(profile->getNumMarkers());
 	
 	Population summary(0, profile, pool, generator);
 	
@@ -84,18 +88,40 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 		
 		// Lo que sigue depende del tipo de marcador
 		
-		if( marker.getType() == MARKER_SEQUENCE ){
-		
-			// cout << "Statistics::processStatistics - Preparing String Vector\n";
-			vector<string> alleles;
-			vector< map<unsigned int, char> > alleles_mutations;
-			set<unsigned int> added_alleles;
-			for(unsigned int ind = 0; ind < n_inds; ++ind){
-				unsigned int pos_ind = inds_usados[ind];
+		// cout << "Statistics::processStatistics - Preparing String Vector\n";
+		vector<string> alleles;
+		vector< map<unsigned int, char> > alleles_mutations;
+		set<unsigned int> added_alleles;
+		for(unsigned int ind = 0; ind < n_inds; ++ind){
+			unsigned int pos_ind = inds_usados[ind];
+			if( profile->getPloidy() == 1 ){
 				unsigned int id_allele = pop->get(pos_ind).getAllele(pos_marker);
 				alleles.push_back( getAllele(pos_marker, id_allele, marker) );
 				alleles_mutations.push_back( alleles_mutations_tables[pos_marker][id_allele] );
 			}
+			else if( profile->getPloidy() == 2 ){
+				cout << "Statistics::processStatistics - getPloidy == 2\n";
+				if( marker.getType() == MARKER_MS ){
+					cout << "Statistics::processStatistics - MS\n";
+					unsigned int id1 = pop->get(pos_ind).getAllele(pos_marker, 0);
+					unsigned int id2 = pop->get(pos_ind).getAllele(pos_marker, 1);
+					cout << "Statistics::processStatistics - id1: " << id1 <<", id2: " << id2 << "\n";
+					string str1 = getAllele(pos_marker, id1, marker);
+					string str2 = getAllele(pos_marker, id2, marker);
+					cout << "Statistics::processStatistics - str1: " << str1 <<", str2: " << str2 << "\n";
+					alleles.push_back( str1 + str2 );
+				}
+				else{
+					cerr << "Statistics::processStatistics - Error, Marker " << marker.getType() << " not supported for this ploidy (" << profile->getPloidy() << ")\n";
+				}
+			}
+			else{
+				cerr << "Statistics::processStatistics - Error, Ploidy not supported (" << profile->getPloidy() << ")\n";
+			}
+			
+		}
+		
+		if( marker.getType() == MARKER_SEQUENCE ){
 			
 			NanoTimer timer;
 			double num_haplotypes = statNumHaplotypes(alleles);
@@ -117,8 +143,23 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 			double tajima_d = statTajimaD(alleles, num_segregating_sites, mean_pairwise_diff);
 			stats["tajima-d"] = tajima_d;
 		}
+		else if( marker.getType() == MARKER_MS ){
+			cout << "Statistics::processStatistics - Preparando statistics de microsatellites...\n";
+			
+			map<unsigned int, unsigned int> ids = statAllelesData(alleles);
+			
+			double num_alleles = ids.size();
+			stats["num-alleles"] = num_alleles;
+			
+			double effective_num_alleles = 0;
+			stats["effective-num-alleles"] = effective_num_alleles;
+			
+			double heterozygosity = 0;
+			stats["heterozygosity"] = heterozygosity;
+			
+		}
 		else{
-			cerr << "Statistics::processStatistics - Genetic Marker not supperted " << marker.getType() << "\n";
+			cerr << "Statistics::processStatistics - Error, Genetic Marker not supperted.\n";
 		}
 		
 		
@@ -164,12 +205,15 @@ void Statistics::processStatistics(string filename, string name, Profile *extern
 	lector.getline(buff, buff_size);
 //	cout << "Statistics::processStatistics - Title: " << buff << "\n";
 	
-	// Identificadores de Loci (separados por , en el formato estandar)
-	lector.getline(buff, buff_size);
-//	cout << "Statistics::processStatistics - Loci: " << buff << " (Temporalmente asumo 1)\n";
+	while( lector.good() ){
+		lector.getline(buff, buff_size);
+		if( lector.gcount() >= 3 && toupper(buff[0]) == 'P' && toupper(buff[1]) == 'O' && toupper(buff[2]) == 'P' ){
+			break;
+		}
+//		cout << "Statistics::processStatistics - Loci: " << buff << "\n";
+	}
 	
-	// Pop
-	lector.getline(buff, buff_size);
+//	// Pop
 //	cout << "Statistics::processStatistics - Pop: " << buff << "\n";
 	
 	// Inicio de datos
@@ -208,7 +252,7 @@ void Statistics::processStatistics(string filename, string name, Profile *extern
 	delete [] buff;
 	
 	if(summary_alleles != NULL){
-		cout << "Statistics::processStatistics - Adding alleles to summary\n";
+//		cout << "Statistics::processStatistics - Adding alleles to summary\n";
 		if( summary_alleles->size() != n_markers ){
 			summary_alleles->resize(n_markers);
 		}
@@ -237,40 +281,53 @@ void Statistics::processStatistics(string name, Profile *external_profile, vecto
 	for(unsigned int pos_marker = 0; pos_marker < n_markers; ++pos_marker){
 		map<string, double> stats;
 		vector<string> alleles = alleles_marker->at(pos_marker);
+		ProfileMarker marker = external_profile->getMarker(pos_marker);
 		
-		// Notar que estoy usando los nombres antiguos por estadistico para conservar el orden
+		if( marker.getType() == MARKER_SEQUENCE ){
+			double num_haplotypes = statNumHaplotypes(alleles);
+			stats["num-haplotypes"] = num_haplotypes;
 		
-		double num_haplotypes = statNumHaplotypes(alleles);
-		stats["num-haplotypes"] = num_haplotypes;
-//		cout << "Statistics::processStatistics - num_haplotypes: " << num_haplotypes << "\n";
+			double num_segregating_sites = statNumSegregatingSites(alleles);
+			stats["num-segregating-sites"] = num_segregating_sites;
 		
-		double num_segregating_sites = statNumSegregatingSites(alleles);
-		stats["num-segregating-sites"] = num_segregating_sites;
-//		cout << "Statistics::processStatistics - num_segregating_sites: " << num_segregating_sites << "\n";
+			vector<unsigned int> pairwise_differences = statPairwiseDifferences(alleles);
 		
-		vector<unsigned int> pairwise_differences = statPairwiseDifferences(alleles);
+			double mean_pairwise_diff = statMeanPairwiseDifferences(pairwise_differences);
+			stats["mean-pairwise-diff"] = mean_pairwise_diff;
 		
-		double mean_pairwise_diff = statMeanPairwiseDifferences(pairwise_differences);
-		stats["mean-pairwise-diff"] = mean_pairwise_diff;
-//		cout << "Statistics::processStatistics - mean_pairwise_diff: " << mean_pairwise_diff << "\n";
+			double var_pairwise_diff = statVariancePairwiseDifferences(pairwise_differences, mean_pairwise_diff);
+			stats["var-pairwise-diff"] = var_pairwise_diff;
 		
-		double var_pairwise_diff = statVariancePairwiseDifferences(pairwise_differences, mean_pairwise_diff);
-		stats["var-pairwise-diff"] = var_pairwise_diff;
-//		cout << "Statistics::processStatistics - var_pairwise_diff: " << var_pairwise_diff << "\n";
+			double tajima_d = statTajimaD(alleles, num_segregating_sites, mean_pairwise_diff);
+			stats["tajima-d"] = tajima_d;
+		}
+		else if( marker.getType() == MARKER_MS ){
+			cout << "Statistics::processStatistics - Preparando statistics de microsatellites...\n";
+			
+			map<unsigned int, unsigned int> ids = statAllelesData(alleles);
+			
+			double num_alleles = ids.size();
+			stats["num-alleles"] = num_alleles;
+			
+			double effective_num_alleles = 0;
+			stats["effective-num-alleles"] = effective_num_alleles;
+			
+			double heterozygosity = 0;
+			stats["heterozygosity"] = heterozygosity;
+			
+		}
+		else{
+			cerr << "Statistics::processStatistics - Error, Genetic Marker not supperted.\n";
+		}
 		
-		double tajima_d = statTajimaD(alleles, num_segregating_sites, mean_pairwise_diff);
-		stats["tajima-d"] = tajima_d;
-//		cout << "Statistics::processStatistics - tajima_d: " << tajima_d << "\n";
+		
+		
 		
 		stats_vector.push_back(stats);
 	}
 	statistics[name] = stats_vector;
 	
 }
-
-
-
-
 
 // Busca el alelo en la tabla, lo genere recursivamente si no lo encuentra
 string &Statistics::getAllele(unsigned int marker_pos, unsigned int id, ProfileMarker &marker){
@@ -282,30 +339,39 @@ string &Statistics::getAllele(unsigned int marker_pos, unsigned int id, ProfileM
 	}
 	else if( id == 0 ){
 //		cout << "Statistics::getAllele - Case 2 (Creating Origin)\n";
-		alleles_tables[marker_pos][id] = generateAllele(marker_pos, marker);
-		
-		// Mapa de mutaciones para el alelo
-		// TODO: este mapa solo es valido para datos de tipo secuencia
-		map<unsigned int, char> mutations_map;
-		alleles_mutations_tables[marker_pos][id] = mutations_map;
-		
+		string seq = generateAllele(marker_pos, marker);
+		alleles_tables[marker_pos][id] = seq;
+		if( marker.getType() == MARKER_SEQUENCE ){
+			map<unsigned int, char> mutations_map;
+			alleles_mutations_tables[marker_pos][id] = mutations_map;
+		}
+		else if( marker.getType() == MARKER_MS ){
+			alleles_ms_tables[marker_pos][seq] = repeat_ini;
+			alleles_repeats_tables[marker_pos][repeat_ini] = seq;
+		}
+		else{
+			cerr << "Statistics::getAllele - Error, Genetic Marker not supperted.\n";
+		}
 		return alleles_tables[marker_pos][id];
 	}
 	else{
 //		cout << "Statistics::getAllele - Case 3\n";
-		// Aplicar mutacion
+		
+		// Tomar el allelo padre, y aplicar mutacion
 		// Notar que en la practica, esto depende del tipo de marcador
+		
 		unsigned int parent_id = pool->getParent(marker_pos, id);
 		string parent = getAllele(marker_pos, parent_id, marker);
 		
-		// Aqui ya puedo tomar el mapa de mutaciones del padre porque se genero en getParen
-		// TODO: este mapa solo es valido para datos de tipo secuencia
-		map<unsigned int, char> mutations_map;
-		map<unsigned int, char> mutations_map_parent = alleles_mutations_tables[marker_pos][parent_id];
-		mutations_map.insert(mutations_map_parent.begin(), mutations_map_parent.end());
-		
 		if( marker.getType() == MARKER_SEQUENCE 
-			&& marker.getMutationType() == MUTATION_BASIC){
+			&& marker.getMutationType() == MUTATION_BASIC ){
+			
+			// Aqui ya puedo tomar el mapa de mutaciones del padre porque se genero en getParen
+			// TODO: este mapa solo es valido para datos de tipo secuencia
+			map<unsigned int, char> mutations_map;
+			map<unsigned int, char> mutations_map_parent = alleles_mutations_tables[marker_pos][parent_id];
+			mutations_map.insert(mutations_map_parent.begin(), mutations_map_parent.end());
+			
 			uniform_int_distribution<> pos_dist(0, marker.getLength() - 1);
 			unsigned int pos = pos_dist(generator);
 			uniform_int_distribution<> mut_dist(0, 2);
@@ -323,14 +389,20 @@ string &Statistics::getAllele(unsigned int marker_pos, unsigned int id, ProfileM
 			if( alleles_tables[marker_pos][0][pos] == new_value ){
 				mutations_map.erase(pos);
 			}
+			alleles_mutations_tables[marker_pos][id] = mutations_map;
 			
 			parent[pos] = new_value;
 		}
-		else{
-			cerr << "Statistics::getAllele - Mutation model not implemented.\n";
+		else if( marker.getType() == MARKER_MS 
+			&& marker.getMutationType() == MUTATION_BASIC ){
+			
+			cout << "Statistics::getAllele - parent id: " << parent << " (" << std::stoi(parent) << ")\n";
+			
+			
 		}
-		
-		alleles_mutations_tables[marker_pos][id] = mutations_map;
+		else{
+			cerr << "Statistics::getAllele - Error, Mutation model not implemented.\n";
+		}
 		
 		alleles_tables[marker_pos][id] = parent;
 		return alleles_tables[marker_pos][id];
@@ -360,6 +432,9 @@ string Statistics::generateAllele(unsigned int marker_pos, ProfileMarker &marker
 				s.push_back('T');
 			}
 		}
+	}
+	else if( marker.getType() == MARKER_MS ){
+		s = "001";
 	}
 	else{
 //		cerr << "Statistics::generateAllele - Sequence model not implemented.\n";
@@ -451,42 +526,13 @@ vector<unsigned int> Statistics::statPairwiseDifferencesMutations(vector< map<un
 //	cout << "Statistics::statMeanPairwiseDifferences - Inicio\n";
 //	NanoTimer timer;
 	vector<unsigned int> pairwise_differences;
-	
 	for(unsigned int i = 0; i < alleles.size(); ++i){
 		for(unsigned int j = i+1; j < alleles.size(); ++j){
 			unsigned int diff = 0;
-			
-			// Agrego la diferencia simetrica de las mutaciones
-			// Primero agrego desde i, omitiendo solo los pares IDENTICOS con j
-			// Si una mutacion en i y en j afectan la misma posicion (pero con diferente caracter) conservo el primero
-			// Luego agrego desde j omitiendo TODAS las que afecten a posiciones tocadas por i
-			// Asi omito las identicas en ambos sentidos, y las semiidenticas solo en el segundo
-			
-//			for( auto it : alleles[i]){
-//				unsigned int pos = it.first;
-//				char c = it.second;
-//				auto it_j = alleles[j].find(pos);
-//				if( it_j != alleles[j].end() && c == it_j->second ){
-//					// omito por ser identica
-//				}
-//				else{
-//					++diff;
-//				}
-//			}
-//			
-//			for( auto it : alleles[j]){
-//				unsigned int pos = it.first;
-//				auto it_i = alleles[i].find(pos);
-//				if( it_i == alleles[i].end() ){
-//					++diff;
-//				}
-//			}
-			
 			// Una forma mas rapida deberia ser usando una diferencia simetrica lineal
 			// Se sacan las posiciones replicadas a posteriori
 			vector< pair<unsigned int, char> > res;
 			std::set_symmetric_difference(alleles[i].begin(), alleles[i].end(), alleles[j].begin(), alleles[j].end(), back_inserter(res));
-//			unsigned int diff2 = 0;
 			unsigned int last = 0xffffffff;
 			for( pair<unsigned int, char> it : res ){
 				if( it.first != last ){
@@ -494,12 +540,6 @@ vector<unsigned int> Statistics::statPairwiseDifferencesMutations(vector< map<un
 					last = it.first;
 				}
 			}
-			
-//			if( diff != diff2 ){
-//				cout << "Statistics::statPairwiseDifferencesMutations - Error, " << diff << " vs " << diff2 << "\n";
-//			}
-			
-			
 			pairwise_differences.push_back(diff);
 		}
 	}
@@ -561,6 +601,48 @@ double Statistics::statTajimaD(vector<string> &alleles, double num_segregating_s
 	return res;
 }
 
+map<unsigned int, unsigned int> Statistics::statAllelesData(vector<string> &alleles){
+	map<unsigned int, unsigned int> ids;
+	
+	// Verificacion de seguridad
+	if( alleles.size() < 1 ){
+		return ids;
+	}
+	unsigned int len = alleles[0].length();
+	if( (len & 0x1) != 0 ){
+		cerr << "Statistics::statAllelesData - Error, Preliminary length is NOT even (" << len << ")\n";
+		return ids;
+	}
+	for( string allele : alleles ){
+		if( allele.length() != len ){
+			cerr << "Statistics::statAllelesData - Error, alleles of different length (" << allele.length() << " != " << len << ")\n";
+		}
+	}
+	len /= 2;
+	
+	// Asumo que el largo es igual, par y fijo
+	for( string allelle : alleles ){
+		string str1 = allelle.substr(0, len);
+		string str2 = allelle.substr(len, len);
+		unsigned int id1 = std::stoi( str1 );
+		unsigned int id2 = std::stoi( str2 );
+		ids[id1]++;
+		ids[id2]++;
+	}
+	for( auto par : ids ){
+		cout << "Statistics::statAllelesData - allele[" << par.first << "]: " << par.second<< "\n";
+	}
+	
+	return ids;
+}
+
+double Statistics::statEffectiveNumAlleles(vector<string> &alleles){
+	return 0.0;
+}
+
+double Statistics::statHeterozygosity(vector<string> &alleles){
+	return 0.0;
+}
 
 
 
