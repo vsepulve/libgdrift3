@@ -95,7 +95,7 @@ int main(int argc,char** argv){
 				for( auto it_stat : stats_marker ){
 					string stat_name = it_stat.first;
 					double value = it_stat.second;
-					cout << "Project " << project_id << " - pop " << pop_name << " - marker " << marker_pos << " - stat " << stat_name <<" -> " << value << "\n";
+					cout << "Project " << project_id << " - pop \"" << pop_name << "\" - marker " << marker_pos << " - stat " << stat_name <<" -> " << value << "\n";
 					sprintf(stat_buff + strlen(stat_buff), "%f\t", value);
 				}
 				++marker_pos;
