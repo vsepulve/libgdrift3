@@ -189,11 +189,11 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 			double num_alleles = ids.size();
 			stats["num-alleles"] = num_alleles;
 			
-			double effective_num_alleles = 0;
-			stats["effective-num-alleles"] = effective_num_alleles;
-			
-			double heterozygosity = 0;
+			double heterozygosity = statHeterozygosity(ids);
 			stats["heterozygosity"] = heterozygosity;
+			
+			double effective_num_alleles = statEffectiveNumAlleles(heterozygosity);
+			stats["effective-num-alleles"] = effective_num_alleles;
 			
 		}
 		else{
@@ -343,11 +343,11 @@ void Statistics::processStatistics(string name, Profile *external_profile, vecto
 			double num_alleles = ids.size();
 			stats["num-alleles"] = num_alleles;
 			
-			double effective_num_alleles = 0;
-			stats["effective-num-alleles"] = effective_num_alleles;
-			
-			double heterozygosity = 0;
+			double heterozygosity = statHeterozygosity(ids);
 			stats["heterozygosity"] = heterozygosity;
+			
+			double effective_num_alleles = statEffectiveNumAlleles(heterozygosity);
+			stats["effective-num-alleles"] = effective_num_alleles;
 			
 		}
 		else{
@@ -656,6 +656,7 @@ map<unsigned int, unsigned int> Statistics::statAllelesData(vector<string> &alle
 	
 	// Asumo que el largo es igual, par y fijo
 	for( string allelle : alleles ){
+//		cout << "Statistics::statAllelesData - allelle: \"" << allelle<< "\"\n";
 		string str1 = allelle.substr(0, len);
 		string str2 = allelle.substr(len, len);
 		unsigned int id1 = std::stoi( str1 );
@@ -670,12 +671,20 @@ map<unsigned int, unsigned int> Statistics::statAllelesData(vector<string> &alle
 	return ids;
 }
 
-double Statistics::statEffectiveNumAlleles(vector<string> &alleles){
-	return 0.0;
+double Statistics::statHeterozygosity(map<unsigned int, unsigned int> &allele_data){
+	double sum = 0.0;
+	unsigned int total = 0;
+	for( auto it : allele_data ){
+		total += it.second;
+	}
+	for( auto it : allele_data ){
+		sum += pow(((double)it.second)/total, 2.0);
+	}
+	return (1.0 - sum);
 }
 
-double Statistics::statHeterozygosity(vector<string> &alleles){
-	return 0.0;
+double Statistics::statEffectiveNumAlleles(double h){
+	return (1.0/(1.0-h));
 }
 
 

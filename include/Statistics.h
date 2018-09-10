@@ -100,9 +100,9 @@ public:
 	// Esta version retorna la distribucion de alelos en un mapa id -> cantidad
 	static map<unsigned int, unsigned int> statAllelesData(vector<string> &alleles);
 	
-	static double statEffectiveNumAlleles(vector<string> &alleles);
+	static double statHeterozygosity(map<unsigned int, unsigned int> &allele_data);
 	
-	static double statHeterozygosity(vector<string> &alleles);
+	static double statEffectiveNumAlleles(double h);
 	
 	
 	
