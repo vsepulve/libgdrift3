@@ -1,0 +1,95 @@
+{
+	"Id": 1,
+	"Name": "Test Project Microsatellites",
+	"Owner_id": 1,
+	"Owner": {
+		"Id": 1,
+		"Username": "user",
+		"Password": "pass",
+		"Name": "Test User"
+	},
+	"Date_created": "2018-08-28T16:36:10.165175174-03:00",
+	"Date_finished": null,
+	"Individual": {
+		"Plody": 2,
+		"N_markers": 4,
+		"Markers": [
+			{
+				"Type": 2,
+				"Size": 0,
+				"Pool_size": 1,
+				"Mutation_model": 1,
+				"Rate": {
+					"distribution": {
+						"params": {
+							"a": "0.000001",
+							"b": "0.0001"
+						},
+						"type": "uniform"
+					},
+					"type": "random"
+				}
+			},
+			{
+				"Type": 2,
+				"Size": 0,
+				"Pool_size": 1,
+				"Mutation_model": 1,
+				"Rate": {
+					"distribution": {
+						"params": {
+							"a": "0.000001",
+							"b": "0.0001"
+						},
+						"type": "uniform"
+					},
+					"type": "random"
+				}
+			},
+			{
+				"Type": 2,
+				"Size": 0,
+				"Pool_size": 1,
+				"Mutation_model": 1,
+				"Rate": {
+					"distribution": {
+						"params": {
+							"a": "0.000001",
+							"b": "0.0001"
+						},
+						"type": "uniform"
+					},
+					"type": "random"
+				}
+			},
+			{
+				"Type": 2,
+				"Size": 0,
+				"Pool_size": 1,
+				"Mutation_model": 1,
+				"Rate": {
+					"distribution": {
+						"params": {
+							"a": "0.000001",
+							"b": "0.0001"
+						},
+						"type": "uniform"
+					},
+					"type": "random"
+				}
+			}
+		]
+	},
+	"N_populations": 1,
+	"Populations": [
+		{
+			"Name": "p1",
+			"Sample_path": [
+				"/home/vsepulve/go/src/github.com/vsepulve/gdrift-backend/data/ms_01.genepop",
+				"/home/vsepulve/go/src/github.com/vsepulve/gdrift-backend/data/ms_01.genepop",
+				"/home/vsepulve/go/src/github.com/vsepulve/gdrift-backend/data/ms_01.genepop",
+				"/home/vsepulve/go/src/github.com/vsepulve/gdrift-backend/data/ms_01.genepop"
+			]
+		}
+	]
+}
