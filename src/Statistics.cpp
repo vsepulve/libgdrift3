@@ -88,40 +88,21 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 		
 		// Lo que sigue depende del tipo de marcador
 		
-		// cout << "Statistics::processStatistics - Preparing String Vector\n";
-		vector<string> alleles;
-		vector< map<unsigned int, char> > alleles_mutations;
-		set<unsigned int> added_alleles;
-		for(unsigned int ind = 0; ind < n_inds; ++ind){
-			unsigned int pos_ind = inds_usados[ind];
+		if( marker.getType() == MARKER_SEQUENCE ){
+		
+			vector<string> alleles;
+			vector< map<unsigned int, char> > alleles_mutations;
 			if( profile->getPloidy() == 1 ){
-				unsigned int id_allele = pop->get(pos_ind).getAllele(pos_marker);
-				alleles.push_back( getAllele(pos_marker, id_allele, marker) );
-				alleles_mutations.push_back( alleles_mutations_tables[pos_marker][id_allele] );
-			}
-			else if( profile->getPloidy() == 2 ){
-				cout << "Statistics::processStatistics - getPloidy == 2\n";
-				if( marker.getType() == MARKER_MS ){
-					cout << "Statistics::processStatistics - MS\n";
-					unsigned int id1 = pop->get(pos_ind).getAllele(pos_marker, 0);
-					unsigned int id2 = pop->get(pos_ind).getAllele(pos_marker, 1);
-					cout << "Statistics::processStatistics - id1: " << id1 <<", id2: " << id2 << "\n";
-					string str1 = getAllele(pos_marker, id1, marker);
-					string str2 = getAllele(pos_marker, id2, marker);
-					cout << "Statistics::processStatistics - str1: " << str1 <<", str2: " << str2 << "\n";
-					alleles.push_back( str1 + str2 );
-				}
-				else{
-					cerr << "Statistics::processStatistics - Error, Marker " << marker.getType() << " not supported for this ploidy (" << profile->getPloidy() << ")\n";
+				for(unsigned int ind = 0; ind < n_inds; ++ind){
+					unsigned int pos_ind = inds_usados[ind];
+					unsigned int id_allele = pop->get(pos_ind).getAllele(pos_marker);
+					alleles.push_back( getAllele(pos_marker, id_allele, marker) );
+					alleles_mutations.push_back( alleles_mutations_tables[pos_marker][id_allele] );
 				}
 			}
 			else{
 				cerr << "Statistics::processStatistics - Error, Ploidy not supported (" << profile->getPloidy() << ")\n";
 			}
-			
-		}
-		
-		if( marker.getType() == MARKER_SEQUENCE ){
 			
 			NanoTimer timer;
 			double num_haplotypes = statNumHaplotypes(alleles);
@@ -144,6 +125,63 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 			stats["tajima-d"] = tajima_d;
 		}
 		else if( marker.getType() == MARKER_MS ){
+			
+			cout << "Statistics::processStatistics - Preparando Data de microsatellites...\n";
+			
+			vector<string> alleles;
+			if( profile->getPloidy() == 2 ){
+				unsigned int min_id = 0xffffffff;
+				unsigned int max_id = 0;
+				unsigned int pos_ind = 0;
+				unsigned int id_allele = 0;
+				// Primero busco min y max para determinar limites al string
+				for(unsigned int ind = 0; ind < n_inds; ++ind){
+					pos_ind = inds_usados[ind];
+					id_allele = pop->get(pos_ind).getAllele(pos_marker, 0);
+					if( id_allele < min_id ){
+						min_id = id_allele;
+					}
+					if( id_allele > max_id ){
+						max_id = id_allele;
+					}
+					id_allele = pop->get(pos_ind).getAllele(pos_marker, 1);
+					if( id_allele < min_id ){
+						min_id = id_allele;
+					}
+					if( id_allele > max_id ){
+						max_id = id_allele;
+					}
+				}
+				string str_base = std::to_string( 1 + max_id - min_id );
+				unsigned int str_len = str_base.length();
+				if( str_len < 3 ){
+					str_len = 3;
+				}
+				cout << "Statistics::processStatistics - min_id: " << min_id << ", max_id: " << max_id << ", str_base: \"" << str_base << "\", str_len: " << str_len << "\n";
+				for(unsigned int ind = 0; ind < n_inds; ++ind){
+					pos_ind = inds_usados[ind];
+					id_allele = pop->get(pos_ind).getAllele(pos_marker, 0);
+					string str_part = std::to_string( 1 + id_allele - min_id );
+					while( str_part.length() < str_len ){
+						str_part = "0" + str_part;
+					}
+					string str_allele = str_part;
+					id_allele = pop->get(pos_ind).getAllele(pos_marker, 1);
+					str_part = std::to_string( 1 + id_allele - min_id );
+					while( str_part.length() < str_len ){
+						str_part = "0" + str_part;
+					}
+					str_allele += str_part;
+//					cout << "Statistics::processStatistics - str_allele: \"" << str_allele << "\"\n";
+					alleles.push_back(str_allele);
+				}
+				
+				
+			}
+			else{
+				cerr << "Statistics::processStatistics - Error, Ploidy not supported (" << profile->getPloidy() << ")\n";
+			}
+			
 			cout << "Statistics::processStatistics - Preparando statistics de microsatellites...\n";
 			
 			map<unsigned int, unsigned int> ids = statAllelesData(alleles);
@@ -226,20 +264,16 @@ void Statistics::processStatistics(string filename, string name, Profile *extern
 		}
 		
 		string line(buff);
+		replace(line.begin(), line.end(), ',', ' ');
+		replace(line.begin(), line.end(), ';', ' ');
 //		cout << "Statistics::processStatistics - line: " << line << "\n";
-		if( line.find(',') == string::npos ){
-			cout << "Statistics::processStatistics - Marcador no encontrado\n";
-			break;
-		}
 		
-//		cout << "Statistics::processStatistics - Preparando stringstream\n";
 		stringstream toks(line);
 		string id = "";
 		string separator = "";
 		string data = "";
 		
 		toks >> id;
-		toks >> separator;
 //		cout << "Statistics::processStatistics - id: \"" << id << "\"\n";
 		for( unsigned int i = 0; i < n_markers; ++i ){
 			toks >> data;
