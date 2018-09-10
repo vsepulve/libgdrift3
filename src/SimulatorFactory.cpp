@@ -311,7 +311,18 @@ void SimulatorFactory::loadScenario(){
 	// Notar que este 5 depende de los estadisticos
 	// Agrego la poblacion de summay
 	++n_populations;
-	n_stats = 5 * n_populations;
+	Profile profile(project_json["Individual"]);
+	
+	n_stats = 0;
+	for( unsigned int i = 0; i < profile.getNumMarkers(); ++i ){
+		if( profile.getMarker(i).getType() == MARKER_SEQUENCE ){
+			n_stats += 5 * n_populations;
+		}
+		else if( profile.getMarker(i).getType() == MARKER_MS ){
+			n_stats += 3 * n_populations;
+		}
+	}
+	
 	n_params = param_names.size();
 	
 	cout <<  "SimulatorFactory::loadScenario - n_populations: " << n_populations << ", n_stats: " << n_stats << ", n_params: " << n_params << "\n";
