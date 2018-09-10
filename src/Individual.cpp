@@ -26,7 +26,8 @@ void Individual::setParent(Individual &parent){
 	// Model se encarga de la mutacion cuando sea necesario
 	alleles.resize(parent.getNumMarkers());
 	for(unsigned int i = 0; i < alleles.size(); ++i){
-		alleles[i].first = parent.getAllele(i);
+		alleles[i].first = parent.getAllele(i, 0);
+		alleles[i].second = parent.getAllele(i, 1);
 	}
 }
 
@@ -35,8 +36,8 @@ void Individual::setParent(Individual &parent_1, Individual &parent_2){
 	// Model se encarga de la mutacion cuando sea necesario
 	alleles.resize(parent_1.getNumMarkers());
 	for(unsigned int i = 0; i < alleles.size(); ++i){
-		alleles[i].first = parent_1.getAllele(i);
-		alleles[i].second = parent_2.getAllele(i);
+		alleles[i].first = parent_1.getAllele(i, 0);
+		alleles[i].second = parent_2.getAllele(i, 1);
 	}
 }
 	
