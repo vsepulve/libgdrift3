@@ -33,11 +33,22 @@ Population::Population(unsigned int _n_inds, Profile *_profile, Pool *_pool, mt1
 	for(unsigned int i = 0; i < inds.size(); ++i){
 		inds[i].prepare(profile);
 		for(unsigned int marker = 0; marker < profile->getNumMarkers(); ++marker){
-			// escogo al azar un alelo para este marcador
-			unsigned int pos = alleles_dist[marker](generator);
-//			inds[i].setAllele(marker, pool->getAllele(marker, pos));
-			// Notar que ahora los alelos son posicionales (si id es su posicion)
-			inds[i].setAllele(marker, pos);
+			if( profile->getMarker(marker).getType() == MARKER_SEQUENCE ){
+				// escogo al azar un alelo para este marcador (su id es la posicion)
+				for( unsigned int p_pos = 0; p_pos < profile->getPloidy(); ++p_pos ){
+					unsigned int pos = alleles_dist[marker](generator);
+					inds[i].setAllele(marker, p_pos, pos);
+				}
+			}
+			else if( profile->getMarker(marker).getType() == MARKER_MS ){
+				// Valor inicial de repeats arbitrario pero grande
+				for( unsigned int p_pos = 0; p_pos < profile->getPloidy(); ++p_pos ){
+					inds[i].setAllele(marker, p_pos, 1000000);
+				}
+			}
+			else{
+				cerr << "Population - Genetic Marker not implemented.\n";
+			}
 		}
 	}
 //	cout << "Population - End\n";
