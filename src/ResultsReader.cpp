@@ -30,7 +30,7 @@ void ResultsReader::readThreadsData(string &output_base, unsigned int _n_threads
 	double value = 0;
 	
 	// Cargar todos los resultados de este feedback
-	cout << "ResultsReader::readThreadsData - Leyendo resultados\n";
+	cout << "ResultsReader::readThreadsData - Leyendo resultados (n_threads: " << n_threads << ", n_stats: " << n_stats << ", n_params: " << n_params << ")\n";
 	for(unsigned int pid = 0; pid < n_threads; ++pid){
 		string file_name = output_base;
 		file_name += std::to_string(pid);
@@ -163,11 +163,17 @@ void ResultsReader::normalize(){
 	
 	cout << "ResultsReader::normalize - Normalizando target y stats de resultados\n";
 	for(unsigned int i = 0; i < target.size(); ++i){
-		target[i] = ( target[i] - min_stats[i] )/(max_stats[i] - min_stats[i]);
+		target[i] = (target[i] - min_stats[i]);
+		if( max_stats[i] != min_stats[i] ){
+			target[i] /= (max_stats[i] - min_stats[i]);
+		}
 	}
 	for( vector<double> &res_stats : stats_norm ){
 		for(unsigned int i = 0; i < res_stats.size(); ++i){
-			res_stats[i] = ( res_stats[i] - min_stats[i] )/(max_stats[i] - min_stats[i]);
+			res_stats[i] = (res_stats[i] - min_stats[i]);
+			if( max_stats[i] != min_stats[i] ){
+				res_stats[i] /= (max_stats[i] - min_stats[i]);
+			}
 		}
 	}
 	
