@@ -131,31 +131,42 @@ unsigned int ModelWF::processMSGenes(unsigned int marker_pos, ProfileMarker &mar
 	// Lo que sigue puede cambiar si se agregan parametros adicionales
 	assert(marker.getNumParam() == 1);
 	
-	uniform_int_distribution<> individuals_dist(0, dst.size() - 1);
-	
 	unsigned int mutations = 0;
-
 	double rate = marker.getParam(0);
 	
 	// Notar que considero population_size x plody (es decir, que cada alelo recibido puede haber mutado por separado)
 	binomial_distribution<unsigned long long> binomial_dist(dst.size() * ploidy, rate);
 	unsigned int total_muts = static_cast<unsigned int>(binomial_dist(generator));
 	
+	uniform_int_distribution<> individuals_dist(0, dst.size() - 1);
 	uniform_int_distribution<> ploidy_dist(0, ploidy - 1);
+	uniform_int_distribution<> sum_dist(0, 1);
+	geometric_distribution<> repeats_dist(0.5);
 	
 //	cout << "ModelWF::processMSGenes - total_muts: " << total_muts << " (" << dst.size() << ", " << rate << ")\n";
 	for(unsigned int mut = 0; mut < total_muts; ++mut){
 		// Escoger individuo para mutar
 		unsigned int individual_pos = individuals_dist(generator);
 		unsigned int ploidy_pos = ploidy_dist(generator);
-//		cout<<"ModelWF::processMSGenes - mut_pos: " << individual_pos << " de " << dst.size() << ", ploidy_pos: " << ploidy_pos << "\n";
+		bool sum = (sum_dist(generator) == 1);
+		unsigned int mod_repeats = 1 + repeats_dist(generator);
+//		cout<<"ModelWF::processMSGenes - mut_pos: " << individual_pos << " / " << dst.size() << ", ploidy_pos: " << ploidy_pos << ", sum: " << sum << ", mod_repeats: " << mod_repeats << "\n";
 		
-		// TODO: Lo que sigue tiene que soportar ploidy si afecta
 		// Crear nuevo alelo del marcador marker_pos del individuo individual_pos
-		unsigned int new_allele = pool->getNewAllele(marker_pos, dst[individual_pos].getAllele(marker_pos, ploidy_pos));
+		unsigned int new_allele = dst[individual_pos].getAllele(marker_pos, ploidy_pos);
+//		cout<<"ModelWF::processMSGenes - old_allele: " << new_allele << "\n";
+		if( sum ){
+			new_allele += mod_repeats;
+		}
+		else if( new_allele > mod_repeats ){
+			new_allele -= mod_repeats;
+		}
+		else{
+			new_allele = 1;
+		}
+//		cout<<"ModelWF::processMSGenes - new_allele: " << new_allele << "\n";
 		dst[individual_pos].setAllele(marker_pos, ploidy_pos, new_allele);
 		++mutations;
-
 	}
 	
 //	cout << "ModelWF::processMSGenes - Fin\n";
