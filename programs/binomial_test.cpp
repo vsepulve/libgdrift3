@@ -29,8 +29,8 @@ int main(int argc,char** argv) {
 	
 	cout << "BinomialTest - Inicio\n";
 	
-	unsigned int n_inds = 100;
-	unsigned int n_gens = 40;
+	unsigned int n_inds = 10000;
+	unsigned int n_gens = 1000;
 	float mut_rate = 0.000001;
 	unsigned int bin_trials = 2;
 	
@@ -119,9 +119,19 @@ int main(int argc,char** argv) {
 	cout << "BinomialTest - Passed Directo (total_muts: " << total_muts << ")\n";
 	for(auto par : passed){
 		cout << par.first << " -> ";
+		double mean = 0.0;
 		for( unsigned int n : par.second ){
-			cout << n << " ";
+			mean += n;
+//			cout << n << " ";
 		}
+		mean /= par.second.size();
+		double var = 0.0;
+		for( unsigned int n : par.second ){
+			double nd = n;
+			var += (nd-mean) * (nd-mean);
+		}
+		var /= par.second.size();
+		cout << "mean: " << mean << ", var: " << var << " ";
 		cout << "\n";
 	}
 	
@@ -148,14 +158,14 @@ int main(int argc,char** argv) {
 			double frec = allele.second;
 			frec /= old_pop_size;
 			binomial_distribution<> inds_dist(old_pop_size, frec);
-//			alleles_new[allele.first] = inds_dist(generator);
+			alleles_new[allele.first] = inds_dist(generator);
 
-			double bin_continuos = 0.0;
-			for(unsigned int j = 0; j < bin_trials; ++j){
-				bin_continuos += inds_dist(generator);
-			}
-			bin_continuos /= bin_trials;
-			alleles_new[allele.first] = static_cast<unsigned int>(round(bin_continuos));
+//			double bin_continuos = 0.0;
+//			for(unsigned int j = 0; j < bin_trials; ++j){
+//				bin_continuos += inds_dist(generator);
+//			}
+//			bin_continuos /= bin_trials;
+//			alleles_new[allele.first] = static_cast<unsigned int>(round(bin_continuos));
 			
 			new_pop_size += alleles_new[allele.first];
 //			cout << "bin_continuos[" << allele.second << "] -> " << bin_continuos << " (" << alleles_new[allele.first] << ")\n";
@@ -226,9 +236,19 @@ int main(int argc,char** argv) {
 	cout << "BinomialTest - Passed Binomial (total_muts: " << total_muts << ")\n";
 	for(auto par : passed_bin){
 		cout << par.first << " -> ";
+		double mean = 0.0;
 		for( unsigned int n : par.second ){
-			cout << n << " ";
+			mean += n;
+//			cout << n << " ";
 		}
+		mean /= par.second.size();
+		double var = 0.0;
+		for( unsigned int n : par.second ){
+			double nd = n;
+			var += (nd-mean) * (nd-mean);
+		}
+		var /= par.second.size();
+		cout << "mean: " << mean << ", var: " << var << " ";
 		cout << "\n";
 	}
 	
