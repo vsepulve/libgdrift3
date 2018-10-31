@@ -1,0 +1,185 @@
+{
+	"Name": "Test Project Microsatellites",
+	"Owner_id": 1,
+	"Individual": {
+		"Plody": 2,
+		"N_markers": 9,
+		"Markers": [
+			{
+				"Type": 2,
+				"Size": 0,
+				"Pool_size": 1,
+				"Mutation_model": 1,
+				"Rate": {
+					"distribution": {
+						"params": {
+							"a": "0.0000001",
+							"b": "0.0001"
+						},
+						"type": "uniform"
+					},
+					"type": "random"
+				}
+			},
+			{
+				"Type": 2,
+				"Size": 0,
+				"Pool_size": 1,
+				"Mutation_model": 1,
+				"Rate": {
+					"distribution": {
+						"params": {
+							"a": "0.0000001",
+							"b": "0.0001"
+						},
+						"type": "uniform"
+					},
+					"type": "random"
+				}
+			},
+			{
+				"Type": 2,
+				"Size": 0,
+				"Pool_size": 1,
+				"Mutation_model": 1,
+				"Rate": {
+					"distribution": {
+						"params": {
+							"a": "0.0000001",
+							"b": "0.0001"
+						},
+						"type": "uniform"
+					},
+					"type": "random"
+				}
+			},
+			{
+				"Type": 2,
+				"Size": 0,
+				"Pool_size": 1,
+				"Mutation_model": 1,
+				"Rate": {
+					"distribution": {
+						"params": {
+							"a": "0.0000001",
+							"b": "0.0001"
+						},
+						"type": "uniform"
+					},
+					"type": "random"
+				}
+			},
+			{
+				"Type": 2,
+				"Size": 0,
+				"Pool_size": 1,
+				"Mutation_model": 1,
+				"Rate": {
+					"distribution": {
+						"params": {
+							"a": "0.0000001",
+							"b": "0.0001"
+						},
+						"type": "uniform"
+					},
+					"type": "random"
+				}
+			},
+			{
+				"Type": 2,
+				"Size": 0,
+				"Pool_size": 1,
+				"Mutation_model": 1,
+				"Rate": {
+					"distribution": {
+						"params": {
+							"a": "0.0000001",
+							"b": "0.0001"
+						},
+						"type": "uniform"
+					},
+					"type": "random"
+				}
+			},
+			{
+				"Type": 2,
+				"Size": 0,
+				"Pool_size": 1,
+				"Mutation_model": 1,
+				"Rate": {
+					"distribution": {
+						"params": {
+							"a": "0.0000001",
+							"b": "0.0001"
+						},
+						"type": "uniform"
+					},
+					"type": "random"
+				}
+			},
+			{
+				"Type": 2,
+				"Size": 0,
+				"Pool_size": 1,
+				"Mutation_model": 1,
+				"Rate": {
+					"distribution": {
+						"params": {
+							"a": "0.0000001",
+							"b": "0.0001"
+						},
+						"type": "uniform"
+					},
+					"type": "random"
+				}
+			},
+			{
+				"Type": 2,
+				"Size": 0,
+				"Pool_size": 1,
+				"Mutation_model": 1,
+				"Rate": {
+					"distribution": {
+						"params": {
+							"a": "0.0000001",
+							"b": "0.0001"
+						},
+						"type": "uniform"
+					},
+					"type": "random"
+				}
+			}
+		]
+	},
+	"N_populations": 2,
+	"Populations": [
+		{
+			"Name": "p1",
+			"Sample_path": [
+				"/home/vsepulve/go/src/github.com/vsepulve/gdrift-backend/data/ms_scenA_01.genepop",
+				"/home/vsepulve/go/src/github.com/vsepulve/gdrift-backend/data/ms_scenA_01.genepop",
+				"/home/vsepulve/go/src/github.com/vsepulve/gdrift-backend/data/ms_scenA_01.genepop",
+				"/home/vsepulve/go/src/github.com/vsepulve/gdrift-backend/data/ms_scenA_01.genepop",
+				"/home/vsepulve/go/src/github.com/vsepulve/gdrift-backend/data/ms_scenA_01.genepop",
+				"/home/vsepulve/go/src/github.com/vsepulve/gdrift-backend/data/ms_scenA_01.genepop",
+				"/home/vsepulve/go/src/github.com/vsepulve/gdrift-backend/data/ms_scenA_01.genepop",
+				"/home/vsepulve/go/src/github.com/vsepulve/gdrift-backend/data/ms_scenA_01.genepop",
+				"/home/vsepulve/go/src/github.com/vsepulve/gdrift-backend/data/ms_scenA_01.genepop"
+			]
+		},
+		{
+			"Name": "p2",
+			"Sample_path": [
+				"/home/vsepulve/go/src/github.com/vsepulve/gdrift-backend/data/ms_scenA_02.genepop",
+				"/home/vsepulve/go/src/github.com/vsepulve/gdrift-backend/data/ms_scenA_02.genepop",
+				"/home/vsepulve/go/src/github.com/vsepulve/gdrift-backend/data/ms_scenA_02.genepop",
+				"/home/vsepulve/go/src/github.com/vsepulve/gdrift-backend/data/ms_scenA_02.genepop",
+				"/home/vsepulve/go/src/github.com/vsepulve/gdrift-backend/data/ms_scenA_02.genepop",
+				"/home/vsepulve/go/src/github.com/vsepulve/gdrift-backend/data/ms_scenA_02.genepop",
+				"/home/vsepulve/go/src/github.com/vsepulve/gdrift-backend/data/ms_scenA_02.genepop",
+				"/home/vsepulve/go/src/github.com/vsepulve/gdrift-backend/data/ms_scenA_02.genepop",
+				"/home/vsepulve/go/src/github.com/vsepulve/gdrift-backend/data/ms_scenA_02.genepop"
+			]
+		}
+	]
+}
