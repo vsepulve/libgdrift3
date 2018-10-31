@@ -32,19 +32,19 @@ Statistics::Statistics(Simulator *sim, float sampling)
 	
 	vector<string> pop_names = sim->getPopulationNames();
 	
-//	cout << "Statistics - Processing " << pop_names.size() << " populations\n";
+	cout << "Statistics - Processing " << pop_names.size() << " populations\n";
 	for(string name : pop_names){
-//		cout << "Statistics - Population " << name << "\n";
+		cout << "Statistics - Population " << name << "\n";
 		Population *pop = sim->getPopulation(name);
 		processStatistics(pop, name, sampling);
 		
-//		cout << "Statistics - Adding individuals to summary\n";
+		cout << "Statistics - Adding individuals to summary\n";
 		for(unsigned int i = 0; i < pop->size(); ++i){
 			summary.add( pop->get(i) );
 		}
 	}
 	
-//	cout << "Statistics - Processing the combined population\n";
+	cout << "Statistics - Processing the combined population\n";
 	processStatistics(&summary, "summary", sampling);
 	
 //	cout << "Statistics - End\n";
@@ -57,7 +57,7 @@ Statistics::~Statistics(){
 // Procesa todos los estadisticos y los agrega a statistics[name][stat]
 void Statistics::processStatistics(Population *pop, string name, float sampling){
 	
-//	cout << "Statistics::processStatistics - Start (population " << name << ", size " << pop->size() << ", sampling " << sampling << ")\n";
+	cout << "Statistics::processStatistics - Start (population " << name << ", size " << pop->size() << ", sampling " << sampling << ")\n";
 	
 	unsigned int n_inds = pop->size() * sampling;
 	if(n_inds < min_sampling){
@@ -69,7 +69,7 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 	
 	// Necesito un shuffle de la poblacion
 	// Para simularlo, puedo desordenar las posiciones
-//	cout << "Statistics::processStatistics - Preparing selected individuals (n_inds: " << n_inds << ")\n";
+	cout << "Statistics::processStatistics - Preparing selected individuals (n_inds: " << n_inds << ")\n";
 	vector<unsigned int> inds_usados;
 	for(unsigned int i = 0; i < pop->size(); ++i){
 		inds_usados.push_back(i);
@@ -81,7 +81,7 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 	// Para cada marcador, calcular SU mapa de estadisticos y agregarlo
 	
 	vector<map<string, double>> stats_vector;
-//	cout << "Statistics::processStatistics - Processing " << profile->getNumMarkers() << " markers\n";
+	cout << "Statistics::processStatistics - Processing " << profile->getNumMarkers() << " markers\n";
 	for(unsigned int pos_marker = 0; pos_marker < profile->getNumMarkers(); ++pos_marker){
 		map<string, double> stats;
 		ProfileMarker marker = profile->getMarker(pos_marker);
@@ -204,6 +204,8 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 		stats_vector.push_back(stats);
 	}
 	statistics[name] = stats_vector;
+	
+	cout << "Statistics::processStatistics - End (statistics[" << name << "]: " << stats_vector.size() << " stats)\n"; 
 	
 }
 
@@ -642,21 +644,16 @@ map<unsigned int, unsigned int> Statistics::statAllelesData(vector<string> &alle
 	if( alleles.size() < 1 ){
 		return ids;
 	}
-	unsigned int len = alleles[0].length();
-	if( (len & 0x1) != 0 ){
-		cerr << "Statistics::statAllelesData - Error, Preliminary length is NOT even (" << len << ")\n";
-		return ids;
-	}
-	for( string allele : alleles ){
-		if( allele.length() != len ){
-			cerr << "Statistics::statAllelesData - Error, alleles of different length (" << allele.length() << " != " << len << ")\n";
-		}
-	}
-	len /= 2;
 	
 	// Asumo que el largo es igual, par y fijo
 	for( string allelle : alleles ){
-//		cout << "Statistics::statAllelesData - allelle: \"" << allelle<< "\"\n";
+//		cout << "Statistics::statAllelesData - allelle: \"" << allelle << "\"\n";
+		unsigned int len = allelle.length();
+		if( (len & 0x1) != 0 ){
+			cerr << "Statistics::statAllelesData - Error,length is NOT even (" << len << ")\n";
+			continue;
+		}
+		len /= 2;
 		string str1 = allelle.substr(0, len);
 		string str2 = allelle.substr(len, len);
 		unsigned int id1 = std::stoi( str1 );
@@ -664,9 +661,9 @@ map<unsigned int, unsigned int> Statistics::statAllelesData(vector<string> &alle
 		ids[id1]++;
 		ids[id2]++;
 	}
-	for( auto par : ids ){
-		cout << "Statistics::statAllelesData - allele[" << par.first << "]: " << par.second<< "\n";
-	}
+//	for( auto par : ids ){
+//		cout << "Statistics::statAllelesData - allele[" << par.first << "]: " << par.second<< "\n";
+//	}
 	
 	return ids;
 }

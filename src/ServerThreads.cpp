@@ -5,18 +5,19 @@
 vector<double> get_statistics(Simulator *sim, float sampling){
 	vector<double> res;
 	Statistics stats(sim, sampling);
+//	cout << "get_statistics - Preparing Statistics\n";
 	map<string, vector< map<string, double> > > statistics = stats.getStatistics();
 	// Agrupo los estadisticos en el mismo orden, population_name primero, n marcadores, y stat name al final
 	for( auto &par : statistics ){
-//		cout<<"get_statistics - Stats Population \""<< par.first <<"\"\n";
+//		cout << "get_statistics - Stats Population \"" << par.first << "\"\n";
 //		unsigned int marker_pos = 0;
 		for( map<string, double> &marker_stats : par.second ){
-//			cout<<"get_statistics - [ Marker "<<marker_pos++<<" ]\n";
+//			cout << "get_statistics - [ Marker " << marker_pos++ << " ]\n";
 			for( auto &stat : marker_stats ){
 //				cout<<"Test - " << stat.first << ": "<< stat.second <<"\n";
 				res.push_back(stat.second);
 			}
-//			cout<<"-----\n";
+//			cout << "-----\n";
 		}
 	}
 	return res;
@@ -298,7 +299,7 @@ void thread_start_sim(int sock_cliente, string json_sim_base, string json_projec
 	unsigned int size = 0;
 	unsigned int project_id = 0;
 	unsigned int sim_id = 0;
-	unsigned int n_sims = 10;
+	unsigned int n_sims = 10000;
 	
 	// Empiezo recibiendo project_id
 	if( ! error && ! conexion.readUInt(project_id) ){
