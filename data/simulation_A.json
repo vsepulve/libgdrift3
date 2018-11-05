@@ -1,5 +1,5 @@
 {
-	"Project_id": 94,
+	"Project_id": 100,
 	"Model": 1,
 	"Events": [
 		{
@@ -43,6 +43,16 @@
 					"population": {
 						"name": "p0"
 					}
+				},
+				"percentage": {
+					"distribution": {
+						"params": {
+							"a": "0.1",
+							"b": "0.9"
+						},
+						"type": "uniform"
+					},
+					"type": "random"
 				},
 				"partitions": "2",
 				"destination": [{
