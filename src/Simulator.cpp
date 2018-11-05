@@ -239,6 +239,9 @@ void Simulator::executeEvent(Event *event){
 		unsigned int size = populations[src]->size();
 		size1 = static_cast<unsigned int>(percentage * size);
 		size2 = size - size1;
+		
+		// DEBUG
+//		cout << "Simulator::executeEvent - SPLIT sizes: " << size1 << " | " << size2 << " (por percentage: " << percentage << ").\n";
 			
 		if( populations.find(dst1) != populations.end() ){
 			cerr << "Simulator::executeEvent - SPLIT Warning, already used population name ("<<dst1<<").\n";
