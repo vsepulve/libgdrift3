@@ -84,8 +84,8 @@ EventList *SimulatorFactory::parseEventsOld(json &scen){
 			event->addTextParam( dst1 );
 			event->addTextParam( dst2 );
 			// Lo que sigue deberia ser desde el json (pero no es claro si de source o por destination)
-			double percentage = 0.5;
-//			double percentage = utils.parseValue(json_params["source"]["population"]["percentage"], true, 0, 1.0);
+			double percentage = utils.parseValue(json_params["percentage"], true, 0, 1.0);
+//			double percentage = 0.5;
 			event->addNumParam( percentage );
 		}
 		else if( type.compare("migration") == 0 ){
@@ -411,7 +411,7 @@ void SimulatorFactory::reloadParameters(vector<pair<double, double>> &values){
 //				cout << "SimulatorFactory::reloadParameters - Omitiendo split (dist " << values[next_param].first << ", " << values[next_param].second << ")\n";
 //				++next_param;
 //			}
-			json &this_param = json_params["source"]["population"]["percentage"];
+			json &this_param = json_params["percentage"];
 			cout <<  "SimulatorFactory::reloadParameters - Reemplazando " << param_names[next_param] << " -> (" << values[next_param].first << ", " << values[next_param].second << ")\n";
 			if( replaceDistribution(this_param, values[next_param]) ){
 				++next_param;
