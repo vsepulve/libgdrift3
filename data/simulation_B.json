@@ -1,0 +1,208 @@
+{
+	"Project_id": 42,
+	"Model": 1,
+	"Events": [
+		{
+			"id": "0",
+			"type": "create",
+			"timestamp": {
+				"type": "fixed",
+				"value": "0"
+			},
+			"params": {
+				"population": {
+					"name": "p0",
+					"size": {
+						"distribution": {
+							"params": {
+								"a": "5000",
+								"b": "15000"
+							},
+							"type": "uniform"
+						},
+						"type": "random"
+					}
+				}
+			}
+		}, 
+		{
+			"id": "1",
+			"type": "split",
+			"timestamp": {
+				"distribution": {
+					"params": {
+						"a": "100",
+						"b": "500"
+					},
+					"type": "uniform"
+				},
+				"type": "random"
+			},
+			"params": {
+				"source": {
+					"population": {
+						"name": "p0"
+					}
+				},
+				"percentage": {
+					"distribution": {
+						"params": {
+							"a": "0.1",
+							"b": "0.9"
+						},
+						"type": "uniform"
+					},
+					"type": "random"
+				},
+				"partitions": "2",
+				"destination": [
+					{
+					"population": {
+						"name": "p1"
+						}
+					}, {
+					"population": {
+						"name": "p2"
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "2",
+			"type": "split",
+			"timestamp": {
+				"distribution": {
+					"params": {
+						"a": "500",
+						"b": "1000"
+					},
+					"type": "uniform"
+				},
+				"type": "random"
+			},
+			"params": {
+				"source": {
+					"population": {
+						"name": "p1"
+					}
+				},
+				"percentage": {
+					"distribution": {
+						"params": {
+							"a": "0.1",
+							"b": "0.9"
+						},
+						"type": "uniform"
+					},
+					"type": "random"
+				},
+				"partitions": "2",
+				"destination": [
+					{
+					"population": {
+						"name": "p11"
+						}
+					}, {
+					"population": {
+						"name": "p12"
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "3",
+			"type": "split",
+			"timestamp": {
+				"distribution": {
+					"params": {
+						"a": "500",
+						"b": "1000"
+					},
+					"type": "uniform"
+				},
+				"type": "random"
+			},
+			"params": {
+				"source": {
+					"population": {
+						"name": "p2"
+					}
+				},
+				"percentage": {
+					"distribution": {
+						"params": {
+							"a": "0.1",
+							"b": "0.9"
+						},
+						"type": "uniform"
+					},
+					"type": "random"
+				},
+				"partitions": "2",
+				"destination": [
+					{
+					"population": {
+						"name": "p21"
+						}
+					}, {
+					"population": {
+						"name": "p22"
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "4",
+			"type": "endsim",
+			"timestamp": {
+				"distribution": {
+					"params": {
+						"a": "10000",
+						"b": "15000"
+					},
+					"type": "uniform"
+				},
+				"type": "random"
+			},
+			"params": {
+				"sampling": [
+					{
+						"name": "p11",
+						"source": {
+							"population": {
+								"name": "p11"
+							}
+						}
+					},
+					{
+						"name": "p12",
+						"source": {
+							"population": {
+								"name": "p12"
+							}
+						}
+					},
+					{
+						"name": "p21",
+						"source": {
+							"population": {
+								"name": "p21"
+							}
+						}
+					},
+					{
+						"name": "p22",
+						"source": {
+							"population": {
+								"name": "p22"
+							}
+						}
+					}
+				]
+			}
+		}
+	]
+}
