@@ -28,6 +28,7 @@ add_executable(generate_statistics "${CMAKE_SOURCE_DIR}/programs/generate_statis
 #add_executable(distributions_comparison "${CMAKE_SOURCE_DIR}/programs/distributions_comparison.cpp")
 add_executable(server "${CMAKE_SOURCE_DIR}/programs/server.cpp")
 add_executable(binomial_test "${CMAKE_SOURCE_DIR}/programs/binomial_test.cpp")
+add_executable(statistics_ms "${CMAKE_SOURCE_DIR}/programs/statistics_ms.cpp")
 
 add_library(libgdrift3 SHARED ${SOURCES})
 link_directories(${CMAKE_BINARY_DIR})
@@ -40,6 +41,7 @@ target_link_libraries(full_test libgdrift3 pthread)
 target_link_libraries(generate_statistics libgdrift3)
 target_link_libraries(server libgdrift3 pthread)
 target_link_libraries(binomial_test libgdrift3 pthread)
+target_link_libraries(statistics_ms libgdrift3 pthread)
 
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set (CMAKE_INSTALL_PREFIX "/usr/" CACHE PATH "default install path" FORCE )
