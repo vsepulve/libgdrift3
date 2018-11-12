@@ -299,7 +299,7 @@ void thread_start_sim(int sock_cliente, string json_sim_base, string json_projec
 	unsigned int size = 0;
 	unsigned int project_id = 0;
 	unsigned int sim_id = 0;
-	unsigned int n_sims = 10000;
+	unsigned int n_sims = 20000;
 	
 	// Empiezo recibiendo project_id
 	if( ! error && ! conexion.readUInt(project_id) ){
