@@ -11,6 +11,10 @@ ResultsReader::ResultsReader(){
 	n_stats = 0;
 	n_params = 0;
 	
+	min_distance = 1000000;
+	max_distance = 0.0;
+	cut_distance = 0.0;
+	
 }
 
 ResultsReader::~ResultsReader(){
@@ -212,7 +216,18 @@ void ResultsReader::computeDistances(){
 		}
 		d = pow(d, 0.5);
 		distancias.push_back( pair<double, unsigned int>(d, pos++) );
+		if( d > max_distance ){
+			max_distance = d;
+		}
+		if( d < min_distance ){
+			min_distance = d;
+		}
 	}
+	
+	for(unsigned int i = 0; i < distancias.size(); ++i){
+		distancias[i].first /= max_distance;
+	}
+	
 	
 }
 
@@ -242,6 +257,8 @@ void ResultsReader::selectBestResults(double f_training){
 	if( topk < 10 ){
 		topk = ((10<distancias.size())?10:distancias.size());
 	}
+	
+	cut_distance = distancias[topk].first * max_distance;
 	
 	cout << "ResultsReader::selectBestResults - Topk: " << topk << " / " << distancias.size() << "\n";
 	for(unsigned int i = 0; i < n_params; ++i){

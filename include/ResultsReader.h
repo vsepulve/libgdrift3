@@ -44,6 +44,10 @@ private:
 	unsigned int n_stats;
 	unsigned int n_params;
 	
+	double min_distance;
+	double max_distance;
+	double cut_distance;
+	
 	double getMean(vector<double> &data);
 	// Notar que realizo una copia local de data para ordenarlo sin modificar los originales
 	double getMedian(vector<double> &data);
@@ -85,9 +89,23 @@ public:
 		return params[pos];
 	}
 	
+	void addWorstDistance(double _max_distance){
+		if( _max_distance > max_distance ){
+			max_distance = _max_distance;
+		}
+	}
 	
+	double getMinDistance(){
+		return min_distance;
+	}
 	
+	double getMaxDistance(){
+		return max_distance;
+	}
 	
+	double getCutDistance(){
+		return cut_distance;
+	}
 	
 	
 	
