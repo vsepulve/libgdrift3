@@ -62,7 +62,7 @@ void Analyzer::execute(unsigned int sim_id){
 		results_file += std::to_string(feedback - 1);
 		results_file += ".txt";
 		
-		fstream file_reader(results_file, fstream::out | fstream::trunc);
+		fstream file_reader(results_file, fstream::in);
 		if( file_reader.good() ){
 			char buff[1024];
 			file_reader.getline(buff, 1024);
