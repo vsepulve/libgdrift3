@@ -53,6 +53,35 @@ void Analyzer::execute(unsigned int sim_id){
 	target_file += ".txt";
 	reader.setTarget(target_file);
 	
+	// Si hay resultados previos, cargar la peor distancia para normalizar
+	if( feedback > 0 ){
+		// Ruta de archivo de resultados anterior
+		string results_file = results_base;
+		results_file += to_string(sim_id);
+		results_file += "_f";
+		results_file += std::to_string(feedback - 1);
+		results_file += ".txt";
+		
+		fstream file_reader(results_file, fstream::out | fstream::trunc);
+		if( file_reader.good() ){
+			char buff[1024];
+			file_reader.getline(buff, 1024);
+			file_reader.close();
+			string line(buff);
+			stringstream toks(line);
+			string tok;
+			double min, max, cut;
+			toks >> tok;
+			toks >> min;
+			toks >> max;
+			toks >> cut;
+			cout << "Analyzer::execute - Previous distance: " << tok << " | " << min << " | " << max << " | " << cut << "\n";
+			if( max > 0.0 ){
+				reader.addWorstDistance(max);
+			}
+		}
+	}
+	
 	// Normaliza tanto los datos como el target
 	reader.normalize();
 	
@@ -82,6 +111,22 @@ void Analyzer::execute(unsigned int sim_id){
 	results_file += ".txt";
 	
 	fstream writer(results_file, fstream::out | fstream::trunc);
+	
+	// En la primera linea pongo las distancias
+	writer << "Distances\t";
+	writer << reader.getMinDistance() << "\t";
+	writer << reader.getMaxDistance() << "\t";
+	writer << reader.getCutDistance() << "\t";
+	writer << "\n";
+	
+	// En la primera linea pongo las distancias
+	writer << "DistancesNorm\t";
+	writer << (reader.getMinDistance() / reader.getMaxDistance()) << "\t";
+	writer << (reader.getMaxDistance() / reader.getMaxDistance()) << "\t";
+	writer << (reader.getCutDistance() / reader.getMaxDistance()) << "\t";
+	writer << "\n";
+	
+	// Siguen las distribuciones
 	for( unsigned int i = 0; i < params_names.size(); ++i ){
 		writer << params_names[i] << "\t";
 		writer << dist_post[i].first << "\t";
