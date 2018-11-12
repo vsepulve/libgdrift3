@@ -658,8 +658,12 @@ map<unsigned int, unsigned int> Statistics::statAllelesData(vector<string> &alle
 		string str2 = allelle.substr(len, len);
 		unsigned int id1 = std::stoi( str1 );
 		unsigned int id2 = std::stoi( str2 );
-		ids[id1]++;
-		ids[id2]++;
+		if( id1 != 0 ){
+			ids[id1]++;
+		}
+		if( id2 != 0 ){
+			ids[id2]++;
+		}
 	}
 //	for( auto par : ids ){
 //		cout << "Statistics::statAllelesData - allele[" << par.first << "]: " << par.second<< "\n";
