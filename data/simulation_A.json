@@ -68,6 +68,68 @@
 		},
 		{
 			"id": "2",
+			"type": "increment",
+			"timestamp": {
+				"distribution": {
+					"params": {
+						"a": "1000",
+						"b": "2000"
+					},
+					"type": "uniform"
+				},
+				"type": "random"
+			},
+			"params": {
+				"source": {
+					"population": {
+						"name": "p1",
+						"percentage": {
+							"distribution": {
+								"params": {
+									"a": "0.1",
+									"b": "1.0"
+								},
+								"type": "uniform"
+							},
+							"type": "random"
+						}
+					}
+				}
+			}
+		},
+		{
+			"id": "3",
+			"type": "increment",
+			"timestamp": {
+				"distribution": {
+					"params": {
+						"a": "1000",
+						"b": "2000"
+					},
+					"type": "uniform"
+				},
+				"type": "random"
+			},
+			"params": {
+				"source": {
+					"population": {
+						"name": "p2",
+						"percentage": {
+							"distribution": {
+								"params": {
+									"a": "0.1",
+									"b": "1.0"
+								},
+								"type": "uniform"
+							},
+							"type": "random"
+						}
+					}
+				}
+			}
+		},
+		{
+			"id": "4",
 			"type": "endsim",
 			"timestamp": {
 				"distribution": {
@@ -82,7 +144,7 @@
 			"params": {
 				"sampling": [
 					{
-						"name": "sample1",
+						"name": "p1",
 						"source": {
 							"population": {
 								"name": "p1"
@@ -90,7 +152,7 @@
 						}
 					},
 					{
-						"name": "sample2",
+						"name": "p2",
 						"source": {
 							"population": {
 								"name": "p2"

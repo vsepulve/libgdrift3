@@ -1,5 +1,5 @@
 {
-	"Project_id": 42,
+	"Project_id": 44,
 	"Model": 1,
 	"Events": [
 		{
@@ -156,6 +156,130 @@
 		},
 		{
 			"id": "4",
+			"type": "increment",
+			"timestamp": {
+				"distribution": {
+					"params": {
+						"a": "1000",
+						"b": "2000"
+					},
+					"type": "uniform"
+				},
+				"type": "random"
+			},
+			"params": {
+				"source": {
+					"population": {
+						"name": "p11",
+						"percentage": {
+							"distribution": {
+								"params": {
+									"a": "0.1",
+									"b": "1.0"
+								},
+								"type": "uniform"
+							},
+							"type": "random"
+						}
+					}
+				}
+			}
+		},
+		{
+			"id": "5",
+			"type": "increment",
+			"timestamp": {
+				"distribution": {
+					"params": {
+						"a": "1000",
+						"b": "2000"
+					},
+					"type": "uniform"
+				},
+				"type": "random"
+			},
+			"params": {
+				"source": {
+					"population": {
+						"name": "p12",
+						"percentage": {
+							"distribution": {
+								"params": {
+									"a": "0.1",
+									"b": "1.0"
+								},
+								"type": "uniform"
+							},
+							"type": "random"
+						}
+					}
+				}
+			}
+		},
+		{
+			"id": "6",
+			"type": "increment",
+			"timestamp": {
+				"distribution": {
+					"params": {
+						"a": "1000",
+						"b": "2000"
+					},
+					"type": "uniform"
+				},
+				"type": "random"
+			},
+			"params": {
+				"source": {
+					"population": {
+						"name": "p21",
+						"percentage": {
+							"distribution": {
+								"params": {
+									"a": "0.1",
+									"b": "1.0"
+								},
+								"type": "uniform"
+							},
+							"type": "random"
+						}
+					}
+				}
+			}
+		},
+		{
+			"id": "7",
+			"type": "increment",
+			"timestamp": {
+				"distribution": {
+					"params": {
+						"a": "1000",
+						"b": "2000"
+					},
+					"type": "uniform"
+				},
+				"type": "random"
+			},
+			"params": {
+				"source": {
+					"population": {
+						"name": "p22",
+						"percentage": {
+							"distribution": {
+								"params": {
+									"a": "0.1",
+									"b": "1.0"
+								},
+								"type": "uniform"
+							},
+							"type": "random"
+						}
+					}
+				}
+			}
+		},
+		{
+			"id": "8",
 			"type": "endsim",
 			"timestamp": {
 				"distribution": {
