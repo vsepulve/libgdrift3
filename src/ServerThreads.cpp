@@ -93,7 +93,7 @@ void processing_thread(unsigned int pid, string output_base, WorkManager *manage
 		file_name += std::to_string(pid);
 		file_name += ".txt";
 		
-		cout << "processing_thread[" << pid << "] - Ejecutando Sim " << sim_id << ", feedback " << feedback << "\n";
+		cout << "processing_thread[" << pid << "] - Ejecutando Sim " << sim_id << ", feedback " << feedback << ", finished " << manager->getFinished(sim_id) << " / " << manager->getTotal(sim_id) << "\n";
 		sim.run();
 		
 		// Parte local del analyzer
