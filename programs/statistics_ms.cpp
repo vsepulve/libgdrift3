@@ -7,6 +7,7 @@
 #include <string.h>
 #include <random>
 #include <algorithm>
+#include <assert.h>
 
 #include <vector>
 #include <map>
@@ -61,7 +62,7 @@ map<unsigned int, unsigned int> statAllelesData(vector<string> &alleles){
 	
 	// Asumo que el largo es igual, par y fijo
 	for( string allelle : alleles ){
-//		cout << "Statistics::statAllelesData - allelle: \"" << allelle << "\"\n";
+		cout << "Statistics::statAllelesData - allelle: \"" << allelle << "\"\n";
 		unsigned int len = allelle.length();
 		if( (len & 0x1) != 0 ){
 			cerr << "Statistics::statAllelesData - Error,length is NOT even (" << len << ")\n";
@@ -72,16 +73,30 @@ map<unsigned int, unsigned int> statAllelesData(vector<string> &alleles){
 		string str2 = allelle.substr(len, len);
 		unsigned int id1 = std::stoi( str1 );
 		unsigned int id2 = std::stoi( str2 );
-		ids[id1]++;
-		ids[id2]++;
+		if( id1 != 0 ){
+			ids[id1]++;
+		}
+		if( id2 != 0 ){
+			ids[id2]++;
+		}
 	}
-//	for( auto par : ids ){
-//		cout << "Statistics::statAllelesData - allele[" << par.first << "]: " << par.second<< "\n";
-//	}
+	for( auto par : ids ){
+		cout << "Statistics::statAllelesData - allele[" << par.first << "]: " << par.second<< "\n";
+	}
 	
 	return ids;
 }
 
+double distance(vector<double> &values_1, vector<double> &values_2){
+	assert(values_1.size() == values_2.size());
+	double ret = 0;
+	for(unsigned int i = 0; i < values_1.size(); ++i){
+		double delta = values_1[i] - values_2[i];
+		ret += delta * delta;
+	}
+	ret = pow(ret, 0.5);
+	return ret;
+}
 
 int main(int argc,char** argv) {
 
@@ -95,6 +110,7 @@ int main(int argc,char** argv) {
 	
 	// Mapa de Pop -> vector (por marcador) de vector (por individuo)
 	map<string, vector<vector<string>>> alleles_map;
+	vector<string> populations_sort;
 	
 	ifstream reader(genepop_file, ifstream::in);
 	if( ! reader.is_open() ){
@@ -159,6 +175,7 @@ int main(int argc,char** argv) {
 			vector<vector<string>> individuals;
 			individuals.push_back(markers_allele);
 			alleles_map[id] = individuals;
+			populations_sort.push_back(id);
 		}
 		
 	}
@@ -167,10 +184,11 @@ int main(int argc,char** argv) {
 	
 	// Procesar estadisticos por poblacion
 	map<string, vector<double>> statistics;
+	unsigned int n_stats = 0;
 	for( auto par_map : alleles_map ){
 		string pop = par_map.first;
 		vector<vector<string>> individuals = par_map.second;
-//		cout << "Stats de Population " << pop << "\n";
+		cout << "Stats de Population " << pop << "\n";
 		// Procesar por marcador
 		vector<double> stats;
 		for(unsigned int marker = 0; marker < n_markers; ++marker){
@@ -191,18 +209,74 @@ int main(int argc,char** argv) {
 			
 		}
 		statistics[pop] = stats;
+		n_stats = stats.size();
 		
 	}
 	
-//	cout << "Resultados: \n";
-	for(auto par_stats : statistics){
-		cout << par_stats.first << "\t";
-		for(double value : par_stats.second ){
+	cout << "Results: \n";
+	vector<double> min_stat;
+	vector<double> max_stat;
+	for(unsigned int i = 0; i < n_stats; ++i){
+		min_stat.push_back(1000000);
+		max_stat.push_back(0);
+	}
+//	for(auto par_stats : statistics){
+	for(string pop : populations_sort){
+		vector<double> stats = statistics[pop];
+		cout << pop << "\t";
+		for(unsigned int i = 0; i < n_stats; ++i){
+			double value = stats[i];
+			if( value > max_stat[i] ){
+				max_stat[i] = value;
+			}
+			if( value < min_stat[i] ){
+				min_stat[i] = value;
+			}
 			cout << value << "\t";
 		}
 		cout << " \n";
 	}
 	
+	cout << "Normalizing\n";
+	for(auto &par_stats : statistics){
+		for(unsigned int i = 0; i < n_stats; ++i){
+			par_stats.second[i] = (par_stats.second[i] - min_stat[i]) / (max_stat[i] - min_stat[i]);
+		}
+	}
+	
+	cout << "Results Normalized\n";
+//	for(auto par_stats : statistics){
+	for(string pop : populations_sort){
+		vector<double> stats = statistics[pop];
+		cout << pop << "\t";
+		for(unsigned int i = 0; i < n_stats; ++i){
+			double value = stats[i];
+			cout << value << "\t";
+		}
+		cout << " \n";
+	}
+	
+	cout << "Distance Matriz: \n";
+	double max_distance = 0;
+	for(auto par1 : statistics){
+		for(auto par2 : statistics){
+			double d = distance(par1.second, par2.second);
+			if( d > max_distance ){
+				max_distance = d;
+			}
+		}
+	}
+//	cout << "Max Distance: " << max_distance << "\n";
+	
+	for(string pop1 : populations_sort){
+		cout << pop1 << "\t";
+		for(string pop2 : populations_sort){
+			double d = distance(statistics[pop1], statistics[pop2]) / max_distance;
+//			cout << pop1 << " vs " << pop2 << ": " << d << "\n";
+			cout << d << "\t";
+		}
+		cout << "\n";
+	}
 	
 	
 	return 0;
