@@ -1,5 +1,5 @@
 {
-	"Project_id": 45,
+	"Project_id": 100,
 	"Model": 1,
 	"Events": [
 		{
@@ -55,17 +55,15 @@
 					"type": "random"
 				},
 				"partitions": "2",
-				"destination": [
-					{
+				"destination": [{
 					"population": {
 						"name": "p1"
-						}
-					}, {
+					}
+				}, {
 					"population": {
 						"name": "p2"
-						}
 					}
-				]
+				}]
 			}
 		},
 		{
@@ -132,7 +130,7 @@
 		},
 		{
 			"id": "4",
-			"type": "split",
+			"type": "increment",
 			"timestamp": {
 				"distribution": {
 					"params": {
@@ -146,36 +144,24 @@
 			"params": {
 				"source": {
 					"population": {
-						"name": "p1"
-					}
-				},
-				"percentage": {
-					"distribution": {
-						"params": {
-							"a": "0.1",
-							"b": "0.9"
-						},
-						"type": "uniform"
-					},
-					"type": "random"
-				},
-				"partitions": "2",
-				"destination": [
-					{
-					"population": {
-						"name": "p11"
-						}
-					}, {
-					"population": {
-						"name": "p12"
+						"name": "p1",
+						"percentage": {
+							"distribution": {
+								"params": {
+									"a": "0.1",
+									"b": "4.0"
+								},
+								"type": "uniform"
+							},
+							"type": "random"
 						}
 					}
-				]
+				}
 			}
 		},
 		{
 			"id": "5",
-			"type": "split",
+			"type": "increment",
 			"timestamp": {
 				"distribution": {
 					"params": {
@@ -189,159 +175,23 @@
 			"params": {
 				"source": {
 					"population": {
-						"name": "p2"
-					}
-				},
-				"percentage": {
-					"distribution": {
-						"params": {
-							"a": "0.1",
-							"b": "0.9"
-						},
-						"type": "uniform"
-					},
-					"type": "random"
-				},
-				"partitions": "2",
-				"destination": [
-					{
-					"population": {
-						"name": "p21"
-						}
-					}, {
-					"population": {
-						"name": "p22"
+						"name": "p2",
+						"percentage": {
+							"distribution": {
+								"params": {
+									"a": "0.1",
+									"b": "4.0"
+								},
+								"type": "uniform"
+							},
+							"type": "random"
 						}
 					}
-				]
+				}
 			}
 		},
 		{
 			"id": "6",
-			"type": "increment",
-			"timestamp": {
-				"distribution": {
-					"params": {
-						"a": "2000",
-						"b": "3000"
-					},
-					"type": "uniform"
-				},
-				"type": "random"
-			},
-			"params": {
-				"source": {
-					"population": {
-						"name": "p11",
-						"percentage": {
-							"distribution": {
-								"params": {
-									"a": "0.1",
-									"b": "4.0"
-								},
-								"type": "uniform"
-							},
-							"type": "random"
-						}
-					}
-				}
-			}
-		},
-		{
-			"id": "7",
-			"type": "increment",
-			"timestamp": {
-				"distribution": {
-					"params": {
-						"a": "2000",
-						"b": "3000"
-					},
-					"type": "uniform"
-				},
-				"type": "random"
-			},
-			"params": {
-				"source": {
-					"population": {
-						"name": "p12",
-						"percentage": {
-							"distribution": {
-								"params": {
-									"a": "0.1",
-									"b": "4.0"
-								},
-								"type": "uniform"
-							},
-							"type": "random"
-						}
-					}
-				}
-			}
-		},
-		{
-			"id": "8",
-			"type": "increment",
-			"timestamp": {
-				"distribution": {
-					"params": {
-						"a": "2000",
-						"b": "3000"
-					},
-					"type": "uniform"
-				},
-				"type": "random"
-			},
-			"params": {
-				"source": {
-					"population": {
-						"name": "p21",
-						"percentage": {
-							"distribution": {
-								"params": {
-									"a": "0.1",
-									"b": "4.0"
-								},
-								"type": "uniform"
-							},
-							"type": "random"
-						}
-					}
-				}
-			}
-		},
-		{
-			"id": "9",
-			"type": "increment",
-			"timestamp": {
-				"distribution": {
-					"params": {
-						"a": "2000",
-						"b": "3000"
-					},
-					"type": "uniform"
-				},
-				"type": "random"
-			},
-			"params": {
-				"source": {
-					"population": {
-						"name": "p22",
-						"percentage": {
-							"distribution": {
-								"params": {
-									"a": "0.1",
-									"b": "4.0"
-								},
-								"type": "uniform"
-							},
-							"type": "random"
-						}
-					}
-				}
-			}
-		},
-		{
-			"id": "10",
 			"type": "endsim",
 			"timestamp": {
 				"distribution": {
@@ -356,34 +206,18 @@
 			"params": {
 				"sampling": [
 					{
-						"name": "p11",
+						"name": "p1",
 						"source": {
 							"population": {
-								"name": "p11"
+								"name": "p1"
 							}
 						}
 					},
 					{
-						"name": "p12",
+						"name": "p2",
 						"source": {
 							"population": {
-								"name": "p12"
-							}
-						}
-					},
-					{
-						"name": "p21",
-						"source": {
-							"population": {
-								"name": "p21"
-							}
-						}
-					},
-					{
-						"name": "p22",
-						"source": {
-							"population": {
-								"name": "p22"
+								"name": "p2"
 							}
 						}
 					}
