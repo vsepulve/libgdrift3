@@ -58,14 +58,25 @@ int main(int argc,char** argv){
 	vector< pair<double, double> > dist_post = reader.getPosteriori();
 	
 	fstream writer(distributions_file, fstream::out | fstream::trunc);
-	// Calculo de estadisticos reales
+	
+	// En la primera linea pongo las distancias
+	writer << "Distances\t";
+	writer << reader.getMinDistance() << "\t";
+	writer << reader.getMaxDistance() << "\t";
+	writer << reader.getCutDistance() << "\t";
+	writer << "\n";
+	
+	// En la primera linea pongo las distancias
+	writer << "DistancesNorm\t";
+	writer << (reader.getMinDistance() / reader.getMaxDistance()) << "\t";
+	writer << (reader.getMaxDistance() / reader.getMaxDistance()) << "\t";
+	writer << (reader.getCutDistance() / reader.getMaxDistance()) << "\t";
+	writer << "\n";
+	
+	// Siguen las distribuciones
 	for(unsigned int i = 0; i < dist_post.size(); ++i){
 		double mean = dist_post[i].first;
 		double stddev = dist_post[i].second;
-		
-//		cout << "Statistics - Posteriori[" << i << "]: (mean: " << mean << ", stddev: " << stddev << ")\n";
-//		writer << "Posteriori[" << i << "]: mean: " << mean << " | stddev: " << stddev << "\n";
-
 		cout << "Posteriori[" << i << "]\t" << mean << "\t" << stddev << "\n";
 		writer << "Posteriori[" << i << "]\t" << mean << "\t" << stddev << "\n";
 		
@@ -77,15 +88,15 @@ int main(int argc,char** argv){
 	for(unsigned int i = 0; i < distancias.size(); ++i){
 		double d = distancias[i].first;
 		unsigned pos = distancias[i].second;
-		vector<double> res_stats = reader.getStats(pos);
-		vector<double> res_params = reader.getParams(pos);
 		
 		writer << d << "\t";
 		
-		for(unsigned int j = 0; j < n_stats; ++j){
-			writer << res_stats[j] << "\t";
-		}
+//		vector<double> res_stats = reader.getStats(pos);
+//		for(unsigned int j = 0; j < n_stats; ++j){
+//			writer << res_stats[j] << "\t";
+//		}
 		
+		vector<double> res_params = reader.getParams(pos);
 		for(unsigned int j = 0; j < n_params; ++j){
 			writer << res_params[j] << "\t";
 		}
