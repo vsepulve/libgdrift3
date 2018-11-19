@@ -307,19 +307,25 @@ void Statistics::processStatistics(string filename, string name, Profile *extern
 
 // Procesa los stats directamente de una muestra de alelos como string y los asocia a la poblacion "name"
 void Statistics::processStatistics(string name, Profile *external_profile, vector<vector<string>> *alleles_marker){
-	unsigned int n_markers = external_profile->getNumMarkers();
-	assert(n_markers == alleles_marker->size());
-	
 	cout << "Statistics::processStatistics - Start Internal for pop_name: \"" << name << "\"\n";
-	
+	if( external_profile->getNumMarkers() == 0 || alleles_marker->size() == 0 ){
+		cerr << "Statistics::processStatistics - Insufficient Data.\n";
+		return;
+	}
 	vector<map<string, double>> stats_vector;
-//	cout << "Statistics::processStatistics - Processing " << profile->getNumMarkers() << " markers\n";
-	for(unsigned int pos_marker = 0; pos_marker < n_markers; ++pos_marker){
-		map<string, double> stats;
+//	cout << "Statistics::processStatistics - Processing " << external_profile->getNumMarkers() << " markers\n";
+	for(unsigned int pos_marker = 0; pos_marker < external_profile->getNumMarkers(); ++pos_marker){
+//		cout << "Statistics::processStatistics - alleles_marker->at(" << pos_marker << ")...\n";
 		vector<string> alleles = alleles_marker->at(pos_marker);
+		cout << "1\n";
+		if( alleles.empty() ){
+			continue;
+		}
+		map<string, double> stats;
 		ProfileMarker marker = external_profile->getMarker(pos_marker);
 		
 		if( marker.getType() == MARKER_SEQUENCE ){
+			cout << "Statistics::processStatistics - MARKER_SEQUENCE\n";
 			double num_haplotypes = statNumHaplotypes(alleles);
 			stats["num-haplotypes"] = num_haplotypes;
 		
@@ -338,7 +344,7 @@ void Statistics::processStatistics(string name, Profile *external_profile, vecto
 			stats["tajima-d"] = tajima_d;
 		}
 		else if( marker.getType() == MARKER_MS ){
-			cout << "Statistics::processStatistics - Preparando statistics de microsatellites...\n";
+			cout << "Statistics::processStatistics - MARKER_MS\n";
 			
 			map<unsigned int, unsigned int> ids = statAllelesData(alleles);
 			
