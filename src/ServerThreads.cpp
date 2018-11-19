@@ -299,7 +299,7 @@ void thread_start_sim(int sock_cliente, string json_sim_base, string json_projec
 	unsigned int size = 0;
 	unsigned int project_id = 0;
 	unsigned int sim_id = 0;
-	unsigned int n_sims = 20000;
+	unsigned int batch_size = 10000;
 	
 	// Empiezo recibiendo project_id
 	if( ! error && ! conexion.readUInt(project_id) ){
@@ -316,6 +316,14 @@ void thread_start_sim(int sock_cliente, string json_sim_base, string json_projec
 		error = true;
 	}
 	cout << "Server::thread_start_sim - sim_id: " << sim_id << "\n";
+	
+	// luego batch_size
+	if( ! error && ! conexion.readUInt(batch_size) ){
+		cerr << "Server::thread_start_sim - Error receiving batch_size\n";
+		batch_size = 0;
+		error = true;
+	}
+	cout << "Server::thread_start_sim - batch_size: " << batch_size << "\n";
 	
 	// Recibo el json de la simulacion (size y bytes)
 	if( ! error && ! conexion.readUInt(size) ){
@@ -372,7 +380,7 @@ void thread_start_sim(int sock_cliente, string json_sim_base, string json_projec
 		reader >> json_project;
 		
 		cout << "Server::thread_start_sim - Iniciando manager->addWork...\n";
-		manager->addWork(sim_id, json_project, json_sim, n_sims);
+		manager->addWork(sim_id, json_project, json_sim, batch_size);
 		cout << "Server::thread_start_sim - addWork terminado\n";
 		
 	}
@@ -397,9 +405,7 @@ void thread_query_sim(int sock_cliente, string json_sim_base, string json_projec
 	cout << "Server::thread_query_sim - Start\n";
 	
 	bool error = false;
-//	unsigned int size = 0;
 	unsigned int sim_id = 0;
-//	unsigned int n_sims = 10;
 	
 	// luego sim_id
 	if( ! error && ! conexion.readUInt(sim_id) ){
