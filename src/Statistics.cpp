@@ -38,7 +38,7 @@ Statistics::Statistics(Simulator *sim, float sampling)
 		Population *pop = sim->getPopulation(name);
 		processStatistics(pop, name, sampling);
 		
-		cout << "Statistics - Adding individuals to summary\n";
+//		cout << "Statistics - Adding individuals to summary\n";
 		for(unsigned int i = 0; i < pop->size(); ++i){
 			summary.add( pop->get(i) );
 		}
@@ -57,7 +57,7 @@ Statistics::~Statistics(){
 // Procesa todos los estadisticos y los agrega a statistics[name][stat]
 void Statistics::processStatistics(Population *pop, string name, float sampling){
 	
-	cout << "Statistics::processStatistics - Start (population " << name << ", size " << pop->size() << ", sampling " << sampling << ")\n";
+//	cout << "Statistics::processStatistics - Start (population " << name << ", size " << pop->size() << ", sampling " << sampling << ")\n";
 	
 	unsigned int n_inds = pop->size() * sampling;
 	if(n_inds < min_sampling){
@@ -69,7 +69,7 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 	
 	// Necesito un shuffle de la poblacion
 	// Para simularlo, puedo desordenar las posiciones
-	cout << "Statistics::processStatistics - Preparing selected individuals (n_inds: " << n_inds << ")\n";
+//	cout << "Statistics::processStatistics - Preparing selected individuals (n_inds: " << n_inds << ")\n";
 	vector<unsigned int> inds_usados;
 	for(unsigned int i = 0; i < pop->size(); ++i){
 		inds_usados.push_back(i);
@@ -81,7 +81,7 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 	// Para cada marcador, calcular SU mapa de estadisticos y agregarlo
 	
 	vector<map<string, double>> stats_vector;
-	cout << "Statistics::processStatistics - Processing " << profile->getNumMarkers() << " markers\n";
+//	cout << "Statistics::processStatistics - Processing " << profile->getNumMarkers() << " markers\n";
 	for(unsigned int pos_marker = 0; pos_marker < profile->getNumMarkers(); ++pos_marker){
 		map<string, double> stats;
 		ProfileMarker marker = profile->getMarker(pos_marker);
@@ -126,7 +126,7 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 		}
 		else if( marker.getType() == MARKER_MS ){
 			
-			cout << "Statistics::processStatistics - Preparando Data de microsatellites...\n";
+//			cout << "Statistics::processStatistics - Preparing Data for MS\n";
 			
 			vector<string> alleles;
 			if( profile->getPloidy() == 2 ){
@@ -157,7 +157,7 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 				if( str_len < 3 ){
 					str_len = 3;
 				}
-				cout << "Statistics::processStatistics - min_id: " << min_id << ", max_id: " << max_id << ", str_base: \"" << str_base << "\", str_len: " << str_len << "\n";
+//				cout << "Statistics::processStatistics - min_id: " << min_id << ", max_id: " << max_id << ", str_base: \"" << str_base << "\", str_len: " << str_len << "\n";
 				for(unsigned int ind = 0; ind < n_inds; ++ind){
 					pos_ind = inds_usados[ind];
 					id_allele = pop->get(pos_ind).getAllele(pos_marker, 0);
@@ -182,7 +182,7 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 				cerr << "Statistics::processStatistics - Error, Ploidy not supported (" << profile->getPloidy() << ")\n";
 			}
 			
-			cout << "Statistics::processStatistics - Preparando statistics de microsatellites...\n";
+//			cout << "Statistics::processStatistics - Preparing MS Statistics	...\n";
 			
 			map<unsigned int, unsigned int> ids = statAllelesData(alleles);
 			
@@ -205,7 +205,7 @@ void Statistics::processStatistics(Population *pop, string name, float sampling)
 	}
 	statistics[name] = stats_vector;
 	
-	cout << "Statistics::processStatistics - End (statistics[" << name << "]: " << stats_vector.size() << " stats)\n"; 
+//	cout << "Statistics::processStatistics - End (statistics[" << name << "]: " << stats_vector.size() << " stats)\n"; 
 	
 }
 
