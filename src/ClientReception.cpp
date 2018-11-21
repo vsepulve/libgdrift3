@@ -17,20 +17,21 @@ ClientReception::ClientReception(const ClientReception &original){
 	sock_fd = original.sock_fd;
 	request_type = original.request_type;
 	instance_id = next_id++;
-	cout << "ClientReception - Copia (fd "<<original.sock_fd<<", id "<<instance_id<<")\n";
+//	cout << "ClientReception - Copy (fd " << original.sock_fd << ", id " << instance_id << ")\n";
 }
 
 ClientReception::~ClientReception(){
-	cout << "ClientReception::~ClientReception (id "<<instance_id<<")\n";
+//	cout << "ClientReception::~ClientReception - Start (id " << instance_id << ")\n";
 	//Cerrar socket
 	if( sock_fd != -1 ){
-		cout << "ClientReception::~ClientReception - cerrando fd "<<sock_fd<<", id "<<instance_id<<"\n";
+//		cout << "ClientReception::~ClientReception - cerrando fd " << sock_fd << ", id " << instance_id << "\n";
 		close(sock_fd);
 	}
+//	cout << "ClientReception::~ClientReception - End\n";
 }
 
 bool ClientReception::receiveRequest(){
-	cout << "ClientReception::receiveRequest (id "<<instance_id<<")\n";
+	cout << "ClientReception::receiveRequest (id " << instance_id << ")\n";
 	if( ! readByte(request_type) ){
 		cerr << "ClientReception::receiveRequest - Error receiving Request\n";
 		request_type = 0;

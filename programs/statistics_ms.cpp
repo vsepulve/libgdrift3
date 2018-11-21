@@ -18,6 +18,9 @@
 using namespace std;
 
 double statHeterozygosity(map<unsigned int, unsigned int> &allele_data){
+	if(allele_data.size() < 1 ){
+		return 0.0;
+	}
 	double sum = 0.0;
 	unsigned int total = 0;
 	for( auto it : allele_data ){
@@ -62,7 +65,7 @@ map<unsigned int, unsigned int> statAllelesData(vector<string> &alleles){
 	
 	// Asumo que el largo es igual, par y fijo
 	for( string allelle : alleles ){
-		cout << "Statistics::statAllelesData - allelle: \"" << allelle << "\"\n";
+//		cout << "Statistics::statAllelesData - allelle: \"" << allelle << "\"\n";
 		unsigned int len = allelle.length();
 		if( (len & 0x1) != 0 ){
 			cerr << "Statistics::statAllelesData - Error,length is NOT even (" << len << ")\n";
@@ -80,9 +83,9 @@ map<unsigned int, unsigned int> statAllelesData(vector<string> &alleles){
 			ids[id2]++;
 		}
 	}
-	for( auto par : ids ){
-		cout << "Statistics::statAllelesData - allele[" << par.first << "]: " << par.second<< "\n";
-	}
+//	for( auto par : ids ){
+//		cout << "Statistics::statAllelesData - allele[" << par.first << "]: " << par.second<< "\n";
+//	}
 	
 	return ids;
 }
@@ -188,7 +191,7 @@ int main(int argc,char** argv) {
 	for( auto par_map : alleles_map ){
 		string pop = par_map.first;
 		vector<vector<string>> individuals = par_map.second;
-		cout << "Stats de Population " << pop << "\n";
+//		cout << "Stats de Population " << pop << "\n";
 		// Procesar por marcador
 		vector<double> stats;
 		for(unsigned int marker = 0; marker < n_markers; ++marker){
