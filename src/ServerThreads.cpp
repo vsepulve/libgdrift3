@@ -219,6 +219,7 @@ void thread_init_project(int sock_cliente, string json_project_base, string targ
 		for( unsigned int i = 0; i < n_pops; ++i ){
 			// Considerando el nuevo statistics, quiza un solo archivo deberia tener todos los marcadores para la poblacion
 			string pop_name = json_project["Populations"][i]["Name"];
+			sample_paths[pop_name] = vector<string>();
 			for( unsigned int j = 0; j < n_markers; ++j ){
 				string sample_path = json_project["Populations"][i]["Sample_path"][j];
 				cout<<"Server::thread_init_project - sample[" << pop_name << "][" << j << "]: " << sample_path << "\n";
@@ -246,9 +247,6 @@ void thread_init_project(int sock_cliente, string json_project_base, string targ
 		// Preparar escritor y crear el archivo 
 		fstream writer(target_file, fstream::out | fstream::trunc);
 		if( writer.good() ){
-			char stat_buff[1024];
-			memset(stat_buff, 0, 1024);
-//			map<string, vector< map<string, double> > > statistics = stats.getStatistics();
 			for( auto it_stats_pop : stats.getStatistics() ){
 				string pop_name = it_stats_pop.first;
 				unsigned int marker_pos = 0;
@@ -257,13 +255,12 @@ void thread_init_project(int sock_cliente, string json_project_base, string targ
 						string stat_name = it_stat.first;
 						double value = it_stat.second;
 						cout << "Server::thread_init_project - pop " << pop_name << " - marker " << marker_pos << " - stat " << stat_name <<" -> " << value << "\n";
-						sprintf(stat_buff + strlen(stat_buff), "%f\t", value);
+						writer << value << "\t";
 					}
 					++marker_pos;
 				}
 			}
-			sprintf(stat_buff + strlen(stat_buff), "\n");
-			writer.write(stat_buff, strlen(stat_buff));
+			writer << "\n";
 			writer.close();
 		}
 		else{
