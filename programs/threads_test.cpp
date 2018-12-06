@@ -85,9 +85,6 @@ int main(int argc,char** argv){
 	// Preparar escritor y crear el archivo 
 	fstream writer(target_file, fstream::out | fstream::trunc);
 	if( writer.good() ){
-		char stat_buff[1024];
-		memset(stat_buff, 0, 1024);
-//		map<string, vector< map<string, double> > > statistics = stats.getStatistics();
 		for( auto it_stats_pop : stats.getStatistics() ){
 			string pop_name = it_stats_pop.first;
 			unsigned int marker_pos = 0;
@@ -95,15 +92,13 @@ int main(int argc,char** argv){
 				for( auto it_stat : stats_marker ){
 					string stat_name = it_stat.first;
 					double value = it_stat.second;
-					cout << "Project " << project_id << " - pop \"" << pop_name << "\" - marker " << marker_pos << " - stat " << stat_name <<" -> " << value << "\n";
-					sprintf(stat_buff + strlen(stat_buff), "%f\t", value);
+					cout << "Server::thread_init_project - pop " << pop_name << " - marker " << marker_pos << " - stat " << stat_name <<" -> " << value << "\n";
+					writer << value << "\t";
 				}
 				++marker_pos;
 			}
-		
 		}
-		sprintf(stat_buff + strlen(stat_buff), "\n");
-		writer.write(stat_buff, strlen(stat_buff));
+		writer << "\n";
 		writer.close();
 	}
 	else{
@@ -116,7 +111,19 @@ int main(int argc,char** argv){
 	reader.open(simulation_json_file, ifstream::in);
 	json simulation_json;
 	reader >> simulation_json;
+	reader.close();
 	unsigned int sim_id = simulation_json["Id"];
+	
+	// Limpieza de archivos de datos
+	for( unsigned int pid = 0; pid < n_threads; ++pid ){
+		string file_name = output_base;
+		file_name += std::to_string(sim_id);
+		file_name += "_f0_";
+		file_name += std::to_string(pid);
+		file_name += ".txt";
+		fstream writer(file_name, fstream::out | fstream::trunc);
+		writer.close();
+	}
 	
 	cout << "Iniciando manager->addWork de Simulation " << sim_id << "\n";
 	manager.addWork(sim_id, project_json, simulation_json, total);
@@ -131,11 +138,12 @@ int main(int argc,char** argv){
 		pids[i] = i;
 		// TODO: Esta version de processing_thread SIEMPRE se queda esperando mas trabajo, no retorna
 		// Esta pensada para lanzarse con thread(...).detach()
-		threads_list.push_back( thread(processing_thread, pids[i], output_base, &manager, &analyzer) );
+		threads_list.push_back( thread(processing_thread, pids[i], output_base, &manager, &analyzer, false) );
 	}
 	for(unsigned int i = 0; i < n_threads; ++i){
 		threads_list[i].join();
 	}
+	threads_list.clear();
 	
 	cout << " ----- Procesamiento terminado en " << timer.getMilisec() << " ms ----- \n";
 	
