@@ -1,5 +1,6 @@
 {
-	"Project_id": 45,
+	"Id": 21,
+	"Project_id": 2,
 	"Model": 1,
 	"Batch_size": 10000,
 	"Events": [
