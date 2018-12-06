@@ -1,5 +1,6 @@
 {
-	"Project_id": 44,
+	"Id": 21,
+	"Project_id": 2,
 	"Model": 1,
 	"Batch_size": 10000,
 	"Events": [
@@ -48,8 +49,8 @@
 				"percentage": {
 					"distribution": {
 						"params": {
-							"a": "0.1",
-							"b": "0.9"
+							"a": "0.3",
+							"b": "0.7"
 						},
 						"type": "uniform"
 					},
@@ -71,12 +72,74 @@
 		},
 		{
 			"id": "2",
-			"type": "split",
+			"type": "decrement",
 			"timestamp": {
 				"distribution": {
 					"params": {
 						"a": "500",
 						"b": "1000"
+					},
+					"type": "uniform"
+				},
+				"type": "random"
+			},
+			"params": {
+				"source": {
+					"population": {
+						"name": "p1",
+						"percentage": {
+							"distribution": {
+								"params": {
+									"a": "0.1",
+									"b": "0.9"
+								},
+								"type": "uniform"
+							},
+							"type": "random"
+						}
+					}
+				}
+			}
+		},
+		{
+			"id": "3",
+			"type": "decrement",
+			"timestamp": {
+				"distribution": {
+					"params": {
+						"a": "500",
+						"b": "1000"
+					},
+					"type": "uniform"
+				},
+				"type": "random"
+			},
+			"params": {
+				"source": {
+					"population": {
+						"name": "p2",
+						"percentage": {
+							"distribution": {
+								"params": {
+									"a": "0.1",
+									"b": "0.9"
+								},
+								"type": "uniform"
+							},
+							"type": "random"
+						}
+					}
+				}
+			}
+		},
+		{
+			"id": "4",
+			"type": "split",
+			"timestamp": {
+				"distribution": {
+					"params": {
+						"a": "1000",
+						"b": "2000"
 					},
 					"type": "uniform"
 				},
@@ -113,13 +176,13 @@
 			}
 		},
 		{
-			"id": "3",
+			"id": "5",
 			"type": "split",
 			"timestamp": {
 				"distribution": {
 					"params": {
-						"a": "500",
-						"b": "1000"
+						"a": "1000",
+						"b": "2000"
 					},
 					"type": "uniform"
 				},
@@ -156,13 +219,13 @@
 			}
 		},
 		{
-			"id": "4",
+			"id": "6",
 			"type": "increment",
 			"timestamp": {
 				"distribution": {
 					"params": {
-						"a": "1000",
-						"b": "2000"
+						"a": "2000",
+						"b": "3000"
 					},
 					"type": "uniform"
 				},
@@ -176,69 +239,7 @@
 							"distribution": {
 								"params": {
 									"a": "0.1",
-									"b": "1.0"
-								},
-								"type": "uniform"
-							},
-							"type": "random"
-						}
-					}
-				}
-			}
-		},
-		{
-			"id": "5",
-			"type": "increment",
-			"timestamp": {
-				"distribution": {
-					"params": {
-						"a": "1000",
-						"b": "2000"
-					},
-					"type": "uniform"
-				},
-				"type": "random"
-			},
-			"params": {
-				"source": {
-					"population": {
-						"name": "p12",
-						"percentage": {
-							"distribution": {
-								"params": {
-									"a": "0.1",
-									"b": "1.0"
-								},
-								"type": "uniform"
-							},
-							"type": "random"
-						}
-					}
-				}
-			}
-		},
-		{
-			"id": "6",
-			"type": "increment",
-			"timestamp": {
-				"distribution": {
-					"params": {
-						"a": "1000",
-						"b": "2000"
-					},
-					"type": "uniform"
-				},
-				"type": "random"
-			},
-			"params": {
-				"source": {
-					"population": {
-						"name": "p21",
-						"percentage": {
-							"distribution": {
-								"params": {
-									"a": "0.1",
-									"b": "1.0"
+									"b": "4.0"
 								},
 								"type": "uniform"
 							},
@@ -254,8 +255,70 @@
 			"timestamp": {
 				"distribution": {
 					"params": {
-						"a": "1000",
-						"b": "2000"
+						"a": "2000",
+						"b": "3000"
+					},
+					"type": "uniform"
+				},
+				"type": "random"
+			},
+			"params": {
+				"source": {
+					"population": {
+						"name": "p12",
+						"percentage": {
+							"distribution": {
+								"params": {
+									"a": "0.1",
+									"b": "4.0"
+								},
+								"type": "uniform"
+							},
+							"type": "random"
+						}
+					}
+				}
+			}
+		},
+		{
+			"id": "8",
+			"type": "increment",
+			"timestamp": {
+				"distribution": {
+					"params": {
+						"a": "2000",
+						"b": "3000"
+					},
+					"type": "uniform"
+				},
+				"type": "random"
+			},
+			"params": {
+				"source": {
+					"population": {
+						"name": "p21",
+						"percentage": {
+							"distribution": {
+								"params": {
+									"a": "0.1",
+									"b": "4.0"
+								},
+								"type": "uniform"
+							},
+							"type": "random"
+						}
+					}
+				}
+			}
+		},
+		{
+			"id": "9",
+			"type": "increment",
+			"timestamp": {
+				"distribution": {
+					"params": {
+						"a": "2000",
+						"b": "3000"
 					},
 					"type": "uniform"
 				},
@@ -269,7 +332,7 @@
 							"distribution": {
 								"params": {
 									"a": "0.1",
-									"b": "1.0"
+									"b": "4.0"
 								},
 								"type": "uniform"
 							},
@@ -280,7 +343,7 @@
 			}
 		},
 		{
-			"id": "8",
+			"id": "10",
 			"type": "endsim",
 			"timestamp": {
 				"distribution": {
