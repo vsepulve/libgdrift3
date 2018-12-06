@@ -28,10 +28,15 @@ class SimulationData{
 			feedback = 0;
 		}
 		~SimulationData(){
+//			cout << "~SimulationData - Start\n";
+			if( factory != NULL ){
+				delete factory;
+			}
 			factory = NULL;
 			n_sims = 0;
 			finished = 0;
 			feedback = 0;
+//			cout << "~SimulationData - End\n";
 		}
 };
 
