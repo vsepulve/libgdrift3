@@ -32,9 +32,9 @@ Statistics::Statistics(Simulator *sim, float sampling)
 	
 	vector<string> pop_names = sim->getPopulationNames();
 	
-	cout << "Statistics - Processing " << pop_names.size() << " populations\n";
+//	cout << "Statistics - Processing " << pop_names.size() << " populations\n";
 	for(string name : pop_names){
-		cout << "Statistics - Population " << name << "\n";
+//		cout << "Statistics - Population " << name << "\n";
 		Population *pop = sim->getPopulation(name);
 		processStatistics(pop, name, sampling);
 		
@@ -44,7 +44,7 @@ Statistics::Statistics(Simulator *sim, float sampling)
 		}
 	}
 	
-	cout << "Statistics - Processing the combined population\n";
+//	cout << "Statistics - Processing the combined population\n";
 	processStatistics(&summary, "summary", sampling);
 	
 //	cout << "Statistics - End\n";
@@ -317,7 +317,6 @@ void Statistics::processStatistics(string name, Profile *external_profile, vecto
 	for(unsigned int pos_marker = 0; pos_marker < external_profile->getNumMarkers(); ++pos_marker){
 //		cout << "Statistics::processStatistics - alleles_marker->at(" << pos_marker << ")...\n";
 		vector<string> alleles = alleles_marker->at(pos_marker);
-		cout << "1\n";
 		if( alleles.empty() ){
 			continue;
 		}
@@ -361,9 +360,6 @@ void Statistics::processStatistics(string name, Profile *external_profile, vecto
 		else{
 			cerr << "Statistics::processStatistics - Error, Genetic Marker not supperted.\n";
 		}
-		
-		
-		
 		
 		stats_vector.push_back(stats);
 	}
