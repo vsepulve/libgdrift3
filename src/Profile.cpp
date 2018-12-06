@@ -69,7 +69,9 @@ Profile *Profile::clone(){
 }
 
 Profile::~Profile(){
-	
+//	cout << "~Profile - Start\n";
+	markers.clear();
+//	cout << "~Profile - End\n";
 }
 
 unsigned int Profile::getPloidy() const{
