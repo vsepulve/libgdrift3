@@ -33,7 +33,7 @@
 using namespace std;
 
 // Thread permanente de procesamiento
-void processing_thread(unsigned int pid, string output_base, WorkManager *manager, Analyzer *analyzer);
+void processing_thread(unsigned int pid, string output_base, WorkManager *manager, Analyzer *analyzer, bool continuous);
 
 // INIT: Crear el target y preparar datos
 // Este proceso tambien recibe y guarda el json del proyecto (ademas del target)

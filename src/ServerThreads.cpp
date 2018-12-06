@@ -55,7 +55,7 @@ vector<double> get_params(Simulator *sim){
 }
 
 // Thread de procesamiento principal
-void processing_thread(unsigned int pid, string output_base, WorkManager *manager, Analyzer *analyzer){
+void processing_thread(unsigned int pid, string output_base, WorkManager *manager, Analyzer *analyzer, bool continuous){
 	
 //	global_mutex.lock();
 	cout << "processing_thread[" << pid << "] - Inicio\n";
@@ -74,8 +74,13 @@ void processing_thread(unsigned int pid, string output_base, WorkManager *manage
 		char *serialized = manager->getWork();
 		// Verificar si esta dada la señal de termino
 		if( serialized == NULL ){
-			std::this_thread::sleep_for (std::chrono::seconds(sleep_time));
-			continue;
+			if( continuous ){
+				std::this_thread::sleep_for (std::chrono::seconds(sleep_time));
+				continue;
+			}
+			else{
+				break;
+			}
 		}
 		
 		Simulator sim;
@@ -96,10 +101,6 @@ void processing_thread(unsigned int pid, string output_base, WorkManager *manage
 		cout << "processing_thread[" << pid << "] - Ejecutando Sim " << sim_id << ", feedback " << feedback << ", finished " << manager->getFinished(sim_id) << " / " << manager->getTotal(sim_id) << "\n";
 		sim.run();
 		
-		// Parte local del analyzer
-		// Esto requiere el target 
-		// Falta definir e implementar la normalizacion
-		
 		vector<double> statistics = get_statistics(&sim, 0.05);
 		vector<double> params = get_params(&sim);
 		
@@ -118,7 +119,7 @@ void processing_thread(unsigned int pid, string output_base, WorkManager *manage
 		unsigned int finished = manager->getFinished(sim_id);
 		unsigned int total = manager->getTotal(sim_id);
 		// Cambio la condicion para que SOLO lo ejecute en el caso de igualdad
-		if( finished == total ){
+		if( finished == total && continuous ){
 			cout << "processing_thread[" << pid << "] - Ejecutando Analyzer por fin de batch (" << finished << " / " << total << ")\n";
 			analyzer->execute(sim_id);
 		}
