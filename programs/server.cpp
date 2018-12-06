@@ -52,7 +52,7 @@ int main(int argc,char** argv){
 	unsigned int pids[n_threads];
 	for(unsigned int i = 0; i < n_threads; ++i){
 		pids[i] = i;
-		thread( processing_thread, pids[i], output_base, manager, analyzer ).detach();
+		thread( processing_thread, pids[i], output_base, manager, analyzer, true ).detach();
 	}
 	
 	// Preparacion e inicio del sistema de comunicacion
