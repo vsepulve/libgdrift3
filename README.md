@@ -20,7 +20,15 @@ mkdir libgdrift3/build
 cd libgdrift3/build
 cmake ..
 make
-./bin/threads_test_serialized ../data/settings_scenario_a_f0.json 100 4 data_a_f0_
 ```
 
-In that test "../data/settings_scenario_a_f0.json" is the settings json for a particular scenario, "100" is the number of simulations, "4" is the number of threads to be used and "data_a_f0_" is the base used by each thread to store its results (so thread 0 will generate a file named "data_a_f0_0.txt").
+Testing
+-----
+```
+./bin/threads_test 100 4 ../data/project_B.json ../data/simulation_B.json data_ target_ results_
+```
+
+In this example "100" is the number of simulations, "4" is the number of threads used for processing, "../data/project\_B.json" and "../data/simulation\_B.json" defines the simulation. The string "data\_" is the base for the file used to store the data for each simulation, for example, file "data\_21\_f0\_0.txt" will be created for simulation id 21 (defined in "../data/simulation\_B.json"), f0 stands for feedback 0 (this program only process feedback 0), and the last number for the thread 0 (additional files for thread 1, 2 and 3 will also be created). Parameter "target\_" defines the file created with the target, in this case "target\_2.txt" for project id 2 (defined in "../data/project\_B.json"), the last parameter is not used yet for this program
+
+
+
